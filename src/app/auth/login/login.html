@@ -1,0 +1,20 @@
+<p-toast/>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-center justify-center gap-4 w-full h-96">
+    @for (field of [{id: 'username', type: 'text', label: 'Username', autocomplete: 'username'}, {id: 'password', type: 'password', label: 'Password', autocomplete: 'current-password'}]; track field.id) {
+        <div class="flex flex-col gap-1">
+            <p-floatlabel>
+                <input pInputText [id]="field.id" [type]="field.type" [formControlName]="field.id" [invalid]="isInvalid(field.id)" [autocomplete]="field.autocomplete" />
+                <label for="field.id">{{field.label}}</label>
+            </p-floatlabel>
+            @if (isInvalid(field.id)) {
+                @if (form.get(field.id)?.errors?.['required']) {
+                    <p-message severity="error" size="small" variant="simple">{{field.label}} is required.</p-message>
+                }
+            }
+        </div>
+    }
+    
+    <button pButton severity="secondary" type="submit"><span pButtonLabel>Log in</span></button>
+    <a class="hover:underline underline-offset-4" routerLink="signin">Sign in</a>
+</form>
