@@ -1,0 +1,100 @@
+<div class="h-full w-full p-4 flex justify-center items-center m-8 mb-1 gap-8">
+    <p-inplace class="flex items-center">
+        <ng-template #display>
+            <span [ngStyle]="{'background-color': project().color}" class="w-5 h-5 rounded-full shrink-0 block"></span>
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('color', project().color)" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <p-colorpicker name="color" [(ngModel)]="project().color" #model="ngModel" required [defaultColor]="project().color" />
+                        <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                    </div>
+                </form>
+            </span>
+        </ng-template>
+    </p-inplace>
+    
+    <p-inplace class="flex items-center">
+        <ng-template #display>
+            <h1>{{!project().name?.length ? 'Unnamed Project' : project().name}}</h1>
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('name', project().name)" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <input name="name" pInputText type="text" [(ngModel)]="project().name" [pAutoFocus]="true" />
+                        <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                    </div>
+                </form>
+            </span>
+        </ng-template>
+    </p-inplace>
+</div>
+
+<main class="w-full p-4 flex flex-col justify-center items-center m-8 mt-1 gap-8">
+    <p-inplace class="flex items-center">
+        <ng-template #display>
+            <p>{{!project().description?.length ? 'Write your description here' : project().description}}</p>
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('description', project().description)" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="project().description" [pAutoFocus]="true"></textarea>
+                        <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                    </div>
+                </form>
+            </span>
+        </ng-template>
+    </p-inplace>
+
+    @if (states().length) {
+        <div class="flex justify-evenly w-1/2"><h2>Tasks</h2><p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button></div>
+
+        <div class="flex justify-evenly gap-8 w-1/2">
+            @for (state of states(); track state.id) {
+                <div class="flex flex-col items-center gap-4 w-full">
+                    <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
+                    <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
+                        cdkDropList
+                        [id]="state.id + ' ' + state.name"
+                        cdkDropListSortingDisabled
+                        [cdkDropListData]="project().tasks.filter(t => t.state.id === state.id).map(t => t.id + '')"
+                        [cdkDropListConnectedTo]="states().filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
+                        (cdkDropListDropped)="onDrop($event)">
+                        <div class="flex flex-col p-2 gap-4">
+                            @for (task of project().tasks; track task.id) {
+                                @if(task.state.id === state.id) {
+                                    <button (click)="editTask(task.id)">
+                                        <p-card class="draggable" cdkDrag [cdkDragData]="task.id">
+                                            <div class="flex justify-between">
+                                                <div class="grow flex flex-col gap-1.5">
+                                                    <p class="text-left">{{task.name}}</p>
+
+                                                    @if (task.tags?.length) {
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @for (tag of task.tags; track tag.id) {
+                                                                <span [ngStyle]="{'background-color': tag.color + '88'}" class="p-1 rounded text-xs">{{tag.name}}</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                @if (task.dependencies?.length) {
+                                                    <i class="pi pi-link"></i>
+                                                }
+                                            </div>
+                                        </p-card>
+                                    </button>
+                                }
+                            }
+                        </div>
+                    </p-card>
+                </div>
+            }
+        </div>
+    }
+</main>
+
+<app-task-component [task]="editedTask()" [(visible)]="isEditingTask" />

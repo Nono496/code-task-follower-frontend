@@ -16,8 +16,8 @@ import { AuthService } from '../auth-service';
   selector: 'app-signin',
   imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ToastModule, ButtonModule, ReactiveFormsModule],
   providers: [AuthService, MessageService],
-  templateUrl: './signin.html',
-  styleUrl: './signin.css',
+  templateUrl: './signin-component.html',
+  styleUrl: './signin-component.css',
 })
 export class Signin {
   authService = inject(AuthService);

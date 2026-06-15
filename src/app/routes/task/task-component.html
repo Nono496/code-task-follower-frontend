@@ -1,0 +1,54 @@
+<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '35rem' }">
+<ng-template #header>
+    <div class="flex justify-between">
+        <p-inplace class="flex items-center">
+            <ng-template #display>
+                <p>{{!task().name?.length ? 'Unnamed Task' : task().name}}</p>
+            </ng-template>
+            <ng-template #content let-closeCallback="closeCallback">
+                <span class="inline-flex items-center gap-2">
+                    <form #form="ngForm" (ngSubmit)="onSubmit('name', task().name)" class="flex flex-col gap-4">
+                        <div class="flex items-center gap-2">
+                            <input name="name" pInputText type="text" [(ngModel)]="task().name" [pAutoFocus]="true" />
+                            <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                        </div>
+                    </form>
+                </span>
+            </ng-template>
+        </p-inplace>
+
+        <!--TODO State dropdown-->
+    </div>
+</ng-template>
+
+<!--TODO Description textarea-->
+
+<div class="flex flex-wrap">
+    @for (tag of task().tags; track tag.id) {
+        <p-chip class="!py-0 !pl-0 !pr-4" [removable]="true">
+            <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
+            <span class="ml-2">{{tag.name}}</span>
+        </p-chip>
+    }
+
+    <p-inplace class="flex items-center">
+        <ng-template #display>
+            <p-button icon="pi pi-plus" size="small" />
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <!--<span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('name', task().name)" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <input name="name" pInputText type="text" [(ngModel)]="task().name" [pAutoFocus]="true" />
+                        <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                    </div>
+                </form>
+            </span>-->
+        </ng-template>
+    </p-inplace>
+</div>
+
+<ng-template #footer>
+    
+</ng-template>
+</p-dialog>
