@@ -17,7 +17,7 @@
     
     <p-inplace class="flex items-center">
         <ng-template #display>
-            <h1>{{!project().name?.length ? 'Unnamed Project' : project().name}}</h1>
+            <h1>{{project().name?.length ? project().name : 'Unnamed Project'}}</h1>
         </ng-template>
         <ng-template #content let-closeCallback="closeCallback">
             <span class="inline-flex items-center gap-2">
@@ -52,7 +52,7 @@
     @if (states().length) {
         <div class="flex justify-evenly w-1/2"><h2>Tasks</h2><p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button></div>
 
-        <div class="flex justify-evenly gap-8 w-1/2">
+        <div class="flex justify-evenly gap-8 w-1/2 min-h-52">
             @for (state of states(); track state.id) {
                 <div class="flex flex-col items-center gap-4 w-full">
                     <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
@@ -60,8 +60,8 @@
                         cdkDropList
                         [id]="state.id + ' ' + state.name"
                         cdkDropListSortingDisabled
-                        [cdkDropListData]="project().tasks.filter(t => t.state.id === state.id).map(t => t.id + '')"
-                        [cdkDropListConnectedTo]="states().filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
+                        [cdkDropListData]="project().tasks?.filter(t => t.state.id === state.id)?.map(t => t.id + '') ?? []"
+                        [cdkDropListConnectedTo]="states().filter(s => s.id !== state.id)?.map(s => s.id + ' ' + s.name) ?? []"
                         (cdkDropListDropped)="onDrop($event)">
                         <div class="flex flex-col p-2 gap-4">
                             @for (task of project().tasks; track task.id) {
@@ -97,4 +97,4 @@
     }
 </main>
 
-<app-task-component [task]="editedTask()" [(visible)]="isEditingTask" />
+<app-task-component [task]="editedTask()" [(visible)]="isEditingTask" [states]="states()" />

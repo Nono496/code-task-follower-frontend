@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { State, Task } from '../dtos/project';
+import { Project, State, Task } from '../dtos/project';
+import { ProjectService } from './project-service';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,7 @@ export class TaskService {
           commits: [],
           projects: [],
           state: {
-            id: 0,
+            id: 1,
             name: 'in dev',
             color: '#0000FF'
           }
@@ -46,7 +47,7 @@ export class TaskService {
         commits: [],
         projects: [],
         state: {
-          id: 0,
+          id: 1,
           name: 'in dev',
           color: '#0000FF'
         }
@@ -76,7 +77,7 @@ export class TaskService {
             commits: [],
             projects: [],
             state: {
-              id: 0,
+              id: 1,
               name: 'in dev',
               color: '#0000FF'
             }
@@ -84,9 +85,19 @@ export class TaskService {
         ],
         codes: [],
         commits: [],
-        projects: [],
+        projects: [
+          {
+            id: 1,
+            name: "Project 1",
+            description: "This is a description",
+            color: "#FF0000",
+            branches: [],
+            tags: [],
+            tasks: []
+          },
+        ],
         state: {
-          id: 0,
+          id: 1,
           name: 'in dev',
           color: '#0000FF'
         }
@@ -100,7 +111,7 @@ export class TaskService {
         commits: [],
         projects: [],
         state: {
-          id: 0,
+          id: 1,
           name: 'in dev',
           color: '#0000FF'
         }

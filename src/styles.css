@@ -9,6 +9,10 @@
         font-style: normal;
         font-variation-settings: "MONO" 1;
     }
+
+    .tag {
+        @apply p-1 rounded text-xs uppercase;
+    }
 }
 
 @layer base {
@@ -17,5 +21,11 @@
     }
     h2 {
         @apply font-semibold text-2xl;
+    }
+    h3 {
+        @apply font-semibold text-xl;
+    }
+    h4 {
+        @apply font-semibold text-base;
     }
 }
