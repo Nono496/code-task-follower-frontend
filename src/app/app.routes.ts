@@ -8,6 +8,7 @@ import { Signin } from './routes/auth/signin/signin-component';
 import { Login } from './routes/auth/login/login-component';
 import { Project } from './dtos/project';
 import { KanbanSettingsComponent } from './routes/project/kanban-settings-component/kanban-settings-component';
+import { StateService } from './services/state-service';
 
 export enum RouteItems {
     LogIn = 'log-in',
@@ -49,7 +50,7 @@ export const routes: Routes = [
                 return projectService.getProject(projectId);
             },
             states: (route: ActivatedRouteSnapshot) => {
-                return inject(TaskService).getStates();
+                return inject(StateService).getAll();
             },
         }
     },
@@ -62,7 +63,7 @@ export const routes: Routes = [
                 return {} as Project;
             },
             states: (route: ActivatedRouteSnapshot) => {
-                return inject(TaskService).getStates();
+                return inject(StateService).getAll();
             },
         }
     },

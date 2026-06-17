@@ -15,7 +15,7 @@
                     </ng-template>
                     <ng-template #content let-closeCallback="closeCallback">
                         <span class="inline-flex items-center gap-2">
-                            <form #form="ngForm" (ngSubmit)="onSubmit('tag', state)" class="flex flex-col gap-4">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('state', state)" class="flex flex-col gap-4">
                                 <div class="flex items-center gap-2">
                                     <p-chip [removable]="true" (onRemove)="closeCallback($event)">
                                         <p-colorpicker name="color" [(ngModel)]="state.color" #model="ngModel" />
@@ -36,11 +36,11 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('tagToAdd', stateToAdd())" class="flex flex-col gap-4">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('stateToAdd', stateToAdd())" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
                                 <p-chip [removable]="true" (onRemove)="closeCallback($event)">
-                                    <p-colorpicker name="tagToAddColor" [(ngModel)]="stateToAdd().color" #model="ngModel" />
-                                    <input class="ml-2" name="tagToAddName" pInputText type="text" [(ngModel)]="stateToAdd().name" [pAutoFocus]="true" />
+                                    <p-colorpicker name="stateToAddColor" [(ngModel)]="stateToAdd().color" #model="ngModel" />
+                                    <input class="ml-2" name="stateToAddName" pInputText type="text" [(ngModel)]="stateToAdd().name" [pAutoFocus]="true" />
                                 </p-chip>
                                 
                                 <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>

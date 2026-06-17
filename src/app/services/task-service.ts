@@ -8,23 +8,7 @@ import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http'
 })
 export class TaskService {
   private http = inject(HttpClient);
-  getStates(): HttpResourceRef<State[] | undefined> {
-    return httpResource<State[]>(() => '/states');
-
-    /*return [
-      {
-        id: 0,
-        name: "TODO",
-        color: "#00FF00"
-      },
-      {
-        id: 1,
-        name: "in dev",
-        color: "#0000FF"
-      },
-    ]*/
-  }
-
+  
   getTasks(): Task[] {
     return [
       {

@@ -1,6 +1,7 @@
+import { CrudItem } from "../services/crud-service";
 import { Chronometer } from "./chronometer";
 
-export type Project = {
+export interface Project extends CrudItem {
     id?: number;
     name?: string;
     states?: State[];
@@ -11,7 +12,7 @@ export type Project = {
     branches?: Branch[];
 }
 
-export type Task = {
+export interface Task extends CrudItem {
     id?: number;
     name?: string;
     state?: State;
@@ -23,16 +24,16 @@ export type Task = {
     codes?: Code[];
 };
 
-export type Tag = {
+export interface Tag extends CrudItem {
     id?: number;
     name?: string;
     color?: string;
 }
-type Branch = {}
-export type State = {
+interface Branch extends CrudItem {}
+export interface State extends CrudItem {
     id?: number;
     name?: string;
     color?: string;
 }
-export type Commit = {}
-export type Code = {}
+export interface Commit extends CrudItem {}
+export interface Code extends CrudItem {}

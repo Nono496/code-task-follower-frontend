@@ -10,13 +10,14 @@ import { ListboxModule } from 'primeng/listbox';
 import { Project, Task } from '../../dtos/project';
 
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from "@angular/router";
 import { CardModule } from "primeng/card";
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
-import { RouterLink } from "@angular/router";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
+import { StateService } from '../../services/state-service';
 
 @Component({
   selector: 'app-project',
@@ -25,10 +26,10 @@ import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-sett
   styleUrl: './project-component.css',
 })
 export class ProjectComponent {
-  taskService = inject(TaskService);
+  stateService = inject(StateService);
 
   project = model.required<Project>();
-  states = this.taskService.getStates();
+  states = this.stateService.getAll();
 
   isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);

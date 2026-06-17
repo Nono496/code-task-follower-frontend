@@ -13,10 +13,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from "primeng/select";
 import { TextareaModule } from 'primeng/textarea';
 import { ChronometerPart } from '../../dtos/chronometer';
-import { Project, State, Tag, Task } from '../../dtos/project';
+import { Project, Tag, Task } from '../../dtos/project';
 import { ProjectService } from '../../services/project-service';
+import { StateService } from '../../services/state-service';
 import { TaskService } from '../../services/task-service';
-import { HttpResourceRef } from '@angular/common/http';
 
 @Component({
   selector: 'app-task-component',
@@ -26,11 +26,12 @@ import { HttpResourceRef } from '@angular/common/http';
 })
 export class TaskComponent {
   taskService = inject(TaskService);
+  stateService = inject(StateService);
 
   task = input.required<Task>();
   visible = model.required<boolean>();
 
-  states = this.taskService.getStates();
+  states = this.stateService.getAll();
 
   projects = input<Project[]>(inject(ProjectService).getProjects(), {transform: (value): Project[] => {
     if (value === undefined) return inject(ProjectService).getProjects();
