@@ -1,6 +1,6 @@
 import { NgStyle } from '@angular/common';
 import { Component, computed, input, signal } from '@angular/core';
-import { ButtonIcon, ButtonModule } from "primeng/button";
+import { ButtonModule } from "primeng/button";
 import { CardModule } from 'primeng/card';
 import { DataViewModule } from 'primeng/dataview';
 import { DividerModule } from 'primeng/divider';
@@ -11,7 +11,7 @@ import { TaskComponent } from "../task/task-component";
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DataViewModule, TagModule, CardModule, NgStyle, DividerModule, ButtonModule, ButtonIcon, RouterLink, TaskComponent],
+  imports: [DataViewModule, TagModule, CardModule, NgStyle, DividerModule, ButtonModule, RouterLink, TaskComponent],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })

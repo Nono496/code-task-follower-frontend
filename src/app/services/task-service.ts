@@ -1,13 +1,17 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Project, State, Task } from '../dtos/project';
 import { ProjectService } from './project-service';
+import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-  getStates(): State[] {
-    return [
+  private http = inject(HttpClient);
+  getStates(): HttpResourceRef<State[] | undefined> {
+    return httpResource<State[]>(() => '/states');
+
+    /*return [
       {
         id: 0,
         name: "TODO",
@@ -18,7 +22,7 @@ export class TaskService {
         name: "in dev",
         color: "#0000FF"
       },
-    ]
+    ]*/
   }
 
   getTasks(): Task[] {

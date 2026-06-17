@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "docker-stop": "docker stop code-task-follower-frontend-container && docker container rm code-task-follower-frontend-container",
+    "docker-start": "docker build -t code-task-follower-frontend-image . && docker run -d -p 80:80 --name code-task-follower-frontend-container code-task-follower-frontend-image"
   },
   "private": true,
   "packageManager": "npm@9.7.1",

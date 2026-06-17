@@ -16,6 +16,7 @@ import { ChronometerPart } from '../../dtos/chronometer';
 import { Project, State, Tag, Task } from '../../dtos/project';
 import { ProjectService } from '../../services/project-service';
 import { TaskService } from '../../services/task-service';
+import { HttpResourceRef } from '@angular/common/http';
 
 @Component({
   selector: 'app-task-component',
@@ -24,13 +25,12 @@ import { TaskService } from '../../services/task-service';
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
+  taskService = inject(TaskService);
+
   task = input.required<Task>();
   visible = model.required<boolean>();
 
-  states = input<State[]>(inject(TaskService).getStates(), {transform: (value): State[] => {
-    if (value === undefined) return inject(TaskService).getStates();
-    return value as State[];
-  }});
+  states = this.taskService.getStates();
 
   projects = input<Project[]>(inject(ProjectService).getProjects(), {transform: (value): Project[] => {
     if (value === undefined) return inject(ProjectService).getProjects();
@@ -51,7 +51,7 @@ export class TaskComponent {
   currentChronometerPartPlaying = signal<boolean>(false);
 
   ngOnInit() {
-    if (this.task().state === undefined) this.task().state = this.states()?.at(0)!;
+    if (this.task().state === undefined && this.states.hasValue()) this.task().state = this.states.value()?.at(0)!;
   }
 
   onSubmit(name: string, value: any) {

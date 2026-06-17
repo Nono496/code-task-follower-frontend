@@ -49,24 +49,30 @@
         </ng-template>
     </p-inplace>
 
-    @if (states().length) {
-        <div class="flex justify-evenly w-1/2"><h2>Tasks</h2><p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button></div>
+    @if (states.hasValue()) {
+        <div class="flex justify-evenly w-1/2">
+            <h2>Tasks</h2>
+            <div class="flex gap-2">
+                <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
+                <p-button (click)="this.isInKanbanSettings.set(true)"><i class="pi pi-cog"></i></p-button>
+            </div>
+        </div>
 
         <div class="flex justify-evenly gap-8 w-1/2 min-h-52">
-            @for (state of states(); track state.id) {
+            @for (state of states.value(); track state.id) {
                 <div class="flex flex-col items-center gap-4 w-full">
                     <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
                     <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
                         cdkDropList
                         [id]="state.id + ' ' + state.name"
                         cdkDropListSortingDisabled
-                        [cdkDropListData]="project().tasks?.filter(t => t.state.id === state.id)?.map(t => t.id + '') ?? []"
-                        [cdkDropListConnectedTo]="states().filter(s => s.id !== state.id)?.map(s => s.id + ' ' + s.name) ?? []"
+                        [cdkDropListData]="project().tasks?.filter(t => t.state?.id === state.id)?.map(t => t.id + '') ?? []"
+                        [cdkDropListConnectedTo]="states.value().filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
                         (cdkDropListDropped)="onDrop($event)">
                         <div class="flex flex-col p-2 gap-4">
                             @for (task of project().tasks; track task.id) {
-                                @if(task.state.id === state.id) {
-                                    <button (click)="editTask(task.id)">
+                                @if(task.state?.id === state.id) {
+                                    <button (click)="editTask(task.id!)">
                                         <p-card class="draggable" cdkDrag [cdkDragData]="task.id">
                                             <div class="flex justify-between">
                                                 <div class="grow flex flex-col gap-1.5">
@@ -97,4 +103,5 @@
     }
 </main>
 
-<app-task-component [task]="editedTask()" [(visible)]="isEditingTask" [states]="states()" />
+<app-task-component [task]="editedTask()" [(visible)]="isEditingTask" />
+<app-kanban-settings-component [project]="project()" [(visible)]="isInKanbanSettings" />

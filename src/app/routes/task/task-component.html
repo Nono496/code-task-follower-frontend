@@ -19,22 +19,26 @@
 
             <p-inplace class="flex items-center">
                 <ng-template #display>
-                    <span [ngStyle]="{'background-color': task().state.color + '88'}" class="tag">{{task().state.name}}</span>
+                    <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="tag">{{task().state?.name}}</span>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
                         <form #form="ngForm" (ngSubmit)="onSubmit('state', task().state)" class="flex flex-col gap-4">
-                            <div class="flex items-center gap-2">
-                                <p-select name="state" size="small" [options]="states()" [(ngModel)]="task().state" placeholder="State">
-                                    <ng-template #selectedItem let-selectedState>
-                                        <span [ngStyle]="{'background-color': selectedState.color + '88'}" class="tag">{{selectedState.name}}</span>
-                                    </ng-template>
-                                    <ng-template let-state #item>
-                                        <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
-                                    </ng-template>
-                                </p-select>
-                                <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
-                            </div>
+                            @if (states.error()) {
+                                Can't load states
+                            } @else {
+                                <div class="flex items-center gap-2">
+                                    <p-select name="state" size="small" [options]="states.hasValue() ? states.value() : []" [loading]="states.isLoading()" [(ngModel)]="task().state" placeholder="State">
+                                        <ng-template #selectedItem let-selectedState>
+                                            <span [ngStyle]="{'background-color': selectedState.color + '88'}" class="tag">{{selectedState.name}}</span>
+                                        </ng-template>
+                                        <ng-template let-state #item>
+                                            <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
+                                        </ng-template>
+                                    </p-select>
+                                    <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                                </div>
+                            }
                         </form>
                     </span>
                 </ng-template>
@@ -145,7 +149,7 @@
                         @for (rTask of task().dependencies; track rTask.id) {
                             <li class="flex gap-2 items-center m-1">
                                 <span>{{rTask.name}}</span>
-                                <span  [ngStyle]="{'border-color': rTask.state.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{rTask.state.name}}</span>
+                                <span  [ngStyle]="{'border-color': rTask.state?.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{rTask.state?.name}}</span>
                             </li>
                         } @empty {
                             <li>No related tasks</li>
@@ -191,11 +195,11 @@
         </button>
 
         <div class="grow">
-            <span [ngStyle]="{'background-color': task().state.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{(currentChronometerPart().seconds - currentChronometerPart().seconds % 60) / 60}}m {{currentChronometerPart().seconds % 60}}s</span>
+            <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{(currentChronometerPart().seconds - currentChronometerPart().seconds % 60) / 60}}m {{currentChronometerPart().seconds % 60}}s</span>
 
             <p-inplace class="flex items-center">
                 <ng-template #display>
-                    <p class="wrap-anywhere">{{!currentChronometerPart().description?.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
+                    <p class="wrap-anywhere">{{!currentChronometerPart().description.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
@@ -214,7 +218,7 @@
     <ul class="my-6">
         @for (chronometerPart of task().chronometer?.parts ?? []; track chronometerPart.id) {
             <li class="flex gap-4 items-baseline">
-                <span [ngStyle]="{'border-color': task().state.color + '88'}" class="p-2 rounded border whitespace-nowrap">{{(chronometerPart.seconds - chronometerPart.seconds % 60) / 60}}m {{chronometerPart.seconds % 60}}s</span>
+                <span [ngStyle]="{'border-color': task().state?.color + '88'}" class="p-2 rounded border whitespace-nowrap">{{(chronometerPart.seconds - chronometerPart.seconds % 60) / 60}}m {{chronometerPart.seconds % 60}}s</span>
                 <p>{{chronometerPart.description}}</p>
             </li>
 

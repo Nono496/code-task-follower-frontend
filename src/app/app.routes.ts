@@ -7,6 +7,7 @@ import { ProjectComponent } from './routes/project/project-component';
 import { Signin } from './routes/auth/signin/signin-component';
 import { Login } from './routes/auth/login/login-component';
 import { Project } from './dtos/project';
+import { KanbanSettingsComponent } from './routes/project/kanban-settings-component/kanban-settings-component';
 
 export enum RouteItems {
     LogIn = 'log-in',
@@ -74,6 +75,31 @@ export const routes: Routes = [
         path: RouteItems.SignIn,
         title: 'Sign in',
         component: Signin,
+    },
+    {
+        path: 'kanban',
+        component: KanbanSettingsComponent,
+        resolve: {
+            project: (route: ActivatedRouteSnapshot) => {
+                return {
+                    states: [
+                        {
+                            id: 0,
+                            name: "TODO",
+                            color: "#00FF00"
+                        },
+                        {
+                            id: 1,
+                            name: "in dev",
+                            color: "#0000FF"
+                        },
+                    ]
+                } as Project;
+            },
+            visible: (route: ActivatedRouteSnapshot) => {
+                return true;
+            },
+        }
     },
     {
         path: '**',
