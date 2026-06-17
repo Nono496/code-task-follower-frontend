@@ -1,3 +1,5 @@
+import { Chronometer } from "./chronometer";
+
 export type Project = {
     id: number;
     name: string;
@@ -12,6 +14,7 @@ export type Task = {
     id: number;
     name: string;
     state: State;
+    chronometer: Chronometer;
     tags: Tag[];
     dependencies: Task[];
     projects: Project[];

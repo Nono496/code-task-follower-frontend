@@ -40,6 +40,22 @@ export class TaskService {
             id: 1,
             name: 'in dev',
             color: '#0000FF'
+          },
+          chronometer: {
+            id: 0,
+            seconds: 50,
+            parts: [
+              {
+                id: 0,
+                seconds: 23,
+                description: 'This part took 23 seconds'
+              },
+              {
+                id: 1,
+                seconds: 27,
+                description: 'This part took 27 seconds'
+              },
+            ]
           }
         },
         ],
@@ -50,6 +66,22 @@ export class TaskService {
           id: 1,
           name: 'in dev',
           color: '#0000FF'
+        },
+        chronometer: {
+          id: 0,
+          seconds: 50,
+          parts: [
+            {
+              id: 0,
+              seconds: 23,
+              description: 'This part took 23 seconds'
+            },
+            {
+              id: 1,
+              seconds: 27,
+              description: 'This part took 27 seconds'
+            },
+          ]
         }
       },
       {
@@ -71,16 +103,32 @@ export class TaskService {
           {
             id: 1,
             name: "Task 1",
+            state: {
+              id: 1,
+              name: 'in dev',
+              color: '#0000FF'
+            },
+            chronometer: {
+              id: 0,
+              seconds: 501,
+              parts: [
+                {
+                  id: 0,
+                  seconds: 23,
+                  description: 'This part took 23 seconds'
+                },
+                {
+                  id: 1,
+                  seconds: 501 - 23,
+                  description: 'This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. '
+                },
+              ]
+            },
             tags: [],
             dependencies: [],
             codes: [],
             commits: [],
             projects: [],
-            state: {
-              id: 1,
-              name: 'in dev',
-              color: '#0000FF'
-            }
           },
         ],
         codes: [],
@@ -100,7 +148,23 @@ export class TaskService {
           id: 1,
           name: 'in dev',
           color: '#0000FF'
-        }
+        },
+        chronometer: {
+          id: 0,
+          seconds: 501,
+          parts: [
+            {
+              id: 0,
+              seconds: 23,
+              description: 'This part took 23 seconds'
+            },
+            {
+              id: 1,
+              seconds: 501 - 23,
+              description: 'This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. This part took many seconds. '
+            },
+          ]
+        },
       },
       {
         id: 3,
@@ -114,6 +178,22 @@ export class TaskService {
           id: 1,
           name: 'in dev',
           color: '#0000FF'
+        },
+        chronometer: {
+          id: 0,
+          seconds: 50,
+          parts: [
+            {
+              id: 0,
+              seconds: 23,
+              description: 'This part took 23 seconds'
+            },
+            {
+              id: 1,
+              seconds: 27,
+              description: 'This part took 27 seconds'
+            },
+          ]
         }
       },
     ]

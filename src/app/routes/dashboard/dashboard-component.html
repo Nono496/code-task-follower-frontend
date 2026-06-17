@@ -1,7 +1,7 @@
 <main class="flex flex-col items-center self-center m-8 gap-4">
     <h1>Dashboard</h1>
 
-    <div class="flex justify-evenly w-1/2"><h2>Projects</h2><a class="border rounded p-2" routerLink="/project"><i class="pi pi-plus"></i></a></div>
+    <div class="flex justify-evenly w-1/2"><h2>Projects</h2><a class="p-button" routerLink="/project"><i class="pi pi-plus"></i></a></div>
 
     <p-card class="w-1/2 max-h-48 overflow-y-auto">
         <p-dataview [value]="projects()">
