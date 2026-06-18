@@ -1,6 +1,7 @@
 import { NgStyle } from '@angular/common';
 import { Component, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Button } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
@@ -13,9 +14,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from "primeng/select";
 import { TextareaModule } from 'primeng/textarea';
 import { ChronometerPart } from '../../dtos/chronometer';
-import { Project, Tag, Task } from '../../dtos/project';
+import { Tag, Task } from '../../dtos/project';
 import { ProjectService } from '../../services/project-service';
 import { StateService } from '../../services/state-service';
+import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
 
 @Component({
@@ -25,23 +27,19 @@ import { TaskService } from '../../services/task-service';
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
+  messageService = inject(MessageService);
+
   taskService = inject(TaskService);
   stateService = inject(StateService);
+  tagService = inject(TagService);
 
-  task = input.required<Task>();
+  task = model.required<Task>();
   visible = model.required<boolean>();
+  createCallback = input<() => void>();
 
   states = this.stateService.getAll();
-
-  projects = input<Project[]>(inject(ProjectService).getProjects(), {transform: (value): Project[] => {
-    if (value === undefined) return inject(ProjectService).getProjects();
-    return value as Project[];
-  }});
-
-  otherTasks = input<Task[]>(inject(TaskService).getTasks(), {transform: (value): Task[] => {
-    if (value === undefined) return inject(TaskService).getTasks();
-    return value as Task[];
-  }});
+  projects = inject(ProjectService).getAll();
+  otherTasks = inject(TaskService).getAll();
 
   tagToAdd = signal<Tag>({} as Tag);
 
@@ -55,10 +53,75 @@ export class TaskComponent {
     if (this.task().state === undefined && this.states.hasValue()) this.task().state = this.states.value()?.at(0)!;
   }
 
-  onSubmit(name: string, value: any) {
-    // TODO
-    console.log(name + ":");
-    console.table(value)
+  onDelete(name: string, value: any) {
+    switch (name) {
+      case 'tag':
+        this.tagService.delete(value.id).subscribe(deleted => {
+          if (deleted) {
+            this.task.update(t => {
+              t.tags = t.tags?.filter(tag => tag.id !== value.id);
+              return t;
+            })
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+          }
+        });
+        break;
+    
+      default:
+        break;
+    }
+  }
+
+  onSubmit(name: string, value: any, closeCallback?: () => any) {
+    switch (name) {
+      case 'tagToAdd':
+        this.tagService.create(value).subscribe(tagId => {
+          if (!tagId) {
+            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+            return;
+          }
+
+          this.task.update(p => {
+            p.tags?.push({...value, id: tagId});
+            return p;
+          });
+          this.tagToAdd.set({} as Tag);
+        });
+        break;
+
+      case 'tag':
+        this.tagService.edit(value).subscribe(ok => {
+          if (ok) {
+            closeCallback!();
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+          }
+        });
+        break;
+    
+      default:
+        if (this.task().id === null || this.task().id === undefined) {
+          this.taskService.create(this.task()).subscribe(taskId => {
+            if (taskId === null || taskId === undefined) {
+              this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+            } else {
+              this.task.update(t => {
+                t.id = taskId;
+                return t;
+              });
+              if (this.createCallback()) this.createCallback()!();
+            }
+          });
+        } else {
+          this.taskService.edit(this.task()).subscribe(ok => {
+            if (!ok) {
+              this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+            }
+          });
+        }
+        break;
+    }
   }
 
   async onPipOpen(pipElement: HTMLElement) {

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 
@@ -21,6 +21,7 @@ import { AuthService } from '../../../services/auth-service';
 })
 export class Signin {
   authService = inject(AuthService);
+  router = inject(Router);
 
   messageService = inject(MessageService);
   fb = inject(FormBuilder);
@@ -36,12 +37,19 @@ export class Signin {
   }
 
   onSubmit() {
-    // TODO Call AuthService
       this.formSubmitted = true;
       if (this.form.valid) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
-          this.form.reset();
-          this.formSubmitted = false;
+        this.authService.signIn(this.form.getRawValue()).subscribe((ok) => {
+          if (ok) {
+            this.router.navigate(['/', 'dashboard']);
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+            this.formSubmitted = false;
+          }
+        });
+      } else {
+        this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+        this.formSubmitted = false;
       }
   }
 

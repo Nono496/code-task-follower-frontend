@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 
 import { inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
-import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth-service';
 
 @Component({
@@ -21,6 +21,7 @@ import { AuthService } from '../../../services/auth-service';
 })
 export class Login {
   authService = inject(AuthService);
+  router = inject(Router);
 
   messageService = inject(MessageService);
   fb = inject(FormBuilder);
@@ -36,12 +37,19 @@ export class Login {
   }
 
   onSubmit() {
-    // TODO Call AuthService
       this.formSubmitted = true;
       if (this.form.valid) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
-          this.form.reset();
-          this.formSubmitted = false;
+        this.authService.logIn(this.form.getRawValue()).subscribe((ok) => {
+          if (ok) {
+            this.router.navigate(['/', 'dashboard']);
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+            this.formSubmitted = false;
+          }
+        });
+      } else {
+        this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+        this.formSubmitted = false;
       }
   }
 

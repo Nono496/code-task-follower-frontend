@@ -17,28 +17,24 @@
                 </ng-template>
             </p-inplace>
 
-            <p-inplace class="flex items-center">
+            <p-inplace class="flex items-center" [disabled]="states.error() ? true : false">
                 <ng-template #display>
                     <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="tag">{{task().state?.name}}</span>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
                         <form #form="ngForm" (ngSubmit)="onSubmit('state', task().state)" class="flex flex-col gap-4">
-                            @if (states.error()) {
-                                Can't load states
-                            } @else {
-                                <div class="flex items-center gap-2">
-                                    <p-select name="state" size="small" [options]="states.hasValue() ? states.value() : []" [loading]="states.isLoading()" [(ngModel)]="task().state" placeholder="State">
-                                        <ng-template #selectedItem let-selectedState>
-                                            <span [ngStyle]="{'background-color': selectedState.color + '88'}" class="tag">{{selectedState.name}}</span>
-                                        </ng-template>
-                                        <ng-template let-state #item>
-                                            <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
-                                        </ng-template>
-                                    </p-select>
-                                    <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
-                                </div>
-                            }
+                            <div class="flex items-center gap-2">
+                                <p-select name="state" size="small" [options]="states.value()" [loading]="states.isLoading()" [(ngModel)]="task().state" placeholder="State">
+                                    <ng-template #selectedItem let-selectedState>
+                                        <span [ngStyle]="{'background-color': selectedState.color + '88'}" class="tag">{{selectedState.name}}</span>
+                                    </ng-template>
+                                    <ng-template let-state #item>
+                                        <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
+                                    </ng-template>
+                                </p-select>
+                                <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                            </div>
                         </form>
                     </span>
                 </ng-template>
@@ -60,9 +56,9 @@
                     </ng-template>
                     <ng-template #content let-closeCallback="closeCallback">
                         <span class="inline-flex items-center gap-2">
-                            <form #form="ngForm" (ngSubmit)="onSubmit('tag', tag)" class="flex flex-col gap-4">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('tag', tag, () => closeCallback($event))" class="flex flex-col gap-4">
                                 <div class="flex items-center gap-2">
-                                    <p-chip [removable]="true" (onRemove)="closeCallback($event)">
+                                    <p-chip [removable]="true" (onRemove)="onDelete('tag', tag)">
                                         <p-colorpicker name="color" [(ngModel)]="tag.color" #model="ngModel" />
                                         <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="tag.name" [pAutoFocus]="true" />
                                     </p-chip>
@@ -103,7 +99,7 @@
         <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
             <h4>Projects</h4>
 
-            <p-inplace class="flex items-center">
+            <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
                 <ng-template #display>              
                     <ul>
                         @for (project of task().projects; track project.id) {
@@ -118,7 +114,7 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <form #form="ngForm" (ngSubmit)="onSubmit('projects', task().projects)" class="flex gap-4 w-full">
-                        <p-multiselect name="projects" class="w-56" size="small" [options]="projects()" [(ngModel)]="task().projects" placeholder="Projects">
+                        <p-multiselect name="projects" class="w-56" size="small" [options]="projects.value()" [loading]="projects.isLoading()" [(ngModel)]="task().projects" placeholder="Projects">
                             <ng-template #selecteditems let-selectedProjects>
                                 @for (selectedProject of selectedProjects; track selectedProject.id) {
                                     <div class="flex gap-2 items-center m-1">
@@ -143,7 +139,7 @@
         <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
             <h4>Tasks</h4>
 
-            <p-inplace class="flex items-center">
+            <p-inplace class="flex items-center" [disabled]="otherTasks.error() ? true : false">
                 <ng-template #display>              
                     <ul>
                         @for (rTask of task().dependencies; track rTask.id) {
@@ -158,7 +154,7 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <form #form="ngForm" (ngSubmit)="onSubmit('dependencies', task().dependencies)" class="flex items-center gap-4 w-full">
-                        <p-multiselect name="dependencies" class="w-56" size="small" [options]="otherTasks()" [(ngModel)]="task().dependencies" placeholder="Dependencies">
+                        <p-multiselect name="dependencies" class="w-56" size="small" [options]="otherTasks.value()" [loading]="otherTasks.isLoading()" [(ngModel)]="task().dependencies" placeholder="Dependencies">
                             <ng-template #selecteditems let-selectedDependencies>
                                 @for (selectedDependency of selectedDependencies; track selectedDependency.id) {
                                     <div class="flex gap-2 items-center m-1">

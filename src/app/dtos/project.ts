@@ -4,12 +4,11 @@ import { Chronometer } from "./chronometer";
 export interface Project extends CrudItem {
     id?: number;
     name?: string;
-    states?: State[];
+    color: string;
     description?: string;
-    color?: string;
-    tags?: Tag[];
-    tasks?: Task[];
-    branches?: Branch[];
+    states: State[];
+    tasks: Task[];
+    branches: Branch[];
 }
 
 export interface Task extends CrudItem {

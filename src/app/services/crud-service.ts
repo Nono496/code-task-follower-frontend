@@ -14,20 +14,21 @@ export abstract class CrudService<T extends CrudItem> {
     return httpResource<T[]>(() => this.endpoint);
   }
 
-  get(itemId: Signal<number>): HttpResourceRef<T | undefined> {
+  get(itemId: Signal<number | undefined>): HttpResourceRef<T | undefined> {
     return httpResource<T>(() => this.endpoint + itemId());
   }
   
-  create(item: T): Observable<T> {
-    return this.http.post<T>(this.endpoint, item);
+  create(item: T): Observable<number> {
+    return this.http.post<number>(this.endpoint, item);
   }
 
-  edit(item: T): Observable<T> {
-    return this.http.put<T>(this.endpoint + '/' + item.id, item);
+  edit(item: T): Observable<boolean> {
+    return this.http.put<void>(this.endpoint + '/' + item.id, item, { observe: 'response' })
+      .pipe(map((response) => response.ok ));
   }
 
   delete(itemId: number): Observable<boolean> {
-    return this.http.delete<T>(this.endpoint + '/' + itemId, { observe: 'response' })
+    return this.http.delete(this.endpoint + '/' + itemId, { observe: 'response' })
       .pipe(map((response) => response.ok ));
   }
 }

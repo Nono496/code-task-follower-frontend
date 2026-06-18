@@ -1,20 +1,33 @@
-import { ActivatedRouteSnapshot, Routes } from '@angular/router';
-import { Dashboard } from './routes/dashboard/dashboard-component';
 import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivateFn, RedirectCommand, Router, RouterStateSnapshot, Routes } from '@angular/router';
+import { Login } from './routes/auth/login/login-component';
+import { Signin } from './routes/auth/signin/signin-component';
+import { Dashboard } from './routes/dashboard/dashboard-component';
+import { ProjectComponent } from './routes/project/project-component';
+import { AuthService } from './services/auth-service';
 import { ProjectService } from './services/project-service';
 import { TaskService } from './services/task-service';
-import { ProjectComponent } from './routes/project/project-component';
-import { Signin } from './routes/auth/signin/signin-component';
-import { Login } from './routes/auth/login/login-component';
-import { Project } from './dtos/project';
-import { KanbanSettingsComponent } from './routes/project/kanban-settings-component/kanban-settings-component';
-import { StateService } from './services/state-service';
 
 export enum RouteItems {
     LogIn = 'log-in',
     SignIn = 'sign-in',
     Dashboard = 'dashboard',
     Project = 'project'
+}
+
+const authRequiredGuard: CanActivateFn = (_r: ActivatedRouteSnapshot, _s: RouterStateSnapshot) => {
+    if (inject(AuthService).isAuthenticated()) {
+        return true;
+    } else {
+        return new RedirectCommand(inject(Router).parseUrl('/' + RouteItems.LogIn))
+    }
+}
+const authForbiddenGuard: CanActivateFn = (_r: ActivatedRouteSnapshot, _s: RouterStateSnapshot) => {
+    if (inject(AuthService).isAuthenticated()) {
+        return new RedirectCommand(inject(Router).parseUrl('/' + RouteItems.Dashboard))
+    } else {
+        return true;
+    }
 }
 
 export const routes: Routes = [
@@ -27,30 +40,16 @@ export const routes: Routes = [
         path: RouteItems.Dashboard,
         title: 'Dashboard',
         component: Dashboard,
-        resolve: {
-            projects: (route: ActivatedRouteSnapshot) => {
-                const projectService = inject(ProjectService);
-                return projectService.getProjects();
-            },
-            tasks: (route: ActivatedRouteSnapshot) => {
-                const taskService = inject(TaskService);
-                return taskService.getTasks();
-            }
-        }
+        canActivate: [authRequiredGuard]
     },
     {
         path: RouteItems.Project + '/:project-id',
         title: 'Project',//FIXME Should be project title
         component: ProjectComponent,
+        canActivate: [authRequiredGuard],
         resolve: {
-            project: (route: ActivatedRouteSnapshot) => {
-                const projectService = inject(ProjectService);
-                const projectId = +route.paramMap.get('project-id')!;
-
-                return projectService.getProject(projectId);
-            },
-            states: (route: ActivatedRouteSnapshot) => {
-                return inject(StateService).getAll();
+            projectId: (route: ActivatedRouteSnapshot) => {
+                return +route.paramMap.get('project-id')!;
             },
         }
     },
@@ -58,52 +57,22 @@ export const routes: Routes = [
         path: RouteItems.Project,
         title: 'New project',
         component: ProjectComponent,
-        resolve: {
-            project: (route: ActivatedRouteSnapshot) => {
-                return {} as Project;
-            },
-            states: (route: ActivatedRouteSnapshot) => {
-                return inject(StateService).getAll();
-            },
-        }
+        canActivate: [authRequiredGuard],
     },
     {
         path: RouteItems.LogIn,
         title: 'Log in',
         component: Login,
+        canActivate: [authForbiddenGuard],
     },
     {
         path: RouteItems.SignIn,
         title: 'Sign in',
         component: Signin,
-    },
-    {
-        path: 'kanban',
-        component: KanbanSettingsComponent,
-        resolve: {
-            project: (route: ActivatedRouteSnapshot) => {
-                return {
-                    states: [
-                        {
-                            id: 0,
-                            name: "TODO",
-                            color: "#00FF00"
-                        },
-                        {
-                            id: 1,
-                            name: "in dev",
-                            color: "#0000FF"
-                        },
-                    ]
-                } as Project;
-            },
-            visible: (route: ActivatedRouteSnapshot) => {
-                return true;
-            },
-        }
+        canActivate: [authForbiddenGuard],
     },
     {
         path: '**',
-        redirectTo: '/' + RouteItems.LogIn
+        redirectTo: '/' + RouteItems.Dashboard
     }
 ];

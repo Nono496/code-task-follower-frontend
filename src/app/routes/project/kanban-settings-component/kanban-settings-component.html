@@ -1,3 +1,5 @@
+<p-toast/>
+
 <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '35rem', height: '35rem' }">
     <ng-template #header>
         Kanban settings
@@ -15,14 +17,14 @@
                     </ng-template>
                     <ng-template #content let-closeCallback="closeCallback">
                         <span class="inline-flex items-center gap-2">
-                            <form #form="ngForm" (ngSubmit)="onSubmit('state', state)" class="flex flex-col gap-4">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('state', state, () => closeCallback($event))" class="flex flex-col gap-4">
                                 <div class="flex items-center gap-2">
-                                    <p-chip [removable]="true" (onRemove)="closeCallback($event)">
+                                    <p-chip [removable]="true" (onRemove)="onDelete('state', state, () => closeCallback($event))">
                                         <p-colorpicker name="color" [(ngModel)]="state.color" #model="ngModel" />
                                         <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="state.name" [pAutoFocus]="true" />
                                     </p-chip>
                                     
-                                    <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                                    <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                                 </div>
                             </form>
                         </span>
@@ -36,14 +38,14 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('stateToAdd', stateToAdd())" class="flex flex-col gap-4">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('stateToAdd', stateToAdd(), () => closeCallback($event))" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
                                 <p-chip [removable]="true" (onRemove)="closeCallback($event)">
                                     <p-colorpicker name="stateToAddColor" [(ngModel)]="stateToAdd().color" #model="ngModel" />
                                     <input class="ml-2" name="stateToAddName" pInputText type="text" [(ngModel)]="stateToAdd().name" [pAutoFocus]="true" />
                                 </p-chip>
                                 
-                                <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                                <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                             </div>
                         </form>
                     </span>
