@@ -40,24 +40,25 @@ export const routes: Routes = [
         path: RouteItems.Dashboard,
         title: 'Dashboard',
         component: Dashboard,
-        canActivate: [authRequiredGuard]
-    },
-    {
-        path: RouteItems.Project + '/:project-id',
-        title: 'Project',//FIXME Should be project title
-        component: ProjectComponent,
-        canActivate: [authRequiredGuard],
-        resolve: {
-            projectId: (route: ActivatedRouteSnapshot) => {
-                return +route.paramMap.get('project-id')!;
-            },
-        }
+        //canActivate: [authRequiredGuard]
     },
     {
         path: RouteItems.Project,
         title: 'New project',
         component: ProjectComponent,
-        canActivate: [authRequiredGuard],
+        //canActivate: [authRequiredGuard],
+    },
+    {
+        path: RouteItems.Project + '/:project-id',
+        title: 'Project',//FIXME Should be project title
+        component: ProjectComponent,
+        //canActivate: [authRequiredGuard],
+        resolve: {
+            projectId: (route: ActivatedRouteSnapshot) => {
+                const param = route.paramMap.get('project-id');
+                return param ? +param : undefined;
+            },
+        }
     },
     {
         path: RouteItems.LogIn,

@@ -100,7 +100,7 @@
                         cdkDropList
                         [id]="state.id + ' ' + state.name"
                         cdkDropListSortingDisabled
-                        [cdkDropListData]="p().tasks?.filter(t => t.state?.id === state.id)?.map(t => t.id + '') ?? []"
+                        [cdkDropListData]="p().tasks.filter(t => t.state?.id === state.id).map(t => t.id + '')"
                         [cdkDropListConnectedTo]="p().states!.filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
                         (cdkDropListDropped)="onDrop($event)">
                         <div class="flex flex-col p-2 gap-4">

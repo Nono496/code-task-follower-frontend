@@ -8,8 +8,6 @@ export function authInterceptor(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> {
-  console.log(req.url);
-
   const authToken = inject(AuthService).getAuthToken();
 
   return next(
@@ -26,7 +24,7 @@ export function apiInterceptor(
 ): Observable<HttpEvent<unknown>> {
   if (!req.url.startsWith('http://') && !req.url.startsWith('https://')) {
     const apiReq = req.clone({
-      url: `${environment.apiUrl}${req.url}`
+      url: `${environment.apiUrl}${req.url}`,
     });
     return next(apiReq);
   }

@@ -28,11 +28,23 @@ export interface Tag extends CrudItem {
     name?: string;
     color?: string;
 }
-interface Branch extends CrudItem {}
+interface Branch extends CrudItem {
+    id: number;
+    repositoryName: string;
+    branchName: string;
+}
 export interface State extends CrudItem {
     id?: number;
     name?: string;
     color?: string;
 }
-export interface Commit extends CrudItem {}
-export interface Code extends CrudItem {}
+export interface Commit extends CrudItem {
+    id: number;
+    hash: string;
+    tasks: Task[];
+}
+export interface Code extends CrudItem {
+    id: number;
+    branch: Branch;
+    classPath: string;
+}
