@@ -87,7 +87,9 @@
         <div class="flex justify-evenly w-1/2">
             <h2>Tasks</h2>
             <div class="flex gap-2">
-                <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
+                @if(p().states.length) {
+                    <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
+                }
                 <p-button (click)="this.isInKanbanSettings.set(true)"><i class="pi pi-cog"></i></p-button>
             </div>
         </div>

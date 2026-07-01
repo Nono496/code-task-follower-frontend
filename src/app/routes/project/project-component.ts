@@ -24,6 +24,7 @@ import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-project',
   imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent],
+  providers: [MessageService],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
