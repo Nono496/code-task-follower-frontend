@@ -99,41 +99,45 @@
         <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
             <h4>Projects</h4>
 
-            <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
-                <ng-template #display>              
-                    <ul>
-                        @for (project of task().projects; track project.id) {
-                            <li class="flex gap-2 items-center m-1">
-                                <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                <span>{{project.name}}</span>
-                            </li>
-                        } @empty {
-                            <li>No related projects</li>
-                        }
-                    </ul>
-                </ng-template>
-                <ng-template #content let-closeCallback="closeCallback">
-                    <form #form="ngForm" (ngSubmit)="onSubmit('projects', task().projects)" class="flex gap-4 w-full">
-                        <p-multiselect name="projects" class="w-56" size="small" [options]="projects.value()" [loading]="projects.isLoading()" [(ngModel)]="task().projects" placeholder="Projects">
-                            <ng-template #selecteditems let-selectedProjects>
-                                @for (selectedProject of selectedProjects; track selectedProject.id) {
-                                    <div class="flex gap-2 items-center m-1">
-                                        <span [ngStyle]="{'background-color': selectedProject.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                        <span>{{selectedProject.name}}</span>
-                                    </div>
-                                }
-                            </ng-template>
-                            <ng-template let-project #item>
-                                <div class="flex gap-2 items-center">
+            @if (fullTask.isLoading()) {
+                Loading...
+            } @else if (fullTask.hasValue()) {
+                <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
+                    <ng-template #display>              
+                        <ul>
+                            @for (project of fullTask.value().projects; track project.id) {
+                                <li class="flex gap-2 items-center m-1">
                                     <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
                                     <span>{{project.name}}</span>
-                                </div>
-                            </ng-template>
-                        </p-multiselect>
-                        <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
-                    </form>
-                </ng-template>
-            </p-inplace>
+                                </li>
+                            } @empty {
+                                <li>No related projects</li>
+                            }
+                        </ul>
+                    </ng-template>
+                    <ng-template #content let-closeCallback="closeCallback">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('projects', fullTask.value().projects)" class="flex gap-4 w-full">
+                            <p-multiselect name="projects" class="w-56" size="small" [options]="projects.value()" [loading]="projects.isLoading()" [(ngModel)]="fullTask.value().projects" placeholder="Projects">
+                                <ng-template #selecteditems let-selectedProjects>
+                                    @for (selectedProject of selectedProjects; track selectedProject.id) {
+                                        <div class="flex gap-2 items-center m-1">
+                                            <span [ngStyle]="{'background-color': selectedProject.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                            <span>{{selectedProject.name}}</span>
+                                        </div>
+                                    }
+                                </ng-template>
+                                <ng-template let-project #item>
+                                    <div class="flex gap-2 items-center">
+                                        <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                        <span>{{project.name}}</span>
+                                    </div>
+                                </ng-template>
+                            </p-multiselect>
+                            <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                        </form>
+                    </ng-template>
+                </p-inplace>
+            }
         </div>
 
         <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
@@ -179,52 +183,52 @@
 
     <h3 class="mt-4 mb-2">Timer</h3>
 
-    <div #pip class="flex flex-wrap justify-evenly gap-6 rounded p-4 shadow-md dark:shadow-sm dark:shadow-gray-500 shrink-0 relative">
-        <p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>
+    @if (fullTask.isLoading()) {
+        <p>Loading...</p>
+    } @else if (fullTask.hasValue()) {
+        <div #pip class="flex flex-wrap justify-evenly gap-6 rounded p-4 shadow-md dark:shadow-sm dark:shadow-gray-500 shrink-0 relative">
+            <p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>
 
-        <button (click)="currentChronometerPartPlaying.update(prev => !prev)" [ngStyle]="{'background-color': task().state?.color + '88', 'border-width': currentChronometerPartPlaying() ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
-            <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
-            
-            @if (currentChronometerPartPlaying()) {
-                <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
+            <button (click)="currentChronometerPartPlaying.update(prev => !prev)" [ngStyle]="{'background-color': task().state?.color + '88', 'border-width': currentChronometerPartPlaying() ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
+                <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
+                
+                @if (currentChronometerPartPlaying()) {
+                    <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
+                }
+            </button>
+
+            <div class="grow">
+                <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{(currentChronometerPart().seconds - currentChronometerPart().seconds % 60) / 60}}m {{currentChronometerPart().seconds % 60}}s</span>
+
+                <p-inplace class="flex items-center">
+                    <ng-template #display>
+                        <p class="wrap-anywhere">{{!currentChronometerPart().description.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
+                    </ng-template>
+                    <ng-template #content let-closeCallback="closeCallback">
+                        <span class="inline-flex items-center gap-2">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPartDescription', currentChronometerPart().description)" class="flex flex-col gap-4">
+                                <div class="flex items-center gap-2">
+                                    <textarea name="chronometerPartDescription" rows="5" cols="20" [(ngModel)]="currentChronometerPart().description" pTextarea required [autoResize]="true" [pAutoFocus]="true"></textarea>
+                                    <p-button severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                                </div>
+                            </form>
+                        </span>
+                    </ng-template>
+                </p-inplace>
+            </div>            
+        </div>
+
+        <ul class="my-6">
+            @for (chronometerPart of fullTask.value().chronometer?.parts ?? []; track chronometerPart.id) {
+                <li class="flex gap-4 items-baseline">
+                    <span [ngStyle]="{'border-color': task().state?.color + '88'}" class="p-2 rounded border whitespace-nowrap">{{(chronometerPart.seconds - chronometerPart.seconds % 60) / 60}}m {{chronometerPart.seconds % 60}}s</span>
+                    <p>{{chronometerPart.description}}</p>
+                </li>
+
+                @if (!$last) {
+                    <p-divider />
+                }
             }
-        </button>
-
-        <div class="grow">
-            <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{(currentChronometerPart().seconds - currentChronometerPart().seconds % 60) / 60}}m {{currentChronometerPart().seconds % 60}}s</span>
-
-            <p-inplace class="flex items-center">
-                <ng-template #display>
-                    <p class="wrap-anywhere">{{!currentChronometerPart().description.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
-                </ng-template>
-                <ng-template #content let-closeCallback="closeCallback">
-                    <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPartDescription', currentChronometerPart().description)" class="flex flex-col gap-4">
-                            <div class="flex items-center gap-2">
-                                <textarea name="chronometerPartDescription" rows="5" cols="20" [(ngModel)]="currentChronometerPart().description" pTextarea required [autoResize]="true" [pAutoFocus]="true"></textarea>
-                                <p-button severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
-                            </div>
-                        </form>
-                    </span>
-                </ng-template>
-            </p-inplace>
-        </div>            
-    </div>
-
-    <ul class="my-6">
-        @for (chronometerPart of task().chronometer?.parts ?? []; track chronometerPart.id) {
-            <li class="flex gap-4 items-baseline">
-                <span [ngStyle]="{'border-color': task().state?.color + '88'}" class="p-2 rounded border whitespace-nowrap">{{(chronometerPart.seconds - chronometerPart.seconds % 60) / 60}}m {{chronometerPart.seconds % 60}}s</span>
-                <p>{{chronometerPart.description}}</p>
-            </li>
-
-            @if (!$last) {
-                <p-divider />
-            }
-        }
-    </ul>
-
-    <ng-template #footer>
-        
-    </ng-template>
+        </ul>
+    }
 </p-dialog>

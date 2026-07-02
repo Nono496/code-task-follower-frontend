@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, inject, input, model, signal } from '@angular/core';
+import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { AutoFocusModule } from 'primeng/autofocus';
@@ -23,6 +23,7 @@ import { TaskService } from '../../services/task-service';
 @Component({
   selector: 'app-task-component',
   imports: [Dialog, Inplace, FieldsetModule, FormsModule, TextareaModule, SelectModule, MultiSelectModule, AutoFocusModule, ChipModule, NgStyle, Button, ColorPicker, Divider],
+  providers: [MessageService],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
@@ -34,6 +35,8 @@ export class TaskComponent {
   tagService = inject(TagService);
 
   task = model.required<Task>();
+  taskId = computed<number | null>(() => this.task().id ?? null);
+  fullTask = this.taskService.get(this.taskId);
   visible = model.required<boolean>();
   createCallback = input<() => void>();
 

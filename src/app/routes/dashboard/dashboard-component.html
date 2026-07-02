@@ -2,9 +2,9 @@
     <h1>Dashboard</h1>
 
     @if(projects.error()) {
-        Can't find projects
+        <p>Can't find projects</p>
     } @else if (projects.isLoading()) {
-        Loading...
+        <p>Loading projects...</p>
     } @else if (projects.hasValue()) {
         <div class="flex justify-evenly w-1/2"><h2>Projects</h2><a class="p-button" routerLink="/project"><i class="pi pi-plus"></i></a></div>
 
@@ -27,9 +27,9 @@
     }
 
     @if(tasks.error()) {
-        Can't find tasks
+        <p>Can't find tasks</p>
     } @else if (tasks.isLoading()) {
-        Loading...
+        <p>Loading tasks...</p>
     } @else if (tasks.hasValue() && tasks.value().length) {
         <div class="flex justify-evenly w-1/2">
             <div class="flex gap-4 items-center"><h2>Tasks</h2><span [ngStyle]="{'background-color': tasks.value().at(0)!.state?.color}" class="tag">{{tasks.value().at(0)!.state?.name}}</span></div>
