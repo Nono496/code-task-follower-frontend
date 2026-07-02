@@ -47,6 +47,9 @@ export const routes: Routes = [
         title: 'New project',
         component: ProjectComponent,
         //canActivate: [authRequiredGuard],
+        resolve: {
+            projectId: (route: ActivatedRouteSnapshot) => null,
+        }
     },
     {
         path: RouteItems.Project + '/:project-id',

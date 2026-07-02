@@ -6,9 +6,9 @@ export interface Project extends CrudItem {
     name?: string;
     color: string;
     description?: string;
-    states: State[];
-    tasks: Task[];
-    branches: Branch[];
+    states?: State[];
+    tasks?: Task[];
+    branches?: Branch[];
 }
 
 export interface Task extends CrudItem {

@@ -25,7 +25,7 @@
             @for (state of [{id: 0}, {id: 1}, {id: 2}, {id: 3}]; track state.id) {
                 <div class="flex flex-col items-center gap-4 w-full">
                     <p-skeleton width="5rem" height="2rem"/>
-                    <p-skeleton width="20%" height="400px" />
+                    <p-skeleton width="100%" height="400px" />
                 </div>
             }
         </div>
@@ -87,7 +87,7 @@
         <div class="flex justify-evenly w-1/2">
             <h2>Tasks</h2>
             <div class="flex gap-2">
-                @if(p().states.length) {
+                @if(p().states?.length) {
                     <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
                 }
                 <p-button (click)="this.isInKanbanSettings.set(true)"><i class="pi pi-cog"></i></p-button>
@@ -102,8 +102,8 @@
                         cdkDropList
                         [id]="state.id + ' ' + state.name"
                         cdkDropListSortingDisabled
-                        [cdkDropListData]="p().tasks.filter(t => t.state?.id === state.id).map(t => t.id + '')"
-                        [cdkDropListConnectedTo]="p().states!.filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
+                        [cdkDropListData]="(p().tasks ?? []).filter(t => t.state?.id === state.id).map(t => t.id + '')"
+                        [cdkDropListConnectedTo]="(p().states ?? []).filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
                         (cdkDropListDropped)="onDrop($event)">
                         <div class="flex flex-col p-2 gap-4">
                             @for (task of p().tasks; track task.id) {

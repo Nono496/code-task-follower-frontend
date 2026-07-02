@@ -35,19 +35,11 @@ export class ProjectComponent {
 
   messageService = inject(MessageService);
 
-  projectId = input<number | undefined>();
-  project = this.projectService.get(this.projectId);
-  
-  ngOnInit() {
-    if (!this.projectId()) {
-      this.project.set(({
-        color: '#00FF00',
-        states: [],
-        tasks: [],
-        branches: []
-      } as Project));
-    }
-  }
+  projectId = input<number | null | undefined>();
+  project = this.projectService.get(this.projectId,
+    {
+      color: '#00FF00'
+    } as Project);
 
   isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);
@@ -61,7 +53,8 @@ export class ProjectComponent {
   }
   onCreateTask() {
     this.project.update(p => {
-      p?.tasks.push(this.editedTask());
+      p!.tasks = !p?.tasks ? [] : p?.tasks;
+      p!.tasks.push(this.editedTask());
       return p;
     })
   }
@@ -78,13 +71,13 @@ export class ProjectComponent {
   
   onDrop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer !== event.container && this.project.hasValue()) {
-      const movedTask = this.project.value().tasks.filter(t => t.id == event.item.data).at(0)!;
-      movedTask.state = this.project.value().states.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
+      const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
+      movedTask.state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
       
       this.taskService.edit(movedTask).subscribe((ok) => {
         if (ok) {
           this.project.update(p => {
-            p!.tasks.filter(t => t.id == event.item.data).at(0)!.state = movedTask.state;
+            p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = movedTask.state;
             return p;
           });
         } else {

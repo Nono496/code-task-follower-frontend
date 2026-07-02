@@ -14,8 +14,14 @@ export abstract class CrudService<T extends CrudItem> {
     return httpResource<T[]>(() => this.endpoint);
   }
 
-  get(itemId: Signal<number | undefined>): HttpResourceRef<T | undefined> {
-    return httpResource<T>(() => this.endpoint + itemId());
+  get(itemId: Signal<number | null | undefined>, defaultValue: T | undefined = undefined): HttpResourceRef<T | undefined> {
+    return httpResource<T>(
+      () => {
+        if (!itemId()) return undefined;
+
+        return this.endpoint + '/' + itemId()
+      }, { defaultValue }
+    );
   }
   
   create(item: T): Observable<number> {
