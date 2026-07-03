@@ -3,7 +3,7 @@
         <div class="flex justify-between w-full mr-4">
             <p-inplace class="flex items-center">
                 <ng-template #display>
-                    <h2>{{!task().name?.length ? 'Unnamed Task' : task().name}}</h2>
+                    <h2>{{!task().name?.length ? 'Unnamed task' : task().name}}</h2>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
@@ -19,7 +19,11 @@
 
             <p-inplace class="flex items-center" [disabled]="states.error() ? true : false">
                 <ng-template #display>
-                    <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="tag">{{task().state?.name}}</span>
+                    @if (task().state) {
+                        <span [ngStyle]="{'background-color': task().state!.color + '88'}" class="tag">{{task().state!.name}}</span>
+                    } @else {
+                        <span [ngStyle]="{'background-color': '#55555588'}" class="tag">No state</span>
+                    }
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">

@@ -8,7 +8,7 @@
     } @else if (projects.hasValue()) {
         <div class="flex justify-evenly w-1/2"><h2>Projects</h2><a class="p-button" routerLink="/project"><i class="pi pi-plus"></i></a></div>
 
-        <p-card class="w-1/2 max-h-48 overflow-y-auto">
+        <div class="w-1/2 max-h-48 overflow-y-auto">
             <p-dataview [value]="projects.value()">
                 <ng-template #list let-items>
                     @for (item of items; track item.id) {
@@ -16,14 +16,16 @@
                             <p-divider />
                         }
 
-                        <a class="flex items-center gap-4 max-w-3xl" [routerLink]="['/', 'project', item.id]">
-                            <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                            <span class="shrink-0">{{item.name}}</span>
-                        </a>
+                        <p-card class="max-w-3xl">
+                            <a class="flex items-center gap-4" [routerLink]="['/', 'project', item.id]">
+                                <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                <span class="shrink-0">{{item.name}}</span>
+                            </a>
+                        </p-card>
                     }
                 </ng-template>
             </p-dataview>
-        </p-card>
+        </div>
     }
 
     @if(tasks.error()) {
@@ -36,20 +38,22 @@
             <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
         </div>
 
-        <p-card class="w-1/2 max-h-96 overflow-y-auto">
+        <div class="w-1/2 max-h-96 overflow-y-auto">
             <p-dataview [value]="tasks.value()">
                 <ng-template #list let-items>
                     <div class="grid grid-cols-3 gap-7 p-4">
                         @for (item of items; track item.id) {
-                            <button (click)="editTask(item.id)" class="flex items-center gap-4 max-w-3xl cursor-pointer">
-                                <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                <span class="shrink-0">{{item.name}}</span>
-                            </button>
+                            <p-card class="max-w-3xl cursor-pointer">
+                                <button (click)="editTask(item.id)" class="flex items-center gap-4">
+                                    <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                    <span class="shrink-0 cursor-pointer">{{item.name}}</span>
+                                </button>
+                            </p-card>
                         }
                     </div>
                 </ng-template>
             </p-dataview>
-        </p-card>
+        </div>
         <app-task-component [task]="editedTask()" [(visible)]="isEditingTask" />
     }
 </main>
