@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Task } from '../dtos/project';
+import { Task, taskSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 
 @Injectable({
@@ -7,4 +7,5 @@ import { CrudService } from './crud-service';
 })
 export class TaskService extends CrudService<Task> {
   protected override endpoint = '/tasks';
+  protected override parseSchema = taskSchema;
 }

@@ -10,8 +10,9 @@ import { Dialog } from "primeng/dialog";
 import { Fieldset } from "primeng/fieldset";
 import { Inplace } from "primeng/inplace";
 import { Toast } from "primeng/toast";
-import { Project, State } from '../../../dtos/project';
+import { Project, State, stateSchema } from '../../../dtos/zod-schemas';
 import { StateService } from '../../../services/state-service';
+import { ZodService } from '../../../services/zod-service';
 
 @Component({
   selector: 'app-kanban-settings-component',
@@ -21,6 +22,7 @@ import { StateService } from '../../../services/state-service';
 })
 export class KanbanSettingsComponent {
   messageService = inject(MessageService);
+  zodService = inject(ZodService);
   stateService = inject(StateService);
 
   project = model.required<Project>();
@@ -48,6 +50,11 @@ export class KanbanSettingsComponent {
   onSubmit(name: string, value: any, closeCallback: () => any) {
     switch (name) {
       case 'stateToAdd':
+        if (!this.zodService.validateSchema(stateSchema, value).success) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+          return;
+        }
+
         this.stateService.create(value).subscribe(stateId => {
           if (!stateId) {
             this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
@@ -63,6 +70,11 @@ export class KanbanSettingsComponent {
         break;
 
       case 'state':
+        if (!this.zodService.validateProp(stateSchema, name, value).success) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+          return;
+        }
+      
         this.stateService.edit(value).subscribe(ok => {
           if (ok) {
             closeCallback();

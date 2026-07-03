@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Tag } from '../dtos/project';
+import { Tag, tagSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 
 @Injectable({
@@ -7,4 +7,5 @@ import { CrudService } from './crud-service';
 })
 export class TagService extends CrudService<Tag> {
   protected override endpoint = '/tags';
+  protected override parseSchema = tagSchema;
 }

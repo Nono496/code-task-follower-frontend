@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { State } from '../dtos/project';
+import { State, stateSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 
 @Injectable({
@@ -7,4 +7,5 @@ import { CrudService } from './crud-service';
 })
 export class StateService extends CrudService<State> {
   protected override endpoint = '/states';
+  protected override parseSchema = stateSchema;
 }

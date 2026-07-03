@@ -9,6 +9,7 @@ export type CrudItem = {
 export abstract class CrudService<T extends CrudItem> {
   protected http = inject(HttpClient);
   protected abstract endpoint: string;
+  protected abstract parseSchema: any;
 
   getAll(): HttpResourceRef<T[] | undefined> {
     return httpResource<T[]>(() => this.endpoint);
@@ -20,7 +21,22 @@ export abstract class CrudService<T extends CrudItem> {
         if (!itemId()) return undefined;
 
         return this.endpoint + '/' + itemId()
-      }, { defaultValue }
+      },
+      {
+        defaultValue,
+        /*parse: (data) => {
+          console.table(data);
+          return this.parseSchema.parse(data);
+          const result = this.parseSchema.safeParse(data);
+
+          if (!result.success) {
+            console.table(data);
+            //throw new Error(result.error);
+          } else {
+            return result.data;
+          }
+        }*/
+      }
     );
   }
   

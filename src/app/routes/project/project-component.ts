@@ -7,7 +7,7 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { InplaceModule } from 'primeng/inplace';
 import { InputTextModule } from 'primeng/inputtext';
 import { ListboxModule } from 'primeng/listbox';
-import { Project, Task } from '../../dtos/project';
+import { Project, projectSchema, Task } from '../../dtos/zod-schemas';
 
 import { FormsModule } from '@angular/forms';
 import { CardModule } from "primeng/card";
@@ -20,28 +20,32 @@ import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
 import { MessageService } from 'primeng/api';
+import { Toast } from "primeng/toast";
+import { ZodService } from '../../services/zod-service';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast],
   providers: [MessageService],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
 export class ProjectComponent {
+   messageService = inject(MessageService);
+  zodService = inject(ZodService);
+
   projectService = inject(ProjectService);
   stateService = inject(StateService);
   taskService = inject(TaskService);
 
-  messageService = inject(MessageService);
-
-  projectId = input<number | null | undefined>();
+ projectId = input<number | null | undefined>();
   project = this.projectService.get(this.projectId,
-    {
+    projectSchema.parse({
+      name: 'Unnamed project',
       color: '#00FF00'
-    } as Project);
+    } as Project));
 
-  isEditingTask = signal<boolean>(false);
+  /*isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);
   editedTask = computed<Task>(() => {
     if (this.editedTaskId() === null) return {} as Task;
@@ -60,15 +64,40 @@ export class ProjectComponent {
   }
   
   isInKanbanSettings = signal<boolean>(false);
-  
+  */
   onSubmit(name: string, value: any) {
-    this.projectService.edit(this.project.value()!).subscribe(ok => {
-      if (!ok) {
-        this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+    if (this.project.value()?.id) {      
+      if (!this.zodService.validateProp(projectSchema, name, value).success) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+        return;
       }
-    })
+
+      this.projectService.edit(this.project.value()!).subscribe(ok => {
+        if (!ok) {
+          this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+        }
+      });
+    } else {
+      // Validation
+      if (!this.zodService.validateSchema(projectSchema, this.project.value()).success) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+        return;
+      }
+
+      // Create
+      this.projectService.create(this.project.value()!).subscribe(id => {
+        if (id) {
+          this.project.update(p => {
+            p!.id = id;
+            return p;
+          });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+        }
+      });
+    }
   }
-  
+  /*
   onDrop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer !== event.container && this.project.hasValue()) {
       const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
@@ -85,5 +114,5 @@ export class ProjectComponent {
         }
       });
     }
-  }
+  }*/
 }

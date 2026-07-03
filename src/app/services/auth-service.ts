@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { User } from '../dtos/user';
+import { User, userSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 import { HttpHeaders } from '@angular/common/http';
 
@@ -10,6 +10,7 @@ import { HttpHeaders } from '@angular/common/http';
 export class AuthService extends CrudService<User> {
   protected override endpoint = '/users';
   private accessTokenCookieName = 'accessToken=';
+  protected override parseSchema = userSchema;
 
   private _isAuthenticated = false;
   private _authToken: string | undefined;

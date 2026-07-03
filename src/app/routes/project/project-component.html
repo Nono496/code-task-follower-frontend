@@ -1,5 +1,5 @@
 @if(project.error()) {
-    Can't find project {{projectId()}}
+    Can't find project {{projectId()}} : {{project.error()}}
 } @else if(project.isLoading()) {
     <div class="h-full w-full p-4 flex justify-center items-center m-8 mb-1 gap-8">
         <p-skeleton shape="circle" size="1.25rem"/>
@@ -52,7 +52,7 @@
 
         <p-inplace class="flex items-center">
             <ng-template #display>
-                <h1>{{p().name?.length ? p().name : 'Unnamed Project'}}</h1>
+                <h1>{{p().name}}</h1>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">
@@ -66,7 +66,7 @@
             </ng-template>
         </p-inplace>
     </div>
-
+<!--
     <main class="w-full p-4 flex flex-col justify-center items-center m-8 mt-1 gap-8">
         <p-inplace class="flex items-center">
             <ng-template #display>
@@ -139,5 +139,6 @@
     </main>
 
     <app-task-component [task]="editedTask()" [(visible)]="isEditingTask" (createCallback)="onCreateTask()" />
-    <app-kanban-settings-component [project]="p()" [(visible)]="isInKanbanSettings" />
+    <app-kanban-settings-component [project]="p()" [(visible)]="isInKanbanSettings" />-->
+    <p-toast/>
 }

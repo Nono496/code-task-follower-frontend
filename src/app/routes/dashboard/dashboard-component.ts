@@ -6,7 +6,7 @@ import { CardModule } from 'primeng/card';
 import { DataViewModule } from 'primeng/dataview';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
-import { Task } from '../../dtos/project';
+import { Task } from '../../dtos/zod-schemas';
 import { ProjectService } from '../../services/project-service';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";

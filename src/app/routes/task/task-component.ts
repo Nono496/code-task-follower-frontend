@@ -13,22 +13,24 @@ import { Inplace } from "primeng/inplace";
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from "primeng/select";
 import { TextareaModule } from 'primeng/textarea';
-import { ChronometerPart } from '../../dtos/chronometer';
-import { Tag, Task } from '../../dtos/project';
+import { ChronometerPart, Tag, tagSchema, Task, taskSchema } from '../../dtos/zod-schemas';
 import { ProjectService } from '../../services/project-service';
 import { StateService } from '../../services/state-service';
 import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
+import { Toast } from "primeng/toast";
+import { ZodService } from '../../services/zod-service';
 
 @Component({
   selector: 'app-task-component',
-  imports: [Dialog, Inplace, FieldsetModule, FormsModule, TextareaModule, SelectModule, MultiSelectModule, AutoFocusModule, ChipModule, NgStyle, Button, ColorPicker, Divider],
+  imports: [Dialog, Inplace, FieldsetModule, FormsModule, TextareaModule, SelectModule, MultiSelectModule, AutoFocusModule, ChipModule, NgStyle, Button, ColorPicker, Divider, Toast],
   providers: [MessageService],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
   messageService = inject(MessageService);
+  zodService = inject(ZodService);
 
   taskService = inject(TaskService);
   stateService = inject(StateService);
@@ -79,6 +81,11 @@ export class TaskComponent {
   onSubmit(name: string, value: any, closeCallback?: () => any) {
     switch (name) {
       case 'tagToAdd':
+        if (!this.zodService.validateSchema(tagSchema, value).success) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+          return;
+        }
+
         this.tagService.create(value).subscribe(tagId => {
           if (!tagId) {
             this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
@@ -94,6 +101,11 @@ export class TaskComponent {
         break;
 
       case 'tag':
+        if (!this.zodService.validateProp(tagSchema, name, value).success) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+          return;
+        }
+
         this.tagService.edit(value).subscribe(ok => {
           if (ok) {
             closeCallback!();
@@ -105,6 +117,11 @@ export class TaskComponent {
     
       default:
         if (this.task().id === null || this.task().id === undefined) {
+          if (!this.zodService.validateSchema(taskSchema, this.task()).success) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+            return;
+          }
+
           this.taskService.create(this.task()).subscribe(taskId => {
             if (taskId === null || taskId === undefined) {
               this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
@@ -117,6 +134,11 @@ export class TaskComponent {
             }
           });
         } else {
+          if (!this.zodService.validateProp(taskSchema, name, value).success) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+            return;
+          }
+          
           this.taskService.edit(this.task()).subscribe(ok => {
             if (!ok) {
               this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
