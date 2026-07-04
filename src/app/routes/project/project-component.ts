@@ -45,7 +45,7 @@ export class ProjectComponent {
       color: '#00FF00'
     } as Project));
 
-  /*isEditingTask = signal<boolean>(false);
+  isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);
   editedTask = computed<Task>(() => {
     if (this.editedTaskId() === null) return {} as Task;
@@ -62,11 +62,11 @@ export class ProjectComponent {
       return p;
     })
   }
-  
+
   isInKanbanSettings = signal<boolean>(false);
-  */
+
   onSubmit(name: string, value: any) {
-    if (this.project.value()?.id) {      
+    if (this.project.value()?.id) {
       if (!this.zodService.validateProp(projectSchema, name, value).success) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
         return;
@@ -97,12 +97,12 @@ export class ProjectComponent {
       });
     }
   }
-  /*
+
   onDrop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer !== event.container && this.project.hasValue()) {
       const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
       movedTask.state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
-      
+
       this.taskService.edit(movedTask).subscribe((ok) => {
         if (ok) {
           this.project.update(p => {
@@ -114,5 +114,5 @@ export class ProjectComponent {
         }
       });
     }
-  }*/
+  }
 }

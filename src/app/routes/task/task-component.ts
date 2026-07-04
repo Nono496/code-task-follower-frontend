@@ -23,7 +23,22 @@ import { ZodService } from '../../services/zod-service';
 
 @Component({
   selector: 'app-task-component',
-  imports: [Dialog, Inplace, FieldsetModule, FormsModule, TextareaModule, SelectModule, MultiSelectModule, AutoFocusModule, ChipModule, NgStyle, Button, ColorPicker, Divider, Toast],
+  imports: [
+    Dialog,
+    Inplace,
+    FieldsetModule,
+    FormsModule,
+    TextareaModule,
+    SelectModule,
+    MultiSelectModule,
+    AutoFocusModule,
+    ChipModule,
+    NgStyle,
+    Button,
+    ColorPicker,
+    Divider,
+    Toast,
+  ],
   providers: [MessageService],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
@@ -50,29 +65,30 @@ export class TaskComponent {
 
   currentChronometerPart = signal<ChronometerPart>({
     seconds: 60 * 5,
-    description: ''
+    description: '',
   });
   currentChronometerPartPlaying = signal<boolean>(false);
 
   ngOnInit() {
-    if (this.task().state === undefined && this.states.hasValue()) this.task().state = this.states.value()?.at(0)!;
+    if (this.task().state === undefined && this.states.hasValue())
+      this.task().state = this.states.value()?.at(0)!;
   }
 
   onDelete(name: string, value: any) {
     switch (name) {
       case 'tag':
-        this.tagService.delete(value.id).subscribe(deleted => {
+        this.tagService.delete(value.id).subscribe((deleted) => {
           if (deleted) {
-            this.task.update(t => {
-              t.tags = t.tags?.filter(tag => tag.id !== value.id);
+            this.task.update((t) => {
+              t.tags = t.tags?.filter((tag) => tag.id !== value.id);
               return t;
-            })
+            });
           } else {
             this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
           }
         });
         break;
-    
+
       default:
         break;
     }
@@ -82,18 +98,23 @@ export class TaskComponent {
     switch (name) {
       case 'tagToAdd':
         if (!this.zodService.validateSchema(tagSchema, value).success) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Incorrect data',
+            life: 3000,
+          });
           return;
         }
 
-        this.tagService.create(value).subscribe(tagId => {
+        this.tagService.create(value).subscribe((tagId) => {
           if (!tagId) {
             this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
             return;
           }
 
-          this.task.update(p => {
-            p.tags?.push({...value, id: tagId});
+          this.task.update((p) => {
+            p.tags?.push({ ...value, id: tagId });
             return p;
           });
           this.tagToAdd.set({} as Tag);
@@ -102,11 +123,16 @@ export class TaskComponent {
 
       case 'tag':
         if (!this.zodService.validateProp(tagSchema, name, value).success) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Incorrect data',
+            life: 3000,
+          });
           return;
         }
 
-        this.tagService.edit(value).subscribe(ok => {
+        this.tagService.edit(value).subscribe((ok) => {
           if (ok) {
             closeCallback!();
           } else {
@@ -114,19 +140,24 @@ export class TaskComponent {
           }
         });
         break;
-    
+
       default:
         if (this.task().id === null || this.task().id === undefined) {
           if (!this.zodService.validateSchema(taskSchema, this.task()).success) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Incorrect data',
+              life: 3000,
+            });
             return;
           }
 
-          this.taskService.create(this.task()).subscribe(taskId => {
+          this.taskService.create(this.task()).subscribe((taskId) => {
             if (taskId === null || taskId === undefined) {
               this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
             } else {
-              this.task.update(t => {
+              this.task.update((t) => {
                 t.id = taskId;
                 return t;
               });
@@ -135,11 +166,16 @@ export class TaskComponent {
           });
         } else {
           if (!this.zodService.validateProp(taskSchema, name, value).success) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Incorrect data',
+              life: 3000,
+            });
             return;
           }
-          
-          this.taskService.edit(this.task()).subscribe(ok => {
+
+          this.taskService.edit(this.task()).subscribe((ok) => {
             if (!ok) {
               this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
             }
@@ -159,17 +195,15 @@ export class TaskComponent {
 
     [...document.styleSheets].forEach((styleSheet) => {
       try {
-        const cssRules = [...styleSheet.cssRules]
-          .map((rule) => rule.cssText)
-          .join("");
-        const style = document.createElement("style");
+        const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
+        const style = document.createElement('style');
 
         style.textContent = cssRules;
         pipWindow.document.head.appendChild(style);
       } catch (e) {
-        const link = document.createElement("link");
+        const link = document.createElement('link');
 
-        link.rel = "stylesheet";
+        link.rel = 'stylesheet';
         link.type = styleSheet.type;
         //link.media = styleSheet.media;
         link.href = styleSheet.href ?? '';

@@ -1,5 +1,5 @@
 <p-toast/>
-<!--
+
 <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '35rem', height: '35rem' }">
     <ng-template #header>
         Kanban settings
@@ -23,7 +23,7 @@
                                         <p-colorpicker name="color" [(ngModel)]="state.color" #model="ngModel" />
                                         <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="state.name" [pAutoFocus]="true" />
                                     </p-chip>
-                                    
+
                                     <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                                 </div>
                             </form>
@@ -44,7 +44,7 @@
                                     <p-colorpicker name="stateToAddColor" [(ngModel)]="stateToAdd().color" #model="ngModel" />
                                     <input class="ml-2" name="stateToAddName" pInputText type="text" [(ngModel)]="stateToAdd().name" [pAutoFocus]="true" />
                                 </p-chip>
-                                
+
                                 <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                             </div>
                         </form>
@@ -53,4 +53,4 @@
             </p-inplace>
         </div>
     </p-fieldset>
-</p-dialog>-->
+</p-dialog>
