@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { NgStyle } from '@angular/common';
+import { JsonPipe, NgStyle } from '@angular/common';
 import { Component, computed, EventEmitter, inject, input, signal } from '@angular/core';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
@@ -19,26 +19,31 @@ import { StateService } from '../../services/state-service';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Toast } from "primeng/toast";
 import { ZodService } from '../../services/zod-service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { RouteItems } from '../../app.routes';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast],
-  providers: [MessageService],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast, ConfirmDialogModule, JsonPipe ],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
 export class ProjectComponent {
-   messageService = inject(MessageService);
+  messageService = inject(MessageService);
+  confirmationService = inject(ConfirmationService);
   zodService = inject(ZodService);
+  router = inject(Router);
 
   projectService = inject(ProjectService);
   stateService = inject(StateService);
   taskService = inject(TaskService);
 
- projectId = input<number | null | undefined>();
+  projectId = input<number | null | undefined>();
   project = this.projectService.get(this.projectId,
     projectSchema.parse({
       name: 'Unnamed project',
@@ -72,28 +77,27 @@ export class ProjectComponent {
         return;
       }
 
-      this.projectService.edit(this.project.value()!).subscribe(ok => {
-        if (!ok) {
-          this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-        }
+      this.projectService.edit(this.project.value()!).subscribe({
+        error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
       });
     } else {
       // Validation
       if (!this.zodService.validateSchema(projectSchema, this.project.value()).success) {
+        console.error(this.zodService.validateSchema(projectSchema, this.project.value()).data)
+        console.error(this.zodService.validateSchema(projectSchema, this.project.value()).error)
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
         return;
       }
 
       // Create
-      this.projectService.create(this.project.value()!).subscribe(id => {
-        if (id) {
+      this.projectService.create(this.project.value()!).subscribe({
+        next: id => {
           this.project.update(p => {
             p!.id = id;
             return p;
           });
-        } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-        }
+        },
+        error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
       });
     }
   }
@@ -103,16 +107,44 @@ export class ProjectComponent {
       const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
       movedTask.state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
 
-      this.taskService.edit(movedTask).subscribe((ok) => {
-        if (ok) {
-          this.project.update(p => {
-            p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = movedTask.state;
-            return p;
-          });
-        } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-        }
+      this.taskService.edit(movedTask).subscribe({
+        next: () => this.project.update(p => {
+          p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = movedTask.state;
+          return p;
+        }),
+        error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
       });
     }
+  }
+
+  delete(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
+      accept: () => {
+          this.messageService.add({ key: 'delete confirmed', severity: 'info', summary: 'Project is being deleted...' });
+          
+          this.projectService.delete(this.project.value()?.id!).subscribe({
+            next: () => {
+              this.messageService.clear('delete confirmed');
+              this.router.navigate(['/', RouteItems.Dashboard]);
+            },
+            error: () => this.messageService.add({ severity: 'error', summary: 'Project could not be deleted.' })
+          })
+      },
+    });
   }
 }

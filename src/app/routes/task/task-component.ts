@@ -77,15 +77,12 @@ export class TaskComponent {
   onDelete(name: string, value: any) {
     switch (name) {
       case 'tag':
-        this.tagService.delete(value.id).subscribe((deleted) => {
-          if (deleted) {
-            this.task.update((t) => {
+        this.tagService.delete(value.id).subscribe({
+          next: () => this.task.update((t) => {
               t.tags = t.tags?.filter((tag) => tag.id !== value.id);
               return t;
-            });
-          } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-          }
+            }),
+          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
         });
         break;
 
@@ -132,12 +129,9 @@ export class TaskComponent {
           return;
         }
 
-        this.tagService.edit(value).subscribe((ok) => {
-          if (ok) {
-            closeCallback!();
-          } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-          }
+        this.tagService.edit(value).subscribe({
+          next: () => closeCallback!(),
+          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
         });
         break;
 
@@ -175,10 +169,8 @@ export class TaskComponent {
             return;
           }
 
-          this.taskService.edit(this.task()).subscribe((ok) => {
-            if (!ok) {
-              this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-            }
+          this.taskService.edit(this.task()).subscribe({
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
           });
         }
         break;

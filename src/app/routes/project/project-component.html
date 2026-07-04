@@ -1,5 +1,5 @@
 @if(project.error()) {
-    Can't find project {{projectId()}} : {{project.error()}}
+    Can't find project {{projectId()}} : {{project.error() | json}}
 } @else if(project.isLoading()) {
     <div class="h-full w-full p-4 flex justify-center items-center m-8 mb-1 gap-8">
         <p-skeleton shape="circle" size="1.25rem"/>
@@ -136,9 +136,15 @@
                 </div>
             }
         </div>
+
+        <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="delete($event)">
+            <i class="pi pi-trash"></i>
+            <span>Delete project</span>
+        </button>
     </main>
 
     <app-task-component [task]="editedTask()" [(visible)]="isEditingTask" (createCallback)="onCreateTask()" />
     <app-kanban-settings-component [project]="p()" [(visible)]="isInKanbanSettings" />
     <p-toast/>
+    <p-confirmdialog />
 }

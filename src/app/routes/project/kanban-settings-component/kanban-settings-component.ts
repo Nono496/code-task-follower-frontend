@@ -33,12 +33,9 @@ export class KanbanSettingsComponent {
   onDelete(name: string, value: any, closeCallback: () => any) {
     switch (name) {
       case 'state':
-        this.stateService.delete(value.id).subscribe(deleted => {
-          if (deleted) {
-            closeCallback()
-          } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-          }
+        this.stateService.delete(value.id).subscribe({
+          next: () => closeCallback(),
+          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
         });
         break;
     
@@ -75,12 +72,9 @@ export class KanbanSettingsComponent {
           return;
         }
       
-        this.stateService.edit(value).subscribe(ok => {
-          if (ok) {
-            closeCallback();
-          } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-          }
+        this.stateService.edit(value).subscribe({
+          next: () => closeCallback(),
+          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
         });
         break;
     

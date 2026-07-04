@@ -9,7 +9,7 @@ export class ZodService {
         const prop: { [key: string]: any; } & Record<string | number, never> = {};
         prop[name] = value as any & never;
 
-        return schema.pick(prop).safeParse(value);
+        return schema.pick(prop).safeParse(prop);
     }
 
     validateSchema(schema: ZodObject, value: any): ZodSafeParseResult<Record<string, unknown>> {

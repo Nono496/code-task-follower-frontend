@@ -1,6 +1,6 @@
 import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { inject, Signal } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 export type CrudItem = {
     id?: number;
@@ -24,18 +24,15 @@ export abstract class CrudService<T extends CrudItem> {
       },
       {
         defaultValue,
-        /*parse: (data) => {
-          console.table(data);
-          return this.parseSchema.parse(data);
+        parse: (data) => {
           const result = this.parseSchema.safeParse(data);
 
           if (!result.success) {
-            console.table(data);
-            //throw new Error(result.error);
+            throw new Error(result.error);
           } else {
             return result.data;
           }
-        }*/
+        }
       }
     );
   }
@@ -44,13 +41,11 @@ export abstract class CrudService<T extends CrudItem> {
     return this.http.post<number>(this.endpoint, item);
   }
 
-  edit(item: T): Observable<boolean> {
-    return this.http.put<void>(this.endpoint + '/' + item.id, item, { observe: 'response' })
-      .pipe(map((response) => response.ok ));
+  edit(item: T): Observable<void> {
+    return this.http.put<void>(this.endpoint + '/' + item.id, item);
   }
 
-  delete(itemId: number): Observable<boolean> {
-    return this.http.delete(this.endpoint + '/' + itemId, { observe: 'response' })
-      .pipe(map((response) => response.ok ));
+  delete(itemId: number): Observable<void> {
+    return this.http.delete<void>(this.endpoint + '/' + itemId)
   }
 }
