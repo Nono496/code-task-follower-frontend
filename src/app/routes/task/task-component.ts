@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, computed, inject, input, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { AutoFocusModule } from 'primeng/autofocus';
@@ -19,7 +19,7 @@ import { StateService } from '../../services/state-service';
 import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
 import { Toast } from "primeng/toast";
-import { ZodService } from '../../services/zod-service';
+import { FormService } from '../../services/form-service';
 
 @Component({
   selector: 'app-task-component',
@@ -45,7 +45,7 @@ import { ZodService } from '../../services/zod-service';
 })
 export class TaskComponent {
   messageService = inject(MessageService);
-  zodService = inject(ZodService);
+  formService = inject(FormService);
 
   taskService = inject(TaskService);
   stateService = inject(StateService);
@@ -59,9 +59,10 @@ export class TaskComponent {
 
   states = this.stateService.getAll();
   projects = inject(ProjectService).getAll();
-  otherTasks = inject(TaskService).getAll();
+  otherTasks = this.taskService.getAll();
 
-  tagToAdd = signal<Tag>({} as Tag);
+  tagToCreate = signal<Tag>({color: '#ecff1a', name: ''});
+  otherTags = this.tagService.getAll();
 
   currentChronometerPart = signal<ChronometerPart>({
     seconds: 60 * 5,
@@ -69,108 +70,144 @@ export class TaskComponent {
   });
   currentChronometerPartPlaying = signal<boolean>(false);
 
-  ngOnInit() {
-    if (this.task().state === undefined && this.states.hasValue())
-      this.task().state = this.states.value()?.at(0)!;
+  constructor() {
+    effect(() => {
+      if (this.task().state === undefined && this.states.hasValue()) {
+        this.task().state = this.states.value()?.at(0)!;
+      }
+    });
   }
 
-  onDelete(name: string, value: any) {
+  ngOnInit() {
+      this.formService.messageService = this.messageService;
+  }
+
+  /*onDelete(name: string, value: any) {
     switch (name) {
       case 'tag':
+        this.formService.startSaveMessage('Deleting tag...');
         this.tagService.delete(value.id).subscribe({
-          next: () => this.task.update((t) => {
+          next: () => {
+            this.task.update((t) => {
               t.tags = t.tags?.filter((tag) => tag.id !== value.id);
               return t;
-            }),
-          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
+            });
+            this.formService.endSaveMessage('Tag deleted');
+          },
+          error: () => this.formService.saveErrorMessage()
         });
         break;
 
       default:
         break;
     }
+  }*/
+
+  addTag(tag: Tag) {
+    this.formService.startSaveMessage();
+    this.taskService.addToTask(this.task().id!, tag.id!).subscribe({
+      next: () => {
+        this.task.update((p) => {
+          p.tags = p.tags?.length ? p.tags : [];
+          p.tags.push(tag);
+          return p;
+        });
+        this.tagToCreate.set({color: '#ecff1a', name: ''});
+        this.formService.endSaveMessage();
+      },
+      error: () => this.formService.saveErrorMessage()
+    });
   }
 
   onSubmit(name: string, value: any, closeCallback?: () => any) {
     switch (name) {
-      case 'tagToAdd':
-        if (!this.zodService.validateSchema(tagSchema, value).success) {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Incorrect data',
-            life: 3000,
-          });
+      case 'tagToCreate':
+        if (!this.formService.validateSchema(tagSchema, value).success) {
+          this.formService.saveErrorMessage();
           return;
         }
 
-        this.tagService.create(value).subscribe((tagId) => {
-          if (!tagId) {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-            return;
-          }
+        this.formService.startSaveMessage();
+        this.tagService.create(value).subscribe({
+          next: (tagId) => {
+            this.addTag({ ...value, id: tagId });
+          },
+          error: () => this.formService.saveErrorMessage()
+        });
+        break;
 
-          this.task.update((p) => {
-            p.tags?.push({ ...value, id: tagId });
-            return p;
-          });
-          this.tagToAdd.set({} as Tag);
+      case 'tagToAdd':
+        this.addTag(value);
+        break;
+
+      case 'tagToRemove':        
+        this.formService.startSaveMessage();
+        this.taskService.removeFromTask(this.task().id!, value.id).subscribe({
+          next: () => {
+            this.task.update((p) => {
+              p.tags = p.tags?.filter(t => t.id !== value.id);
+              return p;
+            });
+            this.formService.endSaveMessage();
+            closeCallback!();
+          },
+          error: () => this.formService.saveErrorMessage()
         });
         break;
 
       case 'tag':
-        if (!this.zodService.validateProp(tagSchema, name, value).success) {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Incorrect data',
-            life: 3000,
-          });
+        if (!this.formService.validateSchema(tagSchema, value).success) {
+          this.formService.saveErrorMessage();
           return;
         }
-
+        
+        this.formService.startSaveMessage();
         this.tagService.edit(value).subscribe({
-          next: () => closeCallback!(),
-          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
+          next: () => {
+            closeCallback!();
+            this.formService.endSaveMessage();
+          },
+          error: () => this.formService.saveErrorMessage()
+        });
+        break;
+
+      case 'state':
+        this.formService.startSaveMessage();
+        this.taskService.updateTaskState(this.task().id!, this.task().state.id!).subscribe({
+          next: () => this.formService.endSaveMessage(),
+          error: () => this.formService.saveErrorMessage()
         });
         break;
 
       default:
         if (this.task().id === null || this.task().id === undefined) {
-          if (!this.zodService.validateSchema(taskSchema, this.task()).success) {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Incorrect data',
-              life: 3000,
-            });
+          if (!this.formService.validateSchema(taskSchema, this.task()).success) {
+            this.formService.saveErrorMessage();
             return;
           }
 
-          this.taskService.create(this.task()).subscribe((taskId) => {
-            if (taskId === null || taskId === undefined) {
-              this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-            } else {
+          this.formService.startSaveMessage();
+          this.taskService.create(this.task()).subscribe({
+            next: taskId => {
               this.task.update((t) => {
                 t.id = taskId;
                 return t;
               });
               if (this.createCallback()) this.createCallback()!();
-            }
+              this.formService.endSaveMessage();
+            },
+            error: () => this.formService.saveErrorMessage()
           });
         } else {
-          if (!this.zodService.validateProp(taskSchema, name, value).success) {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Incorrect data',
-              life: 3000,
-            });
+          if (!this.formService.validateProp(taskSchema, name, value).success) {
+            this.formService.saveErrorMessage();
             return;
           }
-
+          
+          this.formService.startSaveMessage();
           this.taskService.edit(this.task()).subscribe({
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
+            next: () => this.formService.endSaveMessage(),
+            error: () => this.formService.saveErrorMessage()
           });
         }
         break;

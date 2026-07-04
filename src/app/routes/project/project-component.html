@@ -84,63 +84,65 @@
             </ng-template>
         </p-inplace>
 
-        <div class="flex justify-evenly w-1/2">
-            <h2>Tasks</h2>
-            <div class="flex gap-2">
-                @if(p().states?.length) {
-                    <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
-                }
-                <p-button (click)="this.isInKanbanSettings.set(true)"><i class="pi pi-cog"></i></p-button>
+        @if (p().id) {
+            <div class="flex justify-evenly w-1/2">
+                <h2>Tasks</h2>
+                <div class="flex gap-2">
+                    @if(p().states?.length) {
+                        <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
+                    }
+                    <p-button (click)="this.isInKanbanSettings.set(true)"><i class="pi pi-cog"></i></p-button>
+                </div>
             </div>
-        </div>
 
-        <div class="flex justify-evenly gap-8 w-1/2 min-h-52">
-            @for (state of p().states; track state.id) {
-                <div class="flex flex-col items-center gap-4 w-full">
-                    <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
-                    <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
-                        cdkDropList
-                        [id]="state.id + ' ' + state.name"
-                        cdkDropListSortingDisabled
-                        [cdkDropListData]="(p().tasks ?? []).filter(t => t.state?.id === state.id).map(t => t.id + '')"
-                        [cdkDropListConnectedTo]="(p().states ?? []).filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
-                        (cdkDropListDropped)="onDrop($event)">
-                        <div class="flex flex-col p-2 gap-4">
-                            @for (task of p().tasks; track task.id) {
-                                @if(task.state?.id === state.id) {
-                                    <button (click)="editTask(task.id!)">
-                                        <p-card class="draggable" cdkDrag [cdkDragData]="task.id">
-                                            <div class="flex justify-between">
-                                                <div class="grow flex flex-col gap-1.5">
-                                                    <p class="text-left">{{task.name}}</p>
+            <div class="flex justify-evenly gap-8 w-1/2 min-h-52">
+                @for (state of p().states; track state.id) {
+                    <div class="flex flex-col items-center gap-4 w-full">
+                        <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
+                        <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
+                            cdkDropList
+                            [id]="state.id + ' ' + state.name"
+                            cdkDropListSortingDisabled
+                            [cdkDropListData]="(p().tasks ?? []).filter(t => t.state?.id === state.id).map(t => t.id + '')"
+                            [cdkDropListConnectedTo]="(p().states ?? []).filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
+                            (cdkDropListDropped)="onDrop($event)">
+                            <div class="flex flex-col p-2 gap-4">
+                                @for (task of p().tasks; track task.id) {
+                                    @if(task.state?.id === state.id) {
+                                        <button (click)="editTask(task.id!)">
+                                            <p-card class="draggable" cdkDrag [cdkDragData]="task.id">
+                                                <div class="flex justify-between">
+                                                    <div class="grow flex flex-col gap-1.5">
+                                                        <p class="text-left">{{task.name}}</p>
 
-                                                    @if (task.tags?.length) {
-                                                        <div class="flex flex-wrap gap-1">
-                                                            @for (tag of task.tags; track tag.id) {
-                                                                <span [ngStyle]="{'background-color': tag.color + '88'}" class="p-1 rounded text-xs">{{tag.name}}</span>
-                                                            }
-                                                        </div>
+                                                        @if (task.tags?.length) {
+                                                            <div class="flex flex-wrap gap-1">
+                                                                @for (tag of task.tags; track tag.id) {
+                                                                    <span [ngStyle]="{'background-color': tag.color + '88'}" class="p-1 rounded text-xs">{{tag.name}}</span>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    @if (task.dependencies?.length) {
+                                                        <i class="pi pi-link"></i>
                                                     }
                                                 </div>
-
-                                                @if (task.dependencies?.length) {
-                                                    <i class="pi pi-link"></i>
-                                                }
-                                            </div>
-                                        </p-card>
-                                    </button>
+                                            </p-card>
+                                        </button>
+                                    }
                                 }
-                            }
-                        </div>
-                    </p-card>
-                </div>
-            }
-        </div>
+                            </div>
+                        </p-card>
+                    </div>
+                }
+            </div>
 
-        <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="delete($event)">
-            <i class="pi pi-trash"></i>
-            <span>Delete project</span>
-        </button>
+            <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="delete($event)">
+                <i class="pi pi-trash"></i>
+                <span>Delete project</span>
+            </button>
+        }
     </main>
 
     <app-task-component [task]="editedTask()" [(visible)]="isEditingTask" (createCallback)="onCreateTask()" />

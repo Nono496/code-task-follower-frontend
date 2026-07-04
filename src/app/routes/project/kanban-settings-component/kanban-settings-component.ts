@@ -12,7 +12,7 @@ import { Inplace } from "primeng/inplace";
 import { Toast } from "primeng/toast";
 import { Project, State, stateSchema } from '../../../dtos/zod-schemas';
 import { StateService } from '../../../services/state-service';
-import { ZodService } from '../../../services/zod-service';
+import { FormService } from '../../../services/form-service';
 
 @Component({
   selector: 'app-kanban-settings-component',
@@ -22,7 +22,7 @@ import { ZodService } from '../../../services/zod-service';
 })
 export class KanbanSettingsComponent {
   messageService = inject(MessageService);
-  zodService = inject(ZodService);
+  formService = inject(FormService);
   stateService = inject(StateService);
 
   project = model.required<Project>();
@@ -47,7 +47,7 @@ export class KanbanSettingsComponent {
   onSubmit(name: string, value: any, closeCallback: () => any) {
     switch (name) {
       case 'stateToAdd':
-        if (!this.zodService.validateSchema(stateSchema, value).success) {
+        if (!this.formService.validateSchema(stateSchema, value).success) {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
           return;
         }
@@ -67,7 +67,7 @@ export class KanbanSettingsComponent {
         break;
 
       case 'state':
-        if (!this.zodService.validateProp(stateSchema, name, value).success) {
+        if (!this.formService.validateProp(stateSchema, name, value).success) {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
           return;
         }

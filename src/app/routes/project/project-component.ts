@@ -21,7 +21,7 @@ import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Toast } from "primeng/toast";
-import { ZodService } from '../../services/zod-service';
+import { FormService as FormService } from '../../services/form-service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RouteItems } from '../../app.routes';
 import { Router } from '@angular/router';
@@ -36,7 +36,7 @@ import { Router } from '@angular/router';
 export class ProjectComponent {
   messageService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
-  zodService = inject(ZodService);
+  formService = inject(FormService);
   router = inject(Router);
 
   projectService = inject(ProjectService);
@@ -49,6 +49,10 @@ export class ProjectComponent {
       name: 'Unnamed project',
       color: '#00FF00'
     } as Project));
+
+  ngOnInit() {
+    this.formService.messageService = this.messageService;
+  }
 
   isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);
@@ -72,32 +76,34 @@ export class ProjectComponent {
 
   onSubmit(name: string, value: any) {
     if (this.project.value()?.id) {
-      if (!this.zodService.validateProp(projectSchema, name, value).success) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+      if (!this.formService.validateProp(projectSchema, name, value).success) {
+        this.formService.saveErrorMessage();
         return;
       }
 
       this.projectService.edit(this.project.value()!).subscribe({
-        error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
+        error: () => this.formService.saveErrorMessage()
       });
     } else {
       // Validation
-      if (!this.zodService.validateSchema(projectSchema, this.project.value()).success) {
-        console.error(this.zodService.validateSchema(projectSchema, this.project.value()).data)
-        console.error(this.zodService.validateSchema(projectSchema, this.project.value()).error)
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+      if (!this.formService.validateSchema(projectSchema, this.project.value()).success) {
+        console.error(this.formService.validateSchema(projectSchema, this.project.value()).data)
+        console.error(this.formService.validateSchema(projectSchema, this.project.value()).error)
+        this.formService.saveErrorMessage();
         return;
       }
 
       // Create
+      this.formService.startSaveMessage();
       this.projectService.create(this.project.value()!).subscribe({
         next: id => {
           this.project.update(p => {
             p!.id = id;
             return p;
           });
+          this.formService.endSaveMessage();
         },
-        error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
+        error: () => this.formService.saveErrorMessage()
       });
     }
   }
@@ -112,7 +118,7 @@ export class ProjectComponent {
           p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = movedTask.state;
           return p;
         }),
-        error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
+        error: () => this.formService.saveErrorMessage()
       });
     }
   }
@@ -135,15 +141,16 @@ export class ProjectComponent {
         severity: 'danger'
       },
       accept: () => {
-          this.messageService.add({ key: 'delete confirmed', severity: 'info', summary: 'Project is being deleted...' });
-          
-          this.projectService.delete(this.project.value()?.id!).subscribe({
-            next: () => {
-              this.messageService.clear('delete confirmed');
-              this.router.navigate(['/', RouteItems.Dashboard]);
-            },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Project could not be deleted.' })
-          })
+        this.formService.startSaveMessage('Project is being deleted...');
+        
+        this.projectService.delete(this.project.value()?.id!).subscribe({
+          next: () => {
+            this.formService.endSaveMessage('Project is being deleted...');
+            this.router.navigate(['/', RouteItems.Dashboard]);
+          },
+
+          error: () => this.formService.saveErrorMessage('Project could not be deleted.')
+        });
       },
     });
   }
