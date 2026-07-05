@@ -72,7 +72,7 @@
                                             <p-colorpicker name="color" [(ngModel)]="tag.color" #model="ngModel" />
                                             <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="tag.name" [pAutoFocus]="true" />
                                         </p-chip>
-                                        
+
                                         <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                                     </div>
                                 </form>
@@ -93,7 +93,7 @@
                                         <p-colorpicker name="tagToCreateColor" [(ngModel)]="tagToCreate().color" #model="ngModel" />
                                         <input class="ml-2" name="tagToCreateName" pInputText type="text" [(ngModel)]="tagToCreate().name" [pAutoFocus]="true" />
                                     </p-chip>
-                                    
+
                                     <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
                                 </div>
                             </form>
@@ -107,7 +107,7 @@
                 <p>Loading suggestions...</p>
             } @else if (otherTags.hasValue()) {
                 @let suggestions = otherTags.value().filter(t => !(task().tags ?? []).includes(t));
-                
+
                 @if (suggestions.length) {
                     <h4 class="ml-2 text-base my-2">Tag suggestions</h4>
                     <div class="flex flex-wrap w-full gap-1">
@@ -132,7 +132,7 @@
                     Loading...
                 } @else if (fullTask.hasValue()) {
                     <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
-                        <ng-template #display>              
+                        <ng-template #display>
                             <ul>
                                 @for (project of fullTask.value().projects; track project.id) {
                                     <li class="flex gap-2 items-center m-1">
@@ -173,7 +173,7 @@
                 <h4>Tasks</h4>
 
                 <p-inplace class="flex items-center" [disabled]="otherTasks.error() ? true : false">
-                    <ng-template #display>              
+                    <ng-template #display>
                         <ul>
                             @for (rTask of task().dependencies; track rTask.id) {
                                 <li class="flex gap-2 items-center m-1">
@@ -220,7 +220,7 @@
 
                 <button (click)="currentChronometerPartPlaying.update(prev => !prev)" [ngStyle]="{'background-color': task().state?.color + '88', 'border-width': currentChronometerPartPlaying() ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
                     <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
-                    
+
                     @if (currentChronometerPartPlaying()) {
                         <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
                     }
@@ -244,7 +244,7 @@
                             </span>
                         </ng-template>
                     </p-inplace>
-                </div>            
+                </div>
             </div>
 
             <ul class="my-6">

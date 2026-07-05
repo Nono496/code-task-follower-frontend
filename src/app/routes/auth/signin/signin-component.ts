@@ -15,7 +15,7 @@ import { AuthService } from '../../../services/auth-service';
 @Component({
   selector: 'app-signin',
   imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ToastModule, ButtonModule, ReactiveFormsModule],
-  providers: [AuthService, MessageService],
+  providers: [MessageService],
   templateUrl: './signin-component.html',
   styleUrl: './signin-component.css',
 })
@@ -58,7 +58,7 @@ export class Signin {
   }
   isInvalid(controlName: string) {
       const control = this.getControl(controlName);
-    
+
       return control?.invalid && (control.dirty || this.formSubmitted);
   }
 }
