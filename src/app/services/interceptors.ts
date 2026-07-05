@@ -1,6 +1,6 @@
-import { HttpEvent, HttpHandlerFn, HttpRequest } from "@angular/common/http";
+import { HttpEvent, HttpEventType, HttpHandlerFn, HttpRequest } from "@angular/common/http";
 import { inject } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { AuthService } from "./auth-service";
 import { environment } from "../../environments/environment";
 
@@ -8,13 +8,25 @@ export function authInterceptor(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> {
-  const authToken = inject(AuthService).getAuthToken();
-
-  return next(
-    req.clone({
-        headers: req.headers.set('Authorization', 'Bearer ' + authToken),
-    })
-  );
+  const authService = inject(AuthService);
+  const authToken = authService.getAuthToken();
+  
+  if (authToken) {
+    return next(
+      req.clone({
+          headers: req.headers.set('Authorization', 'Bearer ' + authToken),
+      })
+    ).pipe(
+      tap(event => {
+        console.log(event)
+        if (event.type === HttpEventType.ResponseHeader && event.status === 401) {
+          authService.logOut();
+          console.log("logged out")
+        }
+      })
+    );
+  }
+  return next(req);
 }
 
 

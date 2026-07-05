@@ -24,9 +24,10 @@ export class AuthService extends CrudService<User> {
 
     const cookies = document.cookie;
     if (!cookies.includes(this.accessTokenCookieName)) return null;
-
-    const startIndex = cookies.indexOf(this.accessTokenCookieName) + this.accessTokenCookieName.length + 1;
-    const endIndex = cookies.indexOf(';', startIndex);
+    
+    const startIndex = cookies.indexOf(this.accessTokenCookieName) + this.accessTokenCookieName.length;
+    let endIndex = cookies.indexOf(';', startIndex);
+    endIndex = endIndex === -1 ? cookies.length : endIndex;
 
     return this._authToken = cookies.substring(startIndex, endIndex);
   }

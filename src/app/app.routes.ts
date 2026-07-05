@@ -5,8 +5,6 @@ import { Signin } from './routes/auth/signin/signin-component';
 import { Dashboard } from './routes/dashboard/dashboard-component';
 import { ProjectComponent } from './routes/project/project-component';
 import { AuthService } from './services/auth-service';
-import { ProjectService } from './services/project-service';
-import { TaskService } from './services/task-service';
 
 export enum RouteItems {
     LogIn = 'log-in',
@@ -40,13 +38,13 @@ export const routes: Routes = [
         path: RouteItems.Dashboard,
         title: 'Dashboard',
         component: Dashboard,
-        //canActivate: [authRequiredGuard]
+        canActivate: [authRequiredGuard]
     },
     {
         path: RouteItems.Project,
         title: 'New project',
         component: ProjectComponent,
-        //canActivate: [authRequiredGuard],
+        canActivate: [authRequiredGuard],
         resolve: {
             projectId: (route: ActivatedRouteSnapshot) => null,
         }
@@ -55,7 +53,7 @@ export const routes: Routes = [
         path: RouteItems.Project + '/:project-id',
         title: 'Project',//FIXME Should be project title
         component: ProjectComponent,
-        //canActivate: [authRequiredGuard],
+        canActivate: [authRequiredGuard],
         resolve: {
             projectId: (route: ActivatedRouteSnapshot) => {
                 const param = route.paramMap.get('project-id');
