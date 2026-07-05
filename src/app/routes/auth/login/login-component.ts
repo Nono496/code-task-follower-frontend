@@ -39,10 +39,16 @@ export class Login {
   onSubmit() {
       this.formSubmitted = true;
       if (this.form.valid) {
-        this.authService.logIn(this.form.getRawValue()).subscribe((ok) => {
-          if (ok) {
-            this.router.navigate(['/', 'dashboard']);
-          } else {
+        this.authService.logIn(this.form.getRawValue()).subscribe({
+          next: (ok) => {
+            if (ok) {
+              this.router.navigate(['/', 'dashboard']);
+            } else {
+              this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+              this.formSubmitted = false;
+            }
+          },
+          error: () => {
             this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
             this.formSubmitted = false;
           }
