@@ -14,7 +14,6 @@ export enum RouteItems {
 }
 
 const authRequiredGuard: CanActivateFn = (_r: ActivatedRouteSnapshot, _s: RouterStateSnapshot) => {
-    console.log("auth check", inject(AuthService).isAuthenticated());
     if (inject(AuthService).isAuthenticated()) {
         return true;
     } else {

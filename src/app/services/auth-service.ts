@@ -12,16 +12,14 @@ export class AuthService extends CrudService<User> {
   private accessTokenCookieName = 'accessToken=';
   protected override parseSchema = userSchema;
 
-  private _isAuthenticated = false;
+  private _isAuthenticated: boolean | null = null;
   private _authToken: string | undefined;
 
-  constructor(){
-    super();
-    console.log("new auth !")
-  }
-
   isAuthenticated(): boolean {
-    console.log("isAuthenticated() -> "+this._isAuthenticated);
+    if (this._isAuthenticated === null) {
+      this._isAuthenticated = this.getAuthToken() !== null;
+    }
+
     return this._isAuthenticated;
   }
 
@@ -49,9 +47,7 @@ export class AuthService extends CrudService<User> {
   }
 
   saveTokenFromHeader(headers: HttpHeaders): boolean {
-    console.log("saveTokenFromHeader")
     const token = headers.get('Authorization')?.replace('Bearer ', '');
-    console.log("token", token)
     if (!token) {
       return false;
     }
@@ -65,8 +61,6 @@ export class AuthService extends CrudService<User> {
     '; path=/';
 
     this._isAuthenticated = true;
-    console.log("_isAuthenticated", this._isAuthenticated);
-    this.isAuthenticated();
     return true;
   }
 
@@ -77,5 +71,6 @@ export class AuthService extends CrudService<User> {
       '; path=/';
 
       this._isAuthenticated = false;
+      this._authToken = undefined;
   }
 }
