@@ -6,6 +6,7 @@
     </ng-template>
 
     <p-fieldset legend="States">
+        <h4 class="ml-2 text-base my-2">Selected states</h4>
         <div class="flex flex-wrap w-full">
             @for (state of project().states; track state.id) {
                 <p-inplace class="flex items-center">
@@ -19,7 +20,7 @@
                         <span class="inline-flex items-center gap-2">
                             <form #form="ngForm" (ngSubmit)="onSubmit('state', state, () => closeCallback($event))" class="flex flex-col gap-4">
                                 <div class="flex items-center gap-2">
-                                    <p-chip [removable]="true" (onRemove)="onDelete('state', state, () => closeCallback($event))">
+                                    <p-chip [removable]="true" (onRemove)="onSubmit('stateToRemove', state, () => closeCallback($event))">
                                         <p-colorpicker name="color" [(ngModel)]="state.color" #model="ngModel" />
                                         <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="state.name" [pAutoFocus]="true" />
                                     </p-chip>
@@ -38,19 +39,37 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('stateToAdd', stateToAdd(), () => closeCallback($event))" class="flex flex-col gap-4">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('state', stateToCreate(), () => closeCallback($event))" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
                                 <p-chip [removable]="true" (onRemove)="closeCallback($event)">
-                                    <p-colorpicker name="stateToAddColor" [(ngModel)]="stateToAdd().color" #model="ngModel" />
-                                    <input class="ml-2" name="stateToAddName" pInputText type="text" [(ngModel)]="stateToAdd().name" [pAutoFocus]="true" />
+                                    <p-colorpicker name="stateToCreateColor" [(ngModel)]="stateToCreate().color" #model="ngModel" />
+                                    <input class="ml-2" name="stateToCreateName" pInputText type="text" [(ngModel)]="stateToCreate().name" [pAutoFocus]="true" />
                                 </p-chip>
 
-                                <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                                <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
                             </div>
                         </form>
                     </span>
                 </ng-template>
             </p-inplace>
         </div>
+
+        @if (otherStates.isLoading()) {
+            <p>Loading suggestions...</p>
+        } @else if (otherStates.hasValue()) {
+            @let suggestions = otherStates.value().filter(o => !(project().states?.map(s => s.id) ?? []).includes(o.id));
+
+            @if (suggestions.length) {
+                <h4 class="ml-2 text-base my-2">State suggestions</h4>
+                <div class="flex flex-wrap w-full gap-1">
+                    @for (state of suggestions; track state.id) {
+                        <p-chip [removable]="true" (onRemove)="onSubmit('stateToAdd', state)" removeIcon="pi pi-plus" class="!py-0 !pl-0 !pr-4">
+                            <span [ngStyle]="{'background-color': state.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
+                            <span class="ml-2">{{state.name}}</span>
+                        </p-chip>
+                    }
+                </div>
+            }
+        }
     </p-fieldset>
 </p-dialog>

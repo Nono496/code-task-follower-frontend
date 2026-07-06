@@ -28,32 +28,29 @@
         </div>
     }
 
-    <div class="flex justify-evenly w-1/2">
-        <div class="flex gap-4 items-center"><h2>Tasks</h2><!--<span [ngStyle]="{'background-color': tasks.value()?.at(0)!.state?.color}" class="tag">{{tasks.value()?.at(0)!.state?.name}}</span>--></div>
-        <p-button (click)="editTask(null)"><i class="pi pi-plus"></i></p-button>
-    </div>
-
     @if(tasks.error()) {
         <p>Can't find tasks</p>
     } @else if (tasks.isLoading()) {
         <p>Loading tasks...</p>
     } @else if (tasks.hasValue()) {
+        <div class="flex justify-evenly w-1/2">
+            <div class="flex gap-4 items-center"><h2>Tasks</h2></div>
+            <!--<span [ngStyle]="{'background-color': tasks.value()?.at(0)!.state?.color}" class="tag">{{tasks.value()?.at(0)!.state?.name}}</span>-->
+        </div>
+
         <div class="w-1/2 max-h-96 overflow-y-auto">
             <p-dataview [value]="tasks.value()">
                 <ng-template #list let-items>
-                    <div class="grid grid-cols-3 gap-7 p-4">
+                    <div [class]="'grid grid-cols-3 gap-7' + (items?.length ? 'p-4' : '')">
                         @for (item of items; track item.id) {
-                            <p-card class="max-w-3xl cursor-pointer">
-                                <button (click)="editTask(item.id)" class="flex items-center gap-4">
-                                    <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                    <span class="shrink-0 cursor-pointer">{{item.name}}</span>
-                                </button>
+                            <p-card class="max-w-3xl cursor-pointer flex items-center gap-4">
+                                <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                <span class="shrink-0 cursor-pointer">{{item.name}}</span>
                             </p-card>
                         }
                     </div>
                 </ng-template>
             </p-dataview>
         </div>
-        <app-task-component [task]="editedTask()" [(visible)]="isEditingTask" />
     }
 </main>

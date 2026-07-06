@@ -3,12 +3,12 @@ import { CrudItem } from "../services/crud-service";
 
 export const taskSchema = z.object({
     id: z.number().optional(),
-    name: z.string().min(3),
+    name: z.string().min(3, {error: 'Too short'}),
     get state() { return stateSchema },
     get chronometer() { return chronometerSchema.optional() },
     get tags() { return z.array(tagSchema).optional() },
     get dependencies() { return z.array(taskSchema).optional() },
-    get projects() { return z.array(projectSchema).min(1) },
+    get projects() { return z.array(projectSchema).optional() },
     get commits() { return z.array(commitSchema).optional() },
     get codes() { return z.array(codeSchema).optional() },
 });

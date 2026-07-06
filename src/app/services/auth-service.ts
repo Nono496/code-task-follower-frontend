@@ -38,12 +38,12 @@ export class AuthService extends CrudService<User> {
 
   logIn(user: User): Observable<boolean> {
     return this.http.post(this.endpoint + '/login', user, { observe: 'response' })
-      .pipe(map(response => response.ok && this.saveTokenFromHeader(response.headers)));
+      .pipe(map(response => this.saveTokenFromHeader(response.headers)));
   }
 
   signIn(user: User): Observable<boolean> {
     return this.http.post(this.endpoint + '/register', user, { observe: 'response' })
-      .pipe(map(response => response.ok && this.saveTokenFromHeader(response.headers)));
+      .pipe(map(response => this.saveTokenFromHeader(response.headers)));
   }
 
   saveTokenFromHeader(headers: HttpHeaders): boolean {

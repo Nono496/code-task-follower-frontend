@@ -13,6 +13,8 @@ import { Toast } from "primeng/toast";
 import { Project, State, stateSchema } from '../../../dtos/zod-schemas';
 import { StateService } from '../../../services/state-service';
 import { FormService } from '../../../services/form-service';
+import z from 'zod';
+import { ProjectService } from '../../../services/project-service';
 
 @Component({
   selector: 'app-kanban-settings-component',
@@ -24,13 +26,15 @@ export class KanbanSettingsComponent {
   messageService = inject(MessageService);
   formService = inject(FormService);
   stateService = inject(StateService);
+  projectService = inject(ProjectService);
 
   project = model.required<Project>();
   visible = model.required<boolean>();
 
-  stateToAdd = signal<State>({} as State);
+  stateToCreate = signal<State>({} as State);
+  otherStates = this.stateService.getAll();
 
-  onDelete(name: string, value: any, closeCallback: () => any) {
+  /*onDelete(name: string, value: any, closeCallback: () => any) {
     switch (name) {
       case 'state':
         this.stateService.delete(value.id).subscribe({
@@ -42,40 +46,70 @@ export class KanbanSettingsComponent {
       default:
         break;
     }
+  }*/
+
+  addState(state: State) {
+    this.formService.startSaveMessage();
+    this.projectService.addToProject(this.project().id!, state.id!).subscribe({
+      next: () => {
+        this.project.update(p => {
+          p.states = p.states?.length ? p.states : [];
+          p.states.push(state);
+          return p;
+        });
+        this.stateToCreate.set({} as State);
+        this.formService.endSaveMessage();
+      },
+      error: () => this.formService.saveErrorMessage()
+    });
   }
 
-  onSubmit(name: string, value: any, closeCallback: () => any) {
-    switch (name) {
+  onSubmit(name: string, value: any, closeCallback?: () => any) {
+    switch (name) {        
       case 'stateToAdd':
-        if (!this.formService.validateSchema(stateSchema, value).success) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
-          return;
-        }
-
-        this.stateService.create(value).subscribe(stateId => {
-          if (!stateId) {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-            return;
-          }
-
-          this.project.update(p => {
-            p.states?.push({...value, id: stateId});
-            return p;
-          });
-          this.stateToAdd.set({} as State);
-        });
+        this.addState(value);
         break;
 
+      case 'stateToRemove':        
+        this.formService.startSaveMessage();
+        this.projectService.removeFromProject(this.project().id!, value.id).subscribe({
+          next: () => {
+            this.project.update((p) => {
+              p.states = p.states?.filter(s => s.id !== value.id);
+              return p;
+            });
+            this.formService.endSaveMessage();
+            closeCallback!();
+          },
+          error: () => this.formService.saveErrorMessage()
+        });
+        break;
+      
       case 'state':
-        if (!this.formService.validateProp(stateSchema, name, value).success) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Incorrect data', life: 3000 });
+        const validation = this.formService.validateSchema(stateSchema, value);
+        if (!validation.success) {
+          this.formService.saveErrorMessage('Invalid data', z.prettifyError(validation.error), 5000);
           return;
         }
       
-        this.stateService.edit(value).subscribe({
-          next: () => closeCallback(),
-          error: () => this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 })
-        });
+        this.formService.startSaveMessage();
+        if (value.id) {
+          this.stateService.edit(value).subscribe({
+            next: () => {
+              closeCallback!();
+              this.formService.endSaveMessage();
+            },
+            error: () => this.formService.saveErrorMessage()
+          });
+        } else {
+          this.stateService.create(value).subscribe({
+            next: (stateId) => {
+              closeCallback!();
+              this.addState({ ...value, id: stateId });
+            },
+            error: () => this.formService.saveErrorMessage()
+          });
+        }
         break;
     
       default:

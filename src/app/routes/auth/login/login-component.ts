@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../../services/auth-service';
+import { FormService } from '../../../services/form-service';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +22,7 @@ import { AuthService } from '../../../services/auth-service';
 })
 export class Login {
   authService = inject(AuthService);
+  formService = inject(FormService);
   router = inject(Router);
 
   messageService = inject(MessageService);
@@ -35,26 +37,26 @@ export class Login {
       password: ['', Validators.required]
     });
   }
+  ngOnInit() {
+    this.formService.messageService = this.messageService;
+  }
 
   onSubmit() {
       this.formSubmitted = true;
       if (this.form.valid) {
+        this.formService.startSaveMessage('Logging in...');
         this.authService.logIn(this.form.getRawValue()).subscribe({
-          next: (ok) => {
-            if (ok) {
-              this.router.navigate(['/', 'dashboard']);
-            } else {
-              this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
-              this.formSubmitted = false;
-            }
+          next: () => {
+            this.router.navigate(['/', 'dashboard']);
+            this.formService.endSaveMessage('Logged in');
           },
           error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+            this.formService.saveErrorMessage();
             this.formSubmitted = false;
           }
         });
       } else {
-        this.messageService.add({ severity: 'error', summary: 'Error', life: 3000 });
+        this.formService.saveErrorMessage();
         this.formSubmitted = false;
       }
   }

@@ -20,15 +20,4 @@ import { TaskComponent } from "../task/task-component";
 export class Dashboard {
   projects = inject(ProjectService).getAll();
   tasks = inject(TaskService).getAll();// TODO Apply filter to get only those in dev
-
-  isEditingTask = signal<boolean>(false);
-  editedTaskId = signal<number | null>(null);
-  editedTask = computed<Task>(() => {
-    if (this.editedTaskId() === null) return {} as Task;
-    return this.tasks.value()!.filter(t => t.id == this.editedTaskId()).at(0)!;
-  });
-  editTask(taskId: number | null) {
-    this.editedTaskId.set(taskId);
-    this.isEditingTask.set(true);
-  }
 }

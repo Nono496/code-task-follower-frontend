@@ -1,4 +1,4 @@
-import { NgStyle } from '@angular/common';
+import { JsonPipe, NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -20,6 +20,7 @@ import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
 import { Toast } from "primeng/toast";
 import { FormService } from '../../services/form-service';
+import z from 'zod';
 
 @Component({
   selector: 'app-task-component',
@@ -37,7 +38,7 @@ import { FormService } from '../../services/form-service';
     Button,
     ColorPicker,
     Divider,
-    Toast,
+    Toast
   ],
   providers: [MessageService],
   templateUrl: './task-component.html',
@@ -48,7 +49,7 @@ export class TaskComponent {
   formService = inject(FormService);
 
   taskService = inject(TaskService);
-  stateService = inject(StateService);
+  projectService = inject(ProjectService);
   tagService = inject(TagService);
 
   task = model.required<Task>();
@@ -57,7 +58,8 @@ export class TaskComponent {
   visible = model.required<boolean>();
   createCallback = input<() => void>();
 
-  states = this.stateService.getAll();
+  mainProjectId = input.required<number>();
+  states = this.projectService.getAllStates(this.mainProjectId);
   projects = inject(ProjectService).getAll();
   otherTasks = this.taskService.getAll();
 
@@ -79,7 +81,7 @@ export class TaskComponent {
   }
 
   ngOnInit() {
-      this.formService.messageService = this.messageService;
+    this.formService.messageService = this.messageService;
   }
 
   /*onDelete(name: string, value: any) {
@@ -173,7 +175,7 @@ export class TaskComponent {
 
       case 'state':
         this.formService.startSaveMessage();
-        this.taskService.updateTaskState(this.task().id!, this.task().state.id!).subscribe({
+        this.taskService.updateTaskState(this.task().id!, this.task().state!.id!).subscribe({
           next: () => this.formService.endSaveMessage(),
           error: () => this.formService.saveErrorMessage()
         });
@@ -181,8 +183,9 @@ export class TaskComponent {
 
       default:
         if (this.task().id === null || this.task().id === undefined) {
-          if (!this.formService.validateSchema(taskSchema, this.task()).success) {
-            this.formService.saveErrorMessage();
+          const validation = this.formService.validateSchema(taskSchema, this.task());
+          if (!validation.success) {
+            this.formService.saveErrorMessage('Invalid data', z.prettifyError(validation.error), 5000);
             return;
           }
 

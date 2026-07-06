@@ -23,15 +23,15 @@ export class FormService {
     }
 
     startSaveMessage(summary = 'Saving...') {
-        this._messageService?.clear('saved');
-        this._messageService?.add({ key: 'saving', severity: 'info', summary });
+        this._messageService!.clear('saved');
+        this._messageService!.add({ key: 'saving', severity: 'info', summary });
     }
     endSaveMessage(summary = 'Saved') {
-        this._messageService?.clear('saving');
-        this._messageService?.add({ key: 'saved', severity: 'success', summary, life: 2000 });
+        this._messageService!.clear('saving');
+        this._messageService!.add({ key: 'saved', severity: 'success', summary, life: 2000 });
     }
-    saveErrorMessage(summary = 'Error') {
-        this._messageService?.clear('saving');
-        this._messageService?.add({ severity: 'error', summary, life: 2000 });
+    saveErrorMessage(summary = 'Error', detail: string | undefined = undefined, life = 2000) {
+        this._messageService!.clear('saving');
+        this._messageService!.add({ severity: 'error', summary, detail, life, closable: true });
     }
 }

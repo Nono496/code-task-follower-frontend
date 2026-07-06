@@ -111,11 +111,11 @@ export class ProjectComponent {
   onDrop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer !== event.container && this.project.hasValue()) {
       const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
-      movedTask.state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
+      const state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
 
-      this.taskService.edit(movedTask).subscribe({
+      this.taskService.updateTaskState(movedTask.id!, state.id!).subscribe({
         next: () => this.project.update(p => {
-          p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = movedTask.state;
+          p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = state;
           return p;
         }),
         error: () => this.formService.saveErrorMessage()
