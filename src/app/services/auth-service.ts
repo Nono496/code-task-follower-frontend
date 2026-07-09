@@ -52,8 +52,7 @@ export class AuthService extends CrudService<User> {
       return false;
     }
 
-    const expirationDate = new Date();
-    expirationDate.setTime(expirationDate.getTime() + (60 * 60 * 24 * 7 * 4)); // 1 month
+    const expirationDate = new Date(new Date().setMonth(new Date().getMonth() + 1));
 
     document.cookie =
     this.accessTokenCookieName + token +

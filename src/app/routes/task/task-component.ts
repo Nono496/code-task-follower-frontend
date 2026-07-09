@@ -40,12 +40,10 @@ import z from 'zod';
     Divider,
     Toast
   ],
-  providers: [MessageService],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
-  messageService = inject(MessageService);
   formService = inject(FormService);
 
   taskService = inject(TaskService);
@@ -78,10 +76,6 @@ export class TaskComponent {
         this.task().state = this.states.value()?.at(0)!;
       }
     });
-  }
-
-  ngOnInit() {
-    this.formService.messageService = this.messageService;
   }
 
   /*onDelete(name: string, value: any) {
@@ -196,6 +190,7 @@ export class TaskComponent {
                 t.id = taskId;
                 return t;
               });
+              
               if (this.createCallback()) this.createCallback()!();
               this.formService.endSaveMessage();
             },

@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { JsonPipe, NgStyle } from '@angular/common';
-import { Component, computed, EventEmitter, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, EventEmitter, inject, input, signal } from '@angular/core';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
 import { ColorPickerModule } from 'primeng/colorpicker';
@@ -29,12 +29,11 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-project',
   imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast, ConfirmDialogModule, JsonPipe ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
 export class ProjectComponent {
-  messageService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
   formService = inject(FormService);
   router = inject(Router);
@@ -49,10 +48,6 @@ export class ProjectComponent {
       name: 'Unnamed project',
       color: '#00FF00'
     } as Project));
-
-  ngOnInit() {
-    this.formService.messageService = this.messageService;
-  }
 
   isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);
@@ -69,10 +64,26 @@ export class ProjectComponent {
       p!.tasks = !p?.tasks ? [] : p?.tasks;
       p!.tasks.push(this.editedTask());
       return p;
-    })
+    });
+
+    this.projectService.addTaskToProject(this.project.value()?.id!, this.editedTask().id!).subscribe({
+      error: () => this.formService.saveErrorMessage()
+    });
+  }
+
+  constructor() {
+    effect(() => {
+      if(!this.isEditingTask()) {
+        this.editedTaskId.set(0);
+        this.editedTaskId.set(null);
+      }
+    });
   }
 
   isInKanbanSettings = signal<boolean>(false);
+  onEditKanbanSettings() {
+    this.project.reload();
+  }
 
   onSubmit(name: string, value: any) {
     if (this.project.value()?.id) {
@@ -113,12 +124,17 @@ export class ProjectComponent {
       const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
       const state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
 
+      this.formService.startSaveMessage();
+      this.project.update(p => {
+        p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = state;
+        return p;
+      });
       this.taskService.updateTaskState(movedTask.id!, state.id!).subscribe({
-        next: () => this.project.update(p => {
-          p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = state;
-          return p;
-        }),
-        error: () => this.formService.saveErrorMessage()
+        //next: () => this.formService.endSaveMessage(),
+        error: () => {
+          this.formService.saveErrorMessage();
+          this.project.reload();
+        }
       });
     }
   }

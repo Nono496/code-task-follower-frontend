@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { AutoFocus } from "primeng/autofocus";
@@ -31,8 +31,12 @@ export class KanbanSettingsComponent {
   project = model.required<Project>();
   visible = model.required<boolean>();
 
-  stateToCreate = signal<State>({} as State);
+  stateToCreate = signal<State>({
+    color: '#0000FF'
+  } as State);
   otherStates = this.stateService.getAll();
+
+  onChangeSettings = input<() => void>();
 
   /*onDelete(name: string, value: any, closeCallback: () => any) {
     switch (name) {
@@ -50,7 +54,7 @@ export class KanbanSettingsComponent {
 
   addState(state: State) {
     this.formService.startSaveMessage();
-    this.projectService.addToProject(this.project().id!, state.id!).subscribe({
+    this.projectService.addStateToProject(this.project().id!, state.id!).subscribe({
       next: () => {
         this.project.update(p => {
           p.states = p.states?.length ? p.states : [];

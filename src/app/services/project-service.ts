@@ -14,10 +14,14 @@ export class ProjectService extends CrudService<Project> {
     return httpResource<State[]>(() => this.endpoint + '/' + projectId() + '/states');
   }
 
-  addToProject(projectId: number, stateId: number) {
+  addStateToProject(projectId: number, stateId: number) {
     return this.http.put<void>(this.endpoint + '/' + projectId + '/state/' + stateId, null);
   }
   removeFromProject(projectId: number, stateId: number) {
     return this.http.delete<void>(this.endpoint + '/' + projectId + '/state/' + stateId);
+  }
+
+  addTaskToProject(projectId: number, taskId: number) {
+    return this.http.put<void>(this.endpoint + '/' + projectId + '/task/' + taskId, null);
   }
 }

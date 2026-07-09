@@ -44,8 +44,10 @@
                     <div [class]="'grid grid-cols-3 gap-7' + (items?.length ? 'p-4' : '')">
                         @for (item of items; track item.id) {
                             <p-card class="max-w-3xl cursor-pointer flex items-center gap-4">
-                                <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                <span class="shrink-0 cursor-pointer">{{item.name}}</span>
+                                <button (click)="editTask(item.id)" class="flex items-center gap-4">
+                                    <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                    <span class="shrink-0 cursor-pointer">{{item.name}}</span>
+                                </button>
                             </p-card>
                         }
                     </div>
@@ -54,3 +56,5 @@
         </div>
     }
 </main>
+
+<!--<app-task-component [mainProjectId]="???" [task]="editedTask()" [(visible)]="isEditingTask" />-->

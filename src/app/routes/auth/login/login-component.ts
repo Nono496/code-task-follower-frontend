@@ -16,7 +16,6 @@ import { FormService } from '../../../services/form-service';
 @Component({
   selector: 'app-login',
   imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ToastModule, ButtonModule, ReactiveFormsModule],
-  providers: [MessageService],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })

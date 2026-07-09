@@ -16,7 +16,6 @@ import { FormService } from '../../../services/form-service';
 @Component({
   selector: 'app-signin',
   imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ToastModule, ButtonModule, ReactiveFormsModule],
-  providers: [MessageService],
   templateUrl: './signin-component.html',
   styleUrl: './signin-component.css',
 })
@@ -25,7 +24,6 @@ export class Signin {
   formService = inject(FormService);
   router = inject(Router);
 
-  messageService = inject(MessageService);
   fb = inject(FormBuilder);
 
   form: FormGroup;
@@ -36,9 +34,6 @@ export class Signin {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-  }
-  ngOnInit() {
-    this.formService.messageService = this.messageService;
   }
 
   onSubmit() {

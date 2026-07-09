@@ -3,7 +3,7 @@ import { CrudItem } from "../services/crud-service";
 
 export const taskSchema = z.object({
     id: z.number().optional(),
-    name: z.string().min(3, {error: 'Too short'}),
+    name: z.string().min(1, {error: 'Too short'}),
     get state() { return stateSchema },
     get chronometer() { return chronometerSchema.optional() },
     get tags() { return z.array(tagSchema).optional() },
@@ -16,7 +16,7 @@ export type Task = z.infer<typeof taskSchema> & CrudItem;
 
 export const projectSchema = z.object({
     id: z.number().optional(),
-    name: z.string().min(3),
+    name: z.string().min(1),
     color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/),
     description: z.string().optional(),
     get states() { return z.array(stateSchema).optional() },
@@ -27,7 +27,7 @@ export type Project = z.infer<typeof projectSchema> & CrudItem;
 
 export const tagSchema = z.object({
     id: z.number().optional(),
-    name: z.string().min(3),
+    name: z.string().min(1),
     color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/),
 });
 export type Tag = z.infer<typeof tagSchema> & CrudItem;
@@ -41,7 +41,7 @@ export type Branch = z.infer<typeof branchSchema> & CrudItem;
 
 export const stateSchema = z.object({
     id: z.number().optional(),
-    name: z.string().min(3),
+    name: z.string().min(1),
     color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/),
 });
 export type State = z.infer<typeof stateSchema> & CrudItem;
