@@ -95,9 +95,9 @@
                 </div>
             </div>
 
-            <div class="flex justify-evenly gap-8 w-1/2 min-h-52">
+            <div class="flex justify-center gap-8 w-4/5 min-h-52">
                 @for (state of p().states; track state.id) {
-                    <div class="flex flex-col items-center gap-4 w-full">
+                    <div class="flex flex-col items-center gap-4 w-full max-w-120">
                         <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
                         <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
                             cdkDropList
