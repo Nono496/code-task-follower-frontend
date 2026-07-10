@@ -4,7 +4,8 @@ import { CrudItem } from "../services/crud-service";
 export const taskSchema = z.object({
     id: z.number().optional(),
     name: z.string().min(1, {error: 'Too short'}),
-    get state() { return stateSchema },
+    description: z.string().optional(),
+    get state() { return stateSchema.optional() },
     get chronometer() { return chronometerSchema.optional() },
     get tags() { return z.array(tagSchema).optional() },
     get dependencies() { return z.array(taskSchema).optional() },

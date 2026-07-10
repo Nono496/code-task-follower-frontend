@@ -2,7 +2,7 @@ import { NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
-import { Button } from "primeng/button";
+import { Button, ButtonDirective } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
 import { ColorPicker } from "primeng/colorpicker";
 import { Dialog } from "primeng/dialog";
@@ -35,6 +35,7 @@ import { TaskService } from '../../services/task-service';
     Button,
     ColorPicker,
     Divider,
+    ButtonDirective
 ],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
@@ -217,7 +218,15 @@ export class TaskComponent {
             },
             error: () => this.formService.saveErrorMessage()
           });
-        } else {
+        } else {console.log(this.fullTask.hasValue(), name)
+          if (this.fullTask.hasValue() && name === 'description') {
+            this.task.update(t => {
+              t.description = this.fullTask.value()!.description;
+              return t;
+            });
+            console.log(this.task().description)
+          }
+          
           if (!this.formService.validateProp(taskSchema, name, value).success) {
             this.formService.saveErrorMessage();
             return;

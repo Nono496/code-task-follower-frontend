@@ -46,7 +46,23 @@
         </div>
     </ng-template>
 
-    <!--TODO Description textarea-->
+    @if(fullTask.hasValue()) {
+        <p-inplace class="flex items-center">
+            <ng-template #display>
+                <p>{{fullTask.value()!.description?.length ? fullTask.value().description : 'Write your description here'}}</p>
+            </ng-template>
+            <ng-template #content let-closeCallback="closeCallback">
+                <span class="inline-flex items-center gap-2">
+                    <form #form="ngForm" (ngSubmit)="onSubmit('description', fullTask.value().description)" class="flex flex-col gap-4">
+                        <div class="flex items-center gap-2">
+                            <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="fullTask.value().description" [pAutoFocus]="true"></textarea>
+                            <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                        </div>
+                    </form>
+                </span>
+            </ng-template>
+        </p-inplace>
+    }
 
     @if (task().id) {
         <p-fieldset legend="Tags">
