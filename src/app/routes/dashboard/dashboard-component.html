@@ -6,16 +6,12 @@
     } @else if (projects.isLoading()) {
         <p>Loading projects...</p>
     } @else if (projects.hasValue()) {
-        <div class="flex justify-evenly w-1/2"><h2>Projects</h2><a class="p-button" routerLink="/project"><i class="pi pi-plus"></i></a></div>
+        <div class="flex justify-evenly items-center w-full sm:w-2/3 md:w-1/2"><h2>Projects</h2><a class="p-button" routerLink="/project"><i class="pi pi-plus"></i></a></div>
 
-        <div class="w-1/2 max-h-48 overflow-y-auto">
+        <div class="w-full sm:w-2/3 md:w-1/2 max-h-48 overflow-y-auto">
             <p-dataview [value]="projects.value()">
                 <ng-template #list let-items>
                     @for (item of items; track item.id) {
-                        @if(!$first) {
-                            <p-divider />
-                        }
-
                         <p-card class="max-w-3xl">
                             <a class="flex items-center gap-4" [routerLink]="['/', 'project', item.id]">
                                 <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
@@ -33,20 +29,20 @@
     } @else if (tasks.isLoading()) {
         <p>Loading tasks...</p>
     } @else if (tasks.hasValue()) {
-        <div class="flex justify-evenly w-1/2">
+        <div class="flex justify-evenly items-center w-full sm:w-2/3 md:w-1/2">
             <div class="flex gap-4 items-center"><h2>Tasks</h2></div>
             <!--<span [ngStyle]="{'background-color': tasks.value()?.at(0)!.state?.color}" class="tag">{{tasks.value()?.at(0)!.state?.name}}</span>-->
         </div>
 
-        <div class="w-1/2 max-h-96 overflow-y-auto">
+        <div class="w-full sm:w-11/12 md:w-2/3 max-h-96 overflow-y-auto overflow-x-clip">
             <p-dataview [value]="tasks.value()">
                 <ng-template #list let-items>
-                    <div [class]="'grid grid-cols-3 gap-7' + (items?.length ? 'p-4' : '')">
+                    <div [class]="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7' + (items?.length ? 'p-4' : '')">
                         @for (item of items; track item.id) {
                             <p-card class="max-w-3xl cursor-pointer flex items-center gap-4">
                                 <button (click)="editTask(item.id)" class="flex items-center gap-4">
                                     <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                    <span class="shrink-0 cursor-pointer">{{item.name}}</span>
+                                    <span class="shrink-0 cursor-pointer w-full" style="word-break: break-word;">{{item.name}}</span>
                                 </button>
                             </p-card>
                         }

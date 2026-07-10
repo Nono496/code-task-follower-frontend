@@ -1,39 +1,41 @@
 @if(project.error()) {
     Can't find project {{projectId()}} : {{project.error() | json}}
 } @else if(project.isLoading()) {
-    <div class="h-full w-full p-4 flex justify-center items-center m-8 mb-1 gap-8">
-        <p-skeleton shape="circle" size="1.25rem"/>
-        <p-skeleton width="10rem" height="2.25rem"/>
-    </div>
-
-    <main class="w-full p-4 flex flex-col justify-center items-center m-8 mt-1 gap-8">
-        <div>
-            <p-skeleton width="100%"/>
-            <p-skeleton width="60%" />
-            <p-skeleton width="75%" />
+    <div class="flex flex-col items-center">
+        <div class="h-full w-full p-4 flex justify-center items-center my-8 mb-1 gap-8">
+            <p-skeleton shape="circle" size="1.25rem"/>
+            <p-skeleton width="10rem" height="2.25rem"/>
         </div>
 
-        <div class="flex justify-evenly w-1/2">
-            <h2>Tasks</h2>
-            <div class="flex gap-2">
-                <p-skeleton size="3rem"/>
-                <p-skeleton size="3rem"/>
+        <main class="w-full sm:w-2/3 md:w-1/2 p-4 flex flex-col justify-center items-center my-8 mt-1 gap-8">
+            <div class="w-full flex flex-col gap-2">
+                <p-skeleton width="100%" height="1lh"/>
+                <p-skeleton width="60%" height="1lh" />
+                <p-skeleton width="75%"  height="1lh"/>
             </div>
-        </div>
 
-        <div class="flex justify-evenly gap-8 w-1/2 min-h-52">
-            @for (state of [{id: 0}, {id: 1}, {id: 2}, {id: 3}]; track state.id) {
-                <div class="flex flex-col items-center gap-4 w-full">
-                    <p-skeleton width="5rem" height="2rem"/>
-                    <p-skeleton width="100%" height="400px" />
+            <div class="flex justify-evenly items-center gap-4 w-full sm:w-2/3 md:w-1/2">
+                <p-skeleton width="7rem" height="1.4lh"/>
+                <div class="flex gap-2">
+                    <p-skeleton size="3rem"/>
+                    <p-skeleton size="3rem"/>
                 </div>
-            }
-        </div>
-    </main>
+            </div>
+
+            <div class="flex justify-evenly gap-8 w-full min-h-52">
+                @for (state of [{id: 0}, {id: 1}, {id: 2}, {id: 3}]; track state.id) {
+                    <div class="flex flex-col items-center gap-4 w-full">
+                        <p-skeleton width="5rem" height="2rem"/>
+                        <p-skeleton width="100%" height="400px" />
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
 } @else if (project.hasValue()) {
     @let p = project.value;
 
-    <div class="h-full w-full p-4 flex justify-center items-center m-8 mb-1 gap-8">
+    <div class="h-full w-full p-4 flex justify-center items-center my-8 mb-1 gap-8">
         <p-inplace class="flex items-center" >
             <ng-template #display>
                 <span [ngStyle]="{'background-color': p().color}" class="w-5 h-5 rounded-full shrink-0 block"></span>
@@ -67,7 +69,7 @@
         </p-inplace>
     </div>
 
-    <main class="w-full p-4 flex flex-col justify-center items-center m-8 mt-1 gap-8">
+    <main class="w-full p-4 flex flex-col justify-center items-center my-8 mt-1 gap-8">
         <p-inplace class="flex items-center">
             <ng-template #display>
                 <p>{{!p().description?.length ? 'Write your description here' : p().description}}</p>
@@ -85,7 +87,7 @@
         </p-inplace>
 
         @if (p().id) {
-            <div class="flex justify-evenly w-1/2">
+            <div class="flex justify-evenly gap-2 w-full sm:w-1/2">
                 <h2>Tasks</h2>
                 <div class="flex gap-2">
                     @if(p().states?.length) {
@@ -95,9 +97,9 @@
                 </div>
             </div>
 
-            <div class="flex justify-around overflow-auto gap-8 w-4/5 min-h-52">
+            <div class="flex justify-around overflow-auto gap-8 w-11/12 sm:w-4/5 min-h-52">
                 @for (state of p().states; track state.id) {
-                    <div class="flex flex-col items-center gap-4 w-full max-w-[90%] min-w-[20rem]">
+                    <div class="flex flex-col items-center gap-4 w-full min-w-[80vw] sm:max-w-[90%] sm:min-w-[20rem]">
                         <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
                         <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
                             cdkDropList
@@ -113,7 +115,7 @@
                                             <p-card class="draggable" cdkDrag [cdkDragData]="task.id">
                                                 <div class="flex justify-between">
                                                     <div class="grow flex flex-col gap-1.5">
-                                                        <p class="text-left">{{task.name}}</p>
+                                                        <p class="text-left" style="word-break: break-word;">{{task.name}}</p>
 
                                                         @if (task.tags?.length) {
                                                             <div class="flex flex-wrap gap-1">
