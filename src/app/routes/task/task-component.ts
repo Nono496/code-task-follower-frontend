@@ -232,8 +232,13 @@ export class TaskComponent {
                 return t;
               });
               
-              if (this.createCallback()) this.createCallback()!();
-              this.formService.endSaveMessage();
+              this.projectService.addTaskToProject(this.mainProjectId(), taskId).subscribe({
+                next: () => {
+                  if (this.createCallback()) this.createCallback()!();
+                  this.formService.endSaveMessage();
+                },
+                error: () => this.formService.saveErrorMessage()
+              });
             },
             error: () => this.formService.saveErrorMessage()
           });

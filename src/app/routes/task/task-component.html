@@ -104,7 +104,7 @@
             @if (otherTags.isLoading()) {
                 <p>Loading suggestions...</p>
             } @else if (otherTags.hasValue()) {
-                @let suggestions = otherTags.value().filter(t => !(task().tags ?? []).includes(t));
+                @let suggestions = otherTags.value().filter(t => !(task().tags ?? []).map(t => t.id).includes(t.id));
 
                 @if (suggestions.length) {
                     <h4 class="ml-2 text-base my-2">Tag suggestions</h4>

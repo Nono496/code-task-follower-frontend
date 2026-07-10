@@ -65,10 +65,6 @@ export class ProjectComponent {
       p!.tasks.push(this.editedTask());
       return p;
     });
-
-    this.projectService.addTaskToProject(this.project.value()?.id!, this.editedTask().id!).subscribe({
-      error: () => this.formService.saveErrorMessage()
-    });
   }
   onDeleteTask(task: Task) {
     this.project.update(p => {
