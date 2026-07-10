@@ -37,7 +37,7 @@ export class FormService {
     }
     saveErrorMessage(summary = 'Error', detail: string | undefined = undefined, life = 2000) {
         this._messageService!.clear('saving');
-        this._messageService!.add({ severity: 'error', summary, detail, life, closable: true });
+        this._messageService!.add({ key: 'error', severity: 'error', summary, detail, life, closable: true });
     }
 
     confirmDelete(event: Event, accept: () => void) {

@@ -15,7 +15,6 @@ import { CardModule } from "primeng/card";
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { Skeleton } from 'primeng/skeleton';
-import { Toast } from "primeng/toast";
 import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
 import { StateService } from '../../services/state-service';
@@ -26,7 +25,7 @@ import { RouteItems } from '../../app.routes';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
@@ -128,7 +127,9 @@ export class ProjectComponent {
         return p;
       });
       this.taskService.updateTaskState(movedTask.id!, state.id!).subscribe({
-        next: () => this.formService.endSaveMessage(),
+        next: () => {
+          this.formService.endSaveMessage();
+        },
         error: () => {
           this.formService.saveErrorMessage();
           this.project.reload();

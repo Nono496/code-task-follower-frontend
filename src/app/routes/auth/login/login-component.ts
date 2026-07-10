@@ -6,16 +6,14 @@ import { InputTextModule } from 'primeng/inputtext';
 
 import { inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
-import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../../services/auth-service';
 import { FormService } from '../../../services/form-service';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ToastModule, ButtonModule, ReactiveFormsModule],
+  imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ButtonModule, ReactiveFormsModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
@@ -24,7 +22,6 @@ export class Login {
   formService = inject(FormService);
   router = inject(Router);
 
-  messageService = inject(MessageService);
   fb = inject(FormBuilder);
 
   form: FormGroup;
@@ -35,9 +32,6 @@ export class Login {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-  }
-  ngOnInit() {
-    this.formService.messageService = this.messageService;
   }
 
   onSubmit() {

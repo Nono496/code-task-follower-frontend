@@ -5,7 +5,6 @@ import { AuthService } from "./auth-service";
 import { environment } from "../../environments/environment";
 import { Router } from "@angular/router";
 import { RouteItems } from "../app.routes";
-import { MessageService } from "primeng/api";
 
 export function authInterceptor(
   req: HttpRequest<unknown>,

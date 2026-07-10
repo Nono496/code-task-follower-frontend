@@ -9,7 +9,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth-service';
 import { FormService } from '../../../services/form-service';
 

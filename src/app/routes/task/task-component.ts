@@ -1,7 +1,6 @@
-import { JsonPipe, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Button } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
@@ -13,15 +12,12 @@ import { Inplace } from "primeng/inplace";
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from "primeng/select";
 import { TextareaModule } from 'primeng/textarea';
+import z from 'zod';
 import { ChronometerPart, Tag, tagSchema, Task, taskSchema } from '../../dtos/zod-schemas';
+import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
-import { StateService } from '../../services/state-service';
 import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
-import { Toast } from "primeng/toast";
-import { FormService } from '../../services/form-service';
-import z from 'zod';
-import { ConfirmDialog } from "primeng/confirmdialog";
 
 @Component({
   selector: 'app-task-component',
@@ -39,15 +35,11 @@ import { ConfirmDialog } from "primeng/confirmdialog";
     Button,
     ColorPicker,
     Divider,
-    Toast,
-    ConfirmDialog
 ],
-  providers: [ConfirmationService],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
-  confirmationService = inject(ConfirmationService);
   formService = inject(FormService);
 
   taskService = inject(TaskService);

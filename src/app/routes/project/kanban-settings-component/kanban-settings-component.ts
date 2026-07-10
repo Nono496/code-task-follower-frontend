@@ -1,7 +1,6 @@
 import { NgStyle } from '@angular/common';
 import { Component, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { AutoFocus } from "primeng/autofocus";
 import { Button } from "primeng/button";
 import { Chip } from "primeng/chip";
@@ -9,7 +8,6 @@ import { ColorPicker } from "primeng/colorpicker";
 import { Dialog } from "primeng/dialog";
 import { Fieldset } from "primeng/fieldset";
 import { Inplace } from "primeng/inplace";
-import { Toast } from "primeng/toast";
 import { Project, State, stateSchema } from '../../../dtos/zod-schemas';
 import { StateService } from '../../../services/state-service';
 import { FormService } from '../../../services/form-service';
@@ -18,12 +16,11 @@ import { ProjectService } from '../../../services/project-service';
 
 @Component({
   selector: 'app-kanban-settings-component',
-  imports: [Dialog, Fieldset, Inplace, Chip, NgStyle, ColorPicker, Button, AutoFocus, FormsModule, Toast],
+  imports: [Dialog, Fieldset, Inplace, Chip, NgStyle, ColorPicker, Button, AutoFocus, FormsModule],
   templateUrl: './kanban-settings-component.html',
   styleUrl: './kanban-settings-component.css',
 })
 export class KanbanSettingsComponent {
-  messageService = inject(MessageService);
   formService = inject(FormService);
   stateService = inject(StateService);
   projectService = inject(ProjectService);
