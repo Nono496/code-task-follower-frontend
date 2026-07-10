@@ -1,7 +1,7 @@
 import { JsonPipe, NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Button } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
@@ -21,6 +21,7 @@ import { TaskService } from '../../services/task-service';
 import { Toast } from "primeng/toast";
 import { FormService } from '../../services/form-service';
 import z from 'zod';
+import { ConfirmDialog } from "primeng/confirmdialog";
 
 @Component({
   selector: 'app-task-component',
@@ -38,12 +39,15 @@ import z from 'zod';
     Button,
     ColorPicker,
     Divider,
-    Toast
-  ],
+    Toast,
+    ConfirmDialog
+],
+  providers: [ConfirmationService],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
+  confirmationService = inject(ConfirmationService);
   formService = inject(FormService);
 
   taskService = inject(TaskService);
@@ -55,6 +59,7 @@ export class TaskComponent {
   fullTask = this.taskService.get(this.taskId);
   visible = model.required<boolean>();
   createCallback = input<() => void>();
+  deleteCallback = input<(task: Task) => void>();
 
   mainProjectId = input.required<number>();
   states = this.projectService.getAllStates(this.mainProjectId);
@@ -78,9 +83,42 @@ export class TaskComponent {
     });
   }
 
-  /*onDelete(name: string, value: any) {
+  onDelete(name: string, value: any, event: Event) {
     switch (name) {
-      case 'tag':
+      case 'task':
+        this.confirmationService.confirm({
+          target: event.target as EventTarget,
+          message: 'Are you sure that you want to proceed?',
+          header: 'Confirmation',
+          closable: true,
+          closeOnEscape: true,
+          icon: 'pi pi-exclamation-triangle',
+          rejectButtonProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptButtonProps: {
+            label: 'Delete',
+            severity: 'danger'
+          },
+          accept: () => {
+            this.formService.startSaveMessage('Task is being deleted...');
+            
+            this.taskService.delete(this.task()?.id!).subscribe({
+              next: () => {
+                this.formService.endSaveMessage('Task has been deleted');
+                this.deleteCallback()!(this.task());
+                this.visible.set(false);
+              },
+    
+              error: () => this.formService.saveErrorMessage('Task could not be deleted.')
+            });
+          },
+        });
+        break;
+
+      /*case 'tag':
         this.formService.startSaveMessage('Deleting tag...');
         this.tagService.delete(value.id).subscribe({
           next: () => {
@@ -92,12 +130,12 @@ export class TaskComponent {
           },
           error: () => this.formService.saveErrorMessage()
         });
-        break;
+        break;*/
 
       default:
         break;
     }
-  }*/
+  }
 
   addTag(tag: Tag) {
     this.formService.startSaveMessage();

@@ -70,6 +70,12 @@ export class ProjectComponent {
       error: () => this.formService.saveErrorMessage()
     });
   }
+  onDeleteTask(task: Task) {
+    this.project.update(p => {
+      p!.tasks = p!.tasks!.filter(t => t.id !== task.id);
+      return p;
+    });
+  }
 
   constructor() {
     effect(() => {
@@ -161,7 +167,7 @@ export class ProjectComponent {
         
         this.projectService.delete(this.project.value()?.id!).subscribe({
           next: () => {
-            this.formService.endSaveMessage('Project is being deleted...');
+            this.formService.endSaveMessage('Project has been deleted');
             this.router.navigate(['/', RouteItems.Dashboard]);
           },
 

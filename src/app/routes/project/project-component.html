@@ -146,7 +146,7 @@
     </main>
 
     @if (project.hasValue() && project.value().id !== undefined) {
-        <app-task-component [task]="editedTask()" [mainProjectId]="project.value().id!" [(visible)]="isEditingTask" [createCallback]="() => onCreateTask()" />
+        <app-task-component [task]="editedTask()" [mainProjectId]="project.value().id!" [(visible)]="isEditingTask" [createCallback]="() => onCreateTask()" [deleteCallback]="(task) => onDeleteTask(task)" />
     }
     <app-kanban-settings-component [project]="p()" [(visible)]="isInKanbanSettings" [onChangeSettings]="() => onEditKanbanSettings()" />
     <p-confirmdialog />

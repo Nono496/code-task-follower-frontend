@@ -258,6 +258,14 @@
                 }
             </ul>
         }
+
+        @if (task().id) {
+            <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
+                <i class="pi pi-trash"></i>
+                <span>Delete task</span>
+            </button>
+            <p-confirmdialog />
+        }
     } @else {
         <p class="p-4">Please name the task before continuing.</p>
     }
