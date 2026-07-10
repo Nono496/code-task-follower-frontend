@@ -208,7 +208,10 @@ export class TaskComponent {
       case 'state':
         this.formService.startSaveMessage();
         this.taskService.updateTaskState(this.task().id!, this.task().state!.id!).subscribe({
-          next: () => this.formService.endSaveMessage(),
+          next: () => {
+            this.formService.endSaveMessage();
+            closeCallback!();
+          },
           error: () => this.formService.saveErrorMessage()
         });
         break;

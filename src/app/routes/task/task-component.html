@@ -5,13 +5,13 @@
         <div class="flex justify-between w-full mr-4">
             <p-inplace class="flex items-center">
                 <ng-template #display>
-                    <h2>{{!task().name?.length ? 'Unnamed task' : task().name}}</h2>
+                    <h2 class="break-all">{{!task().name?.length ? 'Unnamed task' : task().name}}</h2>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
                         <form #form="ngForm" (ngSubmit)="onSubmit('name', task().name, closeCallback($event))" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
-                                <input name="name" pInputText type="text" [(ngModel)]="task().name" [pAutoFocus]="true" />
+                                <input class="w-full" name="name" pInputText type="text" [(ngModel)]="task().name" [pAutoFocus]="true" />
                                 <p-button severity="contrast" icon="pi pi-check" (click)="onSubmit('name', task().name, closeCallback($event))"></p-button>
                             </div>
                         </form>
@@ -29,7 +29,7 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('state', task().state)" class="flex flex-col gap-4">
+                        <form #form="ngForm" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
                                 <p-select name="state" size="small" [options]="states.value()" [loading]="states.isLoading()" [(ngModel)]="task().state" placeholder="State">
                                     <ng-template #selectedItem let-selectedState>
@@ -39,7 +39,7 @@
                                         <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
                                     </ng-template>
                                 </p-select>
-                                <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                                <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="onSubmit('state', task().state, closeCallback($event))"></p-button>
                             </div>
                         </form>
                     </span>

@@ -11,7 +11,7 @@
     }
 
     .tag {
-        @apply p-1 rounded text-xs uppercase;
+        @apply p-1 rounded text-xs uppercase inline-block text-center min-w-16;
     }
 }
 
