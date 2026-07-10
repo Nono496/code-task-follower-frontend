@@ -37,9 +37,9 @@
         <div class="w-full sm:w-11/12 md:w-2/3 max-h-96 overflow-y-auto overflow-x-clip">
             <p-dataview [value]="tasks.value()">
                 <ng-template #list let-items>
-                    <div [class]="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7' + (items?.length ? 'p-4' : '')">
+                    <div [class]="'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7' + (items?.length ? ' p-4' : '')">
                         @for (item of items; track item.id) {
-                            <p-card class="max-w-3xl cursor-pointer flex items-center gap-4">
+                            <p-card class="max-w-3xl cursor-pointer flex items-center gap-4 shadow-2xl!">
                                 <button (click)="editTask(item.id)" class="flex items-center gap-4">
                                     <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
                                     <span class="shrink-0 cursor-pointer w-full" style="word-break: break-word;">{{item.name}}</span>
