@@ -86,35 +86,18 @@ export class TaskComponent {
   onDelete(name: string, value: any, event: Event) {
     switch (name) {
       case 'task':
-        this.confirmationService.confirm({
-          target: event.target as EventTarget,
-          message: 'Are you sure that you want to proceed?',
-          header: 'Confirmation',
-          closable: true,
-          closeOnEscape: true,
-          icon: 'pi pi-exclamation-triangle',
-          rejectButtonProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true
-          },
-          acceptButtonProps: {
-            label: 'Delete',
-            severity: 'danger'
-          },
-          accept: () => {
-            this.formService.startSaveMessage('Task is being deleted...');
-            
-            this.taskService.delete(this.task()?.id!).subscribe({
-              next: () => {
-                this.formService.endSaveMessage('Task has been deleted');
-                this.deleteCallback()!(this.task());
-                this.visible.set(false);
-              },
-    
-              error: () => this.formService.saveErrorMessage('Task could not be deleted.')
-            });
-          },
+        this.formService.confirmDelete(event, () => {
+          this.formService.startSaveMessage('Task is being deleted...');
+          
+          this.taskService.delete(this.task()?.id!).subscribe({
+            next: () => {
+              this.formService.endSaveMessage('Task has been deleted');
+              this.deleteCallback()!(this.task());
+              this.visible.set(false);
+            },
+  
+            error: () => this.formService.saveErrorMessage('Task could not be deleted.')
+          });
         });
         break;
 

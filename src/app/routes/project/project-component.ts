@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { JsonPipe, NgStyle } from '@angular/common';
-import { Component, computed, effect, EventEmitter, inject, input, signal } from '@angular/core';
+import { NgStyle } from '@angular/common';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
 import { ColorPickerModule } from 'primeng/colorpicker';
@@ -10,31 +10,27 @@ import { ListboxModule } from 'primeng/listbox';
 import { Project, projectSchema, Task } from '../../dtos/zod-schemas';
 
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CardModule } from "primeng/card";
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { Skeleton } from 'primeng/skeleton';
+import { Toast } from "primeng/toast";
+import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
 import { StateService } from '../../services/state-service';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { Toast } from "primeng/toast";
-import { FormService as FormService } from '../../services/form-service';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RouteItems } from '../../app.routes';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast, ConfirmDialogModule, JsonPipe ],
-  providers: [ConfirmationService],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, Toast],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
 export class ProjectComponent {
-  confirmationService = inject(ConfirmationService);
   formService = inject(FormService);
   router = inject(Router);
 
@@ -132,7 +128,7 @@ export class ProjectComponent {
         return p;
       });
       this.taskService.updateTaskState(movedTask.id!, state.id!).subscribe({
-        //next: () => this.formService.endSaveMessage(),
+        next: () => this.formService.endSaveMessage(),
         error: () => {
           this.formService.saveErrorMessage();
           this.project.reload();
@@ -142,34 +138,17 @@ export class ProjectComponent {
   }
 
   delete(event: Event) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Are you sure that you want to proceed?',
-      header: 'Confirmation',
-      closable: true,
-      closeOnEscape: true,
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: 'secondary',
-        outlined: true
+    this.formService.confirmDelete(event, () => {
+      this.formService.startSaveMessage('Project is being deleted...');
+      
+      this.projectService.delete(this.project.value()?.id!).subscribe({
+      next: () => {
+          this.formService.endSaveMessage('Project has been deleted');
+          this.router.navigate(['/', RouteItems.Dashboard]);
       },
-      acceptButtonProps: {
-        label: 'Delete',
-        severity: 'danger'
-      },
-      accept: () => {
-        this.formService.startSaveMessage('Project is being deleted...');
-        
-        this.projectService.delete(this.project.value()?.id!).subscribe({
-          next: () => {
-            this.formService.endSaveMessage('Project has been deleted');
-            this.router.navigate(['/', RouteItems.Dashboard]);
-          },
 
-          error: () => this.formService.saveErrorMessage('Project could not be deleted.')
-        });
-      },
-    });
+      error: () => this.formService.saveErrorMessage('Project could not be deleted.')
+      });
+  });
   }
 }

@@ -1,5 +1,5 @@
 @if(project.error()) {
-    Can't find project {{projectId()}} : {{project.error() | json}}
+    Can't find project {{projectId()}}
 } @else if(project.isLoading()) {
     <div class="flex flex-col items-center">
         <div class="h-full w-full p-4 flex justify-center items-center my-8 mb-1 gap-8">
@@ -151,6 +151,5 @@
         <app-task-component [task]="editedTask()" [mainProjectId]="project.value().id!" [(visible)]="isEditingTask" [createCallback]="() => onCreateTask()" [deleteCallback]="(task) => onDeleteTask(task)" />
     }
     <app-kanban-settings-component [project]="p()" [(visible)]="isInKanbanSettings" [onChangeSettings]="() => onEditKanbanSettings()" />
-    <p-confirmdialog />
 }
 <p-toast/>
