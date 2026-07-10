@@ -224,9 +224,8 @@ export class TaskComponent {
               t.description = this.fullTask.value()!.description;
               return t;
             });
-            console.log(this.task().description)
           }
-          
+
           if (!this.formService.validateProp(taskSchema, name, value).success) {
             this.formService.saveErrorMessage();
             return;
