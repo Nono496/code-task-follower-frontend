@@ -1,19 +1,18 @@
-import { NgStyle } from '@angular/common';
-import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
+import { JsonPipe, NgStyle } from '@angular/common';
+import { Component, computed, effect, inject, input, linkedSignal, model, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Button, ButtonDirective } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
 import { ColorPicker } from "primeng/colorpicker";
 import { Dialog } from "primeng/dialog";
-import { Divider } from "primeng/divider";
 import { FieldsetModule } from 'primeng/fieldset';
 import { Inplace } from "primeng/inplace";
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from "primeng/select";
 import { TextareaModule } from 'primeng/textarea';
 import z from 'zod';
-import { ChronometerPart, Tag, tagSchema, Task, taskSchema } from '../../dtos/zod-schemas';
+import { ChronometerPart, State, Tag, tagSchema, Task, taskSchema } from '../../dtos/zod-schemas';
 import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
 import { TagService } from '../../services/tag-service';
@@ -34,9 +33,8 @@ import { TaskService } from '../../services/task-service';
     NgStyle,
     Button,
     ColorPicker,
-    Divider,
     ButtonDirective
-],
+  ],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
@@ -47,20 +45,28 @@ export class TaskComponent {
   projectService = inject(ProjectService);
   tagService = inject(TagService);
 
-  task = model.required<Task>();
-  taskId = computed<number | null>(() => this.task().id ?? null);
+  lightTask = model.required<Task>();
+  taskId = computed<number | null>(() => this.lightTask().id ?? null);
   fullTask = this.taskService.get(this.taskId);
+  task = computed(() => {
+    if (this.fullTask.hasValue() && !this.fullTask.error() && this.fullTask.value()) {
+      return this.fullTask.value();
+    }
+    return this.lightTask();
+  });
+
   visible = model.required<boolean>();
-  createCallback = input<() => void>();
+  mainProjectId = input.required<number>();
+  createCallback = input<(task: Task) => void>();
   deleteCallback = input<(task: Task) => void>();
 
-  mainProjectId = input.required<number>();
   states = this.projectService.getAllStates(this.mainProjectId);
   projects = inject(ProjectService).getAll();
   otherTasks = this.taskService.getAll();
-
-  tagToCreate = signal<Tag>({color: '#ecff1a', name: ''});
-  otherTags = this.tagService.getAll();
+  
+  tags = this.tagService.getAll();
+  initialTagToCreate = {color: '#ecff1a', name: ''};
+  tagToCreate = signal<Tag>({...this.initialTagToCreate});
 
   currentChronometerPart = signal<ChronometerPart>({
     seconds: 60 * 5,
@@ -68,10 +74,17 @@ export class TaskComponent {
   });
   currentChronometerPartPlaying = signal<boolean>(false);
 
+  onVisibleChange(visible: boolean) {
+    if (visible) {
+      this.states.reload();
+      this.tags.reload();
+    }
+  }
+
   constructor() {
     effect(() => {
-      if (this.task().state === undefined && this.states.hasValue()) {
-        this.task().state = this.states.value()?.at(0)!;
+      if (this.lightTask().id === undefined) {
+        this.fullTask.set({...this.lightTask()});
       }
     });
   }
@@ -82,10 +95,10 @@ export class TaskComponent {
         this.formService.confirmDelete(event, () => {
           this.formService.startSaveMessage('Task is being deleted...');
           
-          this.taskService.delete(this.task()?.id!).subscribe({
+          this.taskService.delete(this.lightTask()?.id!).subscribe({
             next: () => {
               this.formService.endSaveMessage('Task has been deleted');
-              this.deleteCallback()!(this.task());
+              this.deleteCallback()!(this.lightTask());
               this.visible.set(false);
             },
   
@@ -114,19 +127,23 @@ export class TaskComponent {
   }
 
   addTag(tag: Tag) {
-    this.formService.startSaveMessage();
-    this.taskService.addToTask(this.task().id!, tag.id!).subscribe({
-      next: () => {
-        this.task.update((p) => {
-          p.tags = p.tags?.length ? p.tags : [];
-          p.tags.push(tag);
-          return p;
+    this.formService.asyncOperation(
+      this.taskService.addToTask(this.lightTask().id!, tag.id!),
+      () => {
+        const newTagList = [...(this.fullTask.value()?.tags ?? []), tag.id!];
+
+        this.lightTask.update((lt) => {
+          lt.tags = newTagList;
+          return lt;
         });
-        this.tagToCreate.set({color: '#ecff1a', name: ''});
-        this.formService.endSaveMessage();
-      },
-      error: () => this.formService.saveErrorMessage()
-    });
+        this.fullTask.update((ft) => {
+          ft!.tags = newTagList;
+          return ft;
+        });
+
+        this.tagToCreate.set({...this.initialTagToCreate});
+      }
+    );
   }
 
   onSubmit(name: string, value: any, closeCallback?: () => any) {
@@ -137,32 +154,39 @@ export class TaskComponent {
           return;
         }
 
-        this.formService.startSaveMessage();
-        this.tagService.create(value).subscribe({
-          next: (tagId) => {
-            this.addTag({ ...value, id: tagId });
-          },
-          error: () => this.formService.saveErrorMessage()
-        });
+        this.formService.asyncOperation(
+          this.tagService.create(value),
+          (tagId) => {
+            const tag = { ...value, id: tagId };
+            this.addTag(tag);
+            this.tags.update(t => [...t!, tag]);
+          }
+        );
         break;
 
       case 'tagToAdd':
         this.addTag(value);
         break;
 
-      case 'tagToRemove':        
-        this.formService.startSaveMessage();
-        this.taskService.removeFromTask(this.task().id!, value.id).subscribe({
-          next: () => {
-            this.task.update((p) => {
-              p.tags = p.tags?.filter(t => t.id !== value.id);
-              return p;
+      case 'tagToRemove':
+        this.formService.asyncOperation(
+          this.taskService.removeFromTask(this.lightTask().id!, value.id),
+          () => {
+            const newTagList = [...this.fullTask.value()!.tags?.filter(tId => tId !== value.id) ?? []];
+
+            this.lightTask.update((lt) => {
+              lt.tags = newTagList;
+              return lt;
             });
+            this.fullTask.update((ft) => {
+              ft!.tags = newTagList;
+              return ft;
+            });
+
             this.formService.endSaveMessage();
             closeCallback!();
-          },
-          error: () => this.formService.saveErrorMessage()
-        });
+          }
+        );
         break;
 
       case 'tag':
@@ -171,46 +195,48 @@ export class TaskComponent {
           return;
         }
         
-        this.formService.startSaveMessage();
-        this.tagService.edit(value).subscribe({
-          next: () => {
-            closeCallback!();
-            this.formService.endSaveMessage();
-          },
-          error: () => this.formService.saveErrorMessage()
-        });
+        this.formService.asyncOperation(
+          this.tagService.edit(value),
+          () => closeCallback!()
+        );
         break;
 
       case 'state':
-        this.formService.startSaveMessage();
-        this.taskService.updateTaskState(this.task().id!, this.task().state!.id!).subscribe({
-          next: () => {
-            this.formService.endSaveMessage();
+        this.formService.asyncOperation(
+          this.taskService.updateTaskState(this.lightTask().id!, value),
+          () => {
+            this.lightTask.update(lt => {
+              lt.stateId = value;
+              return lt;
+            });
             closeCallback!();
-          },
-          error: () => this.formService.saveErrorMessage()
-        });
+          }
+        );
         break;
 
       default:
         if (this.task().id === null || this.task().id === undefined) {
-          const validation = this.formService.validateSchema(taskSchema, this.task());
+          this.fullTask.update(ft => {
+            ft!.stateId = this.states.value()![0].id!;
+            return {...ft!};
+          });
+          
+          const validation = this.formService.validateSchema(taskSchema, this.fullTask.value());
           if (!validation.success) {
             this.formService.saveErrorMessage('Invalid data', z.prettifyError(validation.error), 5000);
             return;
           }
 
           this.formService.startSaveMessage();
-          this.taskService.create(this.task()).subscribe({
+          this.taskService.create(this.fullTask.value()!).subscribe({
             next: taskId => {
-              this.task.update((t) => {
-                t.id = taskId;
-                return t;
+              this.lightTask.update((t) => {
+                return {...this.fullTask.value()!, id: taskId};
               });
               
               this.projectService.addTaskToProject(this.mainProjectId(), taskId).subscribe({
                 next: () => {
-                  if (this.createCallback()) this.createCallback()!();
+                  if (this.createCallback()) this.createCallback()!(this.lightTask());
                   this.formService.endSaveMessage();
                 },
                 error: () => this.formService.saveErrorMessage()
@@ -218,24 +244,22 @@ export class TaskComponent {
             },
             error: () => this.formService.saveErrorMessage()
           });
-        } else {console.log(this.fullTask.hasValue(), name)
-          if (this.fullTask.hasValue() && name === 'description') {
-            this.task.update(t => {
-              t.description = this.fullTask.value()!.description;
-              return t;
-            });
-          }
-
+        } else {
           if (!this.formService.validateProp(taskSchema, name, value).success) {
             this.formService.saveErrorMessage();
             return;
           }
           
-          this.formService.startSaveMessage();
-          this.taskService.edit(this.task()).subscribe({
-            next: () => this.formService.endSaveMessage(),
-            error: () => this.formService.saveErrorMessage()
-          });
+          this.formService.asyncOperation(
+            this.taskService.patch(this.lightTask().id!, this.formService.getPart(name, value)),
+            () => {
+              this.lightTask.update(lt => {
+                (lt as { [key: string]: any; })[name] = value;
+                return lt;
+              })
+              if (closeCallback) closeCallback();
+            }
+          );
         }
         break;
     }

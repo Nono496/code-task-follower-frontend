@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Observable } from 'rxjs';
 import { ZodObject, ZodSafeParseResult } from 'zod';
 
 @Injectable({
@@ -16,11 +17,14 @@ export class FormService {
         this._confirmationService = ms;
     }
 
+    getPart(name: string, value: any): { [key: string]: any; } & Record<string | number, never> {
+        const part: { [key: string]: any; } & Record<string | number, never> = {};
+        part[name] = value as any & never;
+        
+        return part;
+    }
     validateProp(schema: ZodObject, name: string, value: any): ZodSafeParseResult<Record<string, unknown>> {
-        const prop: { [key: string]: any; } & Record<string | number, never> = {};
-        prop[name] = value as any & never;
-
-        return schema.pick(prop).safeParse(prop);
+        return schema.pick(this.getPart(name, true)).safeParse(this.getPart(name, value));
     }
 
     validateSchema(schema: ZodObject, value: any): ZodSafeParseResult<Record<string, unknown>> {
@@ -58,6 +62,18 @@ export class FormService {
             severity: 'danger'
         },
         accept,
+        });
+    }
+
+    asyncOperation(asyncOp: Observable<any>, next?: (param: any) => void) {
+        this.startSaveMessage();
+
+        asyncOp.subscribe({
+            next: param => {
+                if (next) next(param);
+                this.endSaveMessage();
+            },
+            error: () => this.saveErrorMessage()
         });
     }
 }

@@ -11,29 +11,32 @@ export abstract class CrudService<T extends CrudItem> {
   protected abstract endpoint: string;
   protected abstract parseSchema: any;
 
+  private cache: {name: string, resource: HttpResourceRef<any>}[] = [];
+  protected useCache(name: string, valueFunction: () => HttpResourceRef<any>): HttpResourceRef<any> {
+    let resource: HttpResourceRef<any> | undefined = this.cache.filter(c => c.name === name).at(0)?.resource;
+    if (resource) return resource;
+
+    resource = valueFunction();
+    this.cache.push({name, resource});
+    return resource;
+  }
+
   getAll(): HttpResourceRef<T[] | undefined> {
-    return httpResource<T[]>(() => this.endpoint);
+    return this.useCache("getAll", () => httpResource<T[]>(() => this.endpoint));
   }
 
   get(itemId: Signal<number | null | undefined>, defaultValue: T | undefined = undefined): HttpResourceRef<T | undefined> {
-    return httpResource<T>(
-      () => {
-        if (!itemId()) return undefined;
+    return this.useCache("get",
+      () => httpResource<T>(
+        () => {
+          if (!itemId()) return undefined;
 
-        return this.endpoint + '/' + itemId()
-      },
-      {
-        defaultValue,
-        parse: (data) => {
-          const result = this.parseSchema.safeParse(data);
-
-          if (!result.success) {
-            throw new Error(result.error);
-          } else {
-            return result.data;
-          }
+          return this.endpoint + '/' + itemId()
+        },
+        {
+          defaultValue,
         }
-      }
+      )
     );
   }
   
@@ -43,6 +46,10 @@ export abstract class CrudService<T extends CrudItem> {
 
   edit(item: T): Observable<void> {
     return this.http.put<void>(this.endpoint + '/' + item.id, item);
+  }
+
+  patch(id: number, partial: Partial<T>): Observable<void> {
+    return this.http.patch<void>(this.endpoint + '/' + id, partial);
   }
 
   delete(itemId: number): Observable<void> {

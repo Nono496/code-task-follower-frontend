@@ -1,4 +1,5 @@
-<p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '35rem', height: '35rem' }">
+@if (!fullTask.error()) {
+<p-dialog (onShow)="onVisibleChange(true)" (onHide)="onVisibleChange(false)" [modal]="true" [(visible)]="visible" [style]="{ width: '35rem', height: '35rem' }">
     <ng-template #header>
         <div class="flex flex-col sm:flex-row justify-between w-full mr-4">
             <p-inplace class="flex items-center grow">
@@ -7,90 +8,92 @@
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('name', task().name, closeCallback($event))" class="flex flex-col gap-4">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('name', fullTask.value()!.name, () => closeCallback($event))" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
-                                <input class="w-full" name="name" pInputText type="text" [(ngModel)]="task().name" [pAutoFocus]="true" />
-                                <p-button severity="contrast" icon="pi pi-check" (click)="onSubmit('name', task().name, closeCallback($event))"></p-button>
+                                <input class="w-full" name="name" pInputText type="text" [(ngModel)]="fullTask.value()!.name" [pAutoFocus]="true" />
+                                <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                             </div>
                         </form>
                     </span>
                 </ng-template>
             </p-inplace>
             
-            <p-inplace class="flex items-center" [disabled]="states.error() || !task().id">
-                <ng-template #display>
-                    @if (task().state) {
-                        <span [ngStyle]="{'background-color': task().state!.color + '88'}" class="tag">{{task().state!.name}}</span>
-                    } @else {
-                        <span [ngStyle]="{'background-color': '#55555588'}" class="tag">No state</span>
-                    }
-                </ng-template>
-                <ng-template #content let-closeCallback="closeCallback">
-                    <span class="inline-flex items-center gap-2">
-                        <form #form="ngForm" class="flex flex-col gap-4">
-                            <div class="flex items-center gap-2">
-                                <p-select name="state" size="small" [options]="states.value()" [loading]="states.isLoading()" [(ngModel)]="task().state" placeholder="State">
-                                    <ng-template #selectedItem let-selectedState>
-                                        <span [ngStyle]="{'background-color': selectedState.color + '88'}" class="tag">{{selectedState.name}}</span>
-                                    </ng-template>
-                                    <ng-template let-state #item>
-                                        <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
-                                    </ng-template>
-                                </p-select>
-                                <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="onSubmit('state', task().state, closeCallback($event))"></p-button>
-                            </div>
-                        </form>
-                    </span>
-                </ng-template>
-            </p-inplace>
+            @if (states.hasValue()) {
+                @let state = this.lightTask().stateId ? this.states.value().filter(s => s.id === this.lightTask().stateId).at(0)! : { name: 'No state', color: '#555555'};
+                <p-inplace class="flex items-center" [disabled]="states.error() || !task().id">
+                    <ng-template #display>
+                        <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
+                    </ng-template>
+                    <ng-template #content let-closeCallback="closeCallback">
+                        <span class="inline-flex items-center gap-2">
+                            <form #form="ngForm" class="flex flex-col gap-4" (ngSubmit)="onSubmit('state', fullTask.value()!.stateId, () => closeCallback($event))">
+                                <div class="flex items-center gap-2">
+                                    <p-select name="state" size="small" [options]="states.value()" [loading]="states.isLoading()" optionValue="id" [(ngModel)]="fullTask.value()!.stateId" placeholder="State">
+                                        <ng-template #selectedItem let-selectedState>
+                                            <span [ngStyle]="{'background-color': selectedState.color + '88'}" class="tag">{{selectedState.name}}</span>
+                                        </ng-template>
+                                        <ng-template let-state #item>
+                                            <span [ngStyle]="{'background-color': state.color + '88'}" class="tag">{{state.name}}</span>
+                                        </ng-template>
+                                    </p-select>
+                                    <p-button type="submit" size="small" severity="contrast" icon="pi pi-check"></p-button>
+                                </div>
+                            </form>
+                        </span>
+                    </ng-template>
+                </p-inplace>
+            }
         </div>
     </ng-template>
-
-    @if(fullTask.hasValue()) {
+    
+    @if(task().id) {
         <p-inplace class="flex items-center">
             <ng-template #display>
-                <p>{{fullTask.value()!.description?.length ? fullTask.value().description : 'Write your description here'}}</p>
+                <p>{{fullTask.value()!.description?.length ? fullTask.value()!.description : 'Write your description here'}}</p>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">
-                    <form #form="ngForm" (ngSubmit)="onSubmit('description', fullTask.value().description)" class="flex flex-col gap-4">
+                    <form #form="ngForm" (ngSubmit)="onSubmit('description', fullTask.value()!.description)" class="flex flex-col gap-4">
                         <div class="flex items-center gap-2">
-                            <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="fullTask.value().description" [pAutoFocus]="true"></textarea>
+                            <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="fullTask.value()!.description" [pAutoFocus]="true"></textarea>
                             <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
                         </div>
                     </form>
                 </span>
             </ng-template>
         </p-inplace>
-    }
 
-    @if (task().id) {
         <p-fieldset legend="Tags">
             <h4 class="ml-2 text-base my-2">Selected tags</h4>
             <div class="flex flex-wrap w-full">
-                @for (tag of task().tags; track tag.id) {
-                    <p-inplace class="flex items-center">
-                        <ng-template #display>
-                            <p-chip class="!py-0 !pl-0 !pr-4">
-                                <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
-                                <span class="ml-2">{{tag.name}}</span>
-                            </p-chip>
-                        </ng-template>
-                        <ng-template #content let-closeCallback="closeCallback">
-                            <span class="inline-flex items-center gap-2">
-                                <form #form="ngForm" (ngSubmit)="onSubmit('tag', tag, () => closeCallback($event))" class="flex flex-col gap-4">
-                                    <div class="flex items-center gap-2">
-                                        <p-chip [removable]="true" (onRemove)="onSubmit('tagToRemove', tag, () => closeCallback($event))">
-                                            <p-colorpicker name="color" [(ngModel)]="tag.color" #model="ngModel" />
-                                            <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="tag.name" [pAutoFocus]="true" />
-                                        </p-chip>
+                @if (tags.isLoading()) {
+                    <span>Loading...</span>
+                } @else if (tags.hasValue()) {
+                    @for (tagId of task().tags; track tagId) {
+                        @let tag = tags.value().filter(t => t.id === tagId).at(0)!;
+                        <p-inplace class="flex items-center">
+                            <ng-template #display>
+                                <p-chip class="!py-0 !pl-0 !pr-4">
+                                    <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
+                                    <span class="ml-2">{{tag.name}}</span>
+                                </p-chip>
+                            </ng-template>
+                            <ng-template #content let-closeCallback="closeCallback">
+                                <span class="inline-flex items-center gap-2">
+                                    <form #form="ngForm" (ngSubmit)="onSubmit('tag', tag, () => closeCallback($event))" class="flex flex-col gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <p-chip [removable]="true" (onRemove)="onSubmit('tagToRemove', tag, () => closeCallback($event))">
+                                                <p-colorpicker name="color" [(ngModel)]="tag.color" #model="ngModel" />
+                                                <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="tag.name" [pAutoFocus]="true" />
+                                            </p-chip>
 
-                                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
-                                    </div>
-                                </form>
-                            </span>
-                        </ng-template>
-                    </p-inplace>
+                                            <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                                        </div>
+                                    </form>
+                                </span>
+                            </ng-template>
+                        </p-inplace>
+                    }
                 }
 
                 <p-inplace class="flex items-center">
@@ -99,7 +102,7 @@
                     </ng-template>
                     <ng-template #content let-closeCallback="closeCallback">
                         <span class="inline-flex items-center gap-2">
-                            <form #form="ngForm" (ngSubmit)="onSubmit('tagToCreate', tagToCreate(), closeCallback($event))" class="flex flex-col gap-4">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('tagToCreate', tagToCreate(), () => closeCallback($event))" class="flex flex-col gap-4">
                                 <div class="flex items-center gap-2">
                                     <p-chip [removable]="true" (onRemove)="closeCallback($event)">
                                         <p-colorpicker name="tagToCreateColor" [(ngModel)]="tagToCreate().color" #model="ngModel" />
@@ -115,14 +118,14 @@
             </div>
 
 
-            @if (otherTags.isLoading()) {
+            @if (tags.isLoading()) {
                 <p>Loading suggestions...</p>
-            } @else if (otherTags.hasValue()) {
-                @let suggestions = otherTags.value().filter(t => !(task().tags ?? []).map(t => t.id).includes(t.id));
+            } @else if (tags.hasValue()) {
+                @let suggestions = tags.value().filter(t => !(task().tags ?? []).includes(t.id!));
 
                 @if (suggestions.length) {
                     <h4 class="ml-2 text-base my-2">Tag suggestions</h4>
-                    <div class="flex flex-wrap w-full gap-1">
+                    <div class="flex flex-wrap w-full m-4 gap-1">
                         @for (tag of suggestions; track tag.id) {
                             <p-chip [removable]="true" (onRemove)="onSubmit('tagToAdd', tag)" removeIcon="pi pi-plus" class="!py-0 !pl-0 !pr-4">
                                 <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
@@ -134,7 +137,7 @@
             }
         </p-fieldset>
 
-        <h3 class="my-4 mb-2">Related</h3>
+<!--        <h3 class="my-4 mb-2">Related</h3>
 
         <div class="flex flex-wrap justify-baseline gap-4">
             <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
@@ -146,7 +149,7 @@
                     <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
                         <ng-template #display>
                             <ul>
-                                @for (project of fullTask.value().projects; track project.id) {
+                                @for (project of fullTask.value().projects; track project) {
                                     <li class="flex gap-2 items-center m-1">
                                         <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
                                         <span>{{project.name}}</span>
@@ -190,7 +193,7 @@
                             @for (rTask of task().dependencies; track rTask.id) {
                                 <li class="flex gap-2 items-center m-1">
                                     <span>{{rTask.name}}</span>
-                                    <span  [ngStyle]="{'border-color': rTask.state?.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{rTask.state?.name}}</span>
+                                    <span [ngStyle]="{'border-color': rTask.state?.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{rTask.state?.name}}</span>
                                 </li>
                             } @empty {
                                 <li>No related tasks</li>
@@ -221,7 +224,7 @@
                 </p-inplace>
             </div>
         </div>
-
+    
         <h3 class="mt-4 mb-2">Timer</h3>
 
         @if (fullTask.isLoading()) {
@@ -272,7 +275,7 @@
                 }
             </ul>
         }
-
+        -->
         @if (task().id) {
             <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
                 <i class="pi pi-trash"></i>
@@ -283,3 +286,4 @@
         <p class="p-4">Please name the task before continuing.</p>
     }
 </p-dialog>
+}

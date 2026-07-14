@@ -54,7 +54,7 @@
 
         <p-inplace class="flex items-center">
             <ng-template #display>
-                <h1>{{p().name}}</h1>
+                <h1>{{!p().name?.length ? 'Unnamed project' : p().name}}</h1>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">
@@ -105,21 +105,22 @@
                             cdkDropList
                             [id]="state.id + ' ' + state.name"
                             cdkDropListSortingDisabled
-                            [cdkDropListData]="(p().tasks ?? []).filter(t => t.state?.id === state.id).map(t => t.id + '')"
+                            [cdkDropListData]="(p().tasks ?? []).filter(t => t.stateId === state.id).map(t => t.id + '')"
                             [cdkDropListConnectedTo]="(p().states ?? []).filter(s => s.id !== state.id).map(s => s.id + ' ' + s.name)"
                             (cdkDropListDropped)="onDrop($event)">
                             <div class="flex flex-col p-2 gap-4">
                                 @for (task of p().tasks; track task.id) {
-                                    @if(task.state?.id === state.id) {
+                                    @if(task.stateId! === state.id) {
                                         <button (click)="editTask(task.id!)">
                                             <p-card class="draggable" cdkDrag [cdkDragData]="task.id">
                                                 <div class="flex justify-between">
                                                     <div class="grow flex flex-col gap-1.5">
                                                         <p class="text-left" style="word-break: break-word;">{{task.name}}</p>
 
-                                                        @if (task.tags?.length) {
+                                                        @if (task.tags?.length && tags.hasValue()) {
                                                             <div class="flex flex-wrap gap-1">
-                                                                @for (tag of task.tags; track tag.id) {
+                                                                @for (tagId of task.tags; track tagId) {
+                                                                    @let tag = tags.value().filter(t => t.id === tagId).at(0)!;
                                                                     <span [ngStyle]="{'background-color': tag.color + '88'}" class="p-1 rounded text-xs">{{tag.name}}</span>
                                                                 }
                                                             </div>
@@ -148,7 +149,7 @@
     </main>
 
     @if (project.hasValue() && project.value().id !== undefined) {
-        <app-task-component [task]="editedTask()" [mainProjectId]="project.value().id!" [(visible)]="isEditingTask" [createCallback]="() => onCreateTask()" [deleteCallback]="(task) => onDeleteTask(task)" />
+        <app-task-component [lightTask]="editedTask()" [mainProjectId]="project.value().id!" [(visible)]="isEditingTask" [createCallback]="task => onCreateTask(task)" [deleteCallback]="task => onDeleteTask(task)" />
     }
     <app-kanban-settings-component [project]="p()" [(visible)]="isInKanbanSettings" [onChangeSettings]="() => onEditKanbanSettings()" />
 }

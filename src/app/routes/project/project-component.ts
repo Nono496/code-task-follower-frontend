@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { NgStyle } from '@angular/common';
+import { JsonPipe, NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
@@ -22,6 +22,7 @@ import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
 import { RouteItems } from '../../app.routes';
+import { TagService } from '../../services/tag-service';
 
 @Component({
   selector: 'app-project',
@@ -39,11 +40,11 @@ export class ProjectComponent {
 
   projectId = input<number | null | undefined>();
   project = this.projectService.get(this.projectId,
-    projectSchema.parse({
-      name: 'Unnamed project',
-      color: '#00FF00'
-    } as Project));
+  {
+    color: '#00FF00'
+  } as Project);
 
+  tags = inject(TagService).getAll();
   isEditingTask = signal<boolean>(false);
   editedTaskId = signal<number | null>(null);
   editedTask = computed<Task>(() => {
@@ -54,20 +55,20 @@ export class ProjectComponent {
     this.editedTaskId.set(taskId);
     this.isEditingTask.set(true);
   }
-  onCreateTask() {
+  onCreateTask(task: Task) {
     this.project.update(p => {
-      p!.tasks = !p?.tasks ? [] : p?.tasks;
-      p!.tasks.push(this.editedTask());
-      return p;
+      p!.tasks = !p?.tasks ? [] : [...p?.tasks];
+      p!.tasks.push(task);
+      return {...p!};
     });
   }
   onDeleteTask(task: Task) {
     this.project.update(p => {
-      p!.tasks = p!.tasks!.filter(t => t.id !== task.id);
-      return p;
+      p!.tasks = [...p!.tasks!.filter(t => t.id !== task.id)];
+      return {...p!};
     });
   }
-
+  
   constructor() {
     effect(() => {
       if(!this.isEditingTask()) {
@@ -83,36 +84,32 @@ export class ProjectComponent {
   }
 
   onSubmit(name: string, value: any) {
-    if (this.project.value()?.id) {
+    if (this.project.value()!.id) {
       if (!this.formService.validateProp(projectSchema, name, value).success) {
         this.formService.saveErrorMessage();
         return;
       }
 
-      this.projectService.edit(this.project.value()!).subscribe({
-        error: () => this.formService.saveErrorMessage()
-      });
+      this.formService.asyncOperation(
+        this.projectService.patch(this.project.value()!.id!, this.formService.getPart(name, value))
+      );
     } else {
       // Validation
       if (!this.formService.validateSchema(projectSchema, this.project.value()).success) {
-        console.error(this.formService.validateSchema(projectSchema, this.project.value()).data)
-        console.error(this.formService.validateSchema(projectSchema, this.project.value()).error)
         this.formService.saveErrorMessage();
         return;
       }
 
       // Create
-      this.formService.startSaveMessage();
-      this.projectService.create(this.project.value()!).subscribe({
-        next: id => {
+      this.formService.asyncOperation(
+        this.projectService.create(this.project.value()!),
+        id => {
           this.project.update(p => {
             p!.id = id;
             return p;
           });
-          this.formService.endSaveMessage();
-        },
-        error: () => this.formService.saveErrorMessage()
-      });
+        }
+      );
     }
   }
 
@@ -123,7 +120,7 @@ export class ProjectComponent {
 
       this.formService.startSaveMessage();
       this.project.update(p => {
-        p!.tasks!.filter(t => t.id == event.item.data).at(0)!.state = state;
+        p!.tasks!.filter(t => t.id == event.item.data).at(0)!.stateId = state.id!;
         return p;
       });
       this.taskService.updateTaskState(movedTask.id!, state.id!).subscribe({

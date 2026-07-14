@@ -11,7 +11,9 @@ export class ProjectService extends CrudService<Project> {
   protected override parseSchema = projectSchema;
 
   getAllStates(projectId: InputSignal<number>): HttpResourceRef<State[] | undefined> {
-    return httpResource<State[]>(() => this.endpoint + '/' + projectId() + '/states');
+    return this.useCache("getAllStates",
+      () => httpResource<State[]>(() => this.endpoint + '/' + projectId() + '/states')
+    );
   }
 
   addStateToProject(projectId: number, stateId: number) {
