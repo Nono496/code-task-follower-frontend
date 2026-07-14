@@ -14,7 +14,7 @@ export abstract class CrudService<T extends CrudItem> {
   private cache: {name: string, resource: HttpResourceRef<any>}[] = [];
   protected useCache(name: string, valueFunction: () => HttpResourceRef<any>): HttpResourceRef<any> {
     let resource: HttpResourceRef<any> | undefined = this.cache.filter(c => c.name === name).at(0)?.resource;
-    if (resource) return resource;
+    if (resource && resource.error() === undefined) return resource;
 
     resource = valueFunction();
     this.cache.push({name, resource});
