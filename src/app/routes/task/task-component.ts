@@ -237,6 +237,7 @@ export class TaskComponent {
               this.projectService.addTaskToProject(this.mainProjectId(), taskId).subscribe({
                 next: () => {
                   if (this.createCallback()) this.createCallback()!(this.lightTask());
+                  if (closeCallback) closeCallback();
                   this.formService.endSaveMessage();
                 },
                 error: () => this.formService.saveErrorMessage()

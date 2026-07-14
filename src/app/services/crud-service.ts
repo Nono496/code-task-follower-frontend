@@ -14,7 +14,7 @@ export abstract class CrudService<T extends CrudItem> {
   private cache: {name: string, resource: HttpResourceRef<any>}[] = [];
   protected useCache(name: string, valueFunction: () => HttpResourceRef<any>): HttpResourceRef<any> {
     let resource: HttpResourceRef<any> | undefined = this.cache.filter(c => c.name === name).at(0)?.resource;
-    if (resource && resource.error() === undefined) return resource;
+    if (resource && resource.hasValue() && resource.error() === undefined) return resource;
 
     resource = valueFunction();
     this.cache.push({name, resource});
@@ -26,17 +26,15 @@ export abstract class CrudService<T extends CrudItem> {
   }
 
   get(itemId: Signal<number | null | undefined>, defaultValue: T | undefined = undefined): HttpResourceRef<T | undefined> {
-    return this.useCache("get",
-      () => httpResource<T>(
-        () => {
-          if (!itemId()) return undefined;
+    return httpResource<T>(
+      () => {
+        if (!itemId()) return undefined;
 
-          return this.endpoint + '/' + itemId()
-        },
-        {
-          defaultValue,
-        }
-      )
+        return this.endpoint + '/' + itemId()
+      },
+      {
+        defaultValue,
+      }
     );
   }
   
