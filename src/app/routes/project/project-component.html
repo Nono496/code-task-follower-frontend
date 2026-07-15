@@ -72,7 +72,7 @@
     <main class="w-full p-4 flex flex-col justify-center items-center my-8 mt-1 gap-8">
         <p-inplace class="flex items-center">
             <ng-template #display>
-                <p>{{!p().description?.length ? 'Write your description here' : p().description}}</p>
+                <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here' : p().description}}</p>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">

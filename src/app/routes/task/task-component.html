@@ -49,7 +49,7 @@
     @if(task().id) {
         <p-inplace class="flex items-center">
             <ng-template #display>
-                <p>{{fullTask.value()!.description?.length ? fullTask.value()!.description : 'Write your description here'}}</p>
+                <p style="white-space: preserve wrap">{{fullTask.value()!.description?.length ? fullTask.value()!.description : 'Write your description here'}}</p>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">
