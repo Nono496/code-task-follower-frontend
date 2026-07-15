@@ -10,7 +10,7 @@ import { ListboxModule } from 'primeng/listbox';
 import { Project, projectSchema, Task } from '../../dtos/zod-schemas';
 
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CardModule } from "primeng/card";
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
@@ -26,13 +26,14 @@ import { TagService } from '../../services/tag-service';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, RouterLink],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
 export class ProjectComponent {
   formService = inject(FormService);
   router = inject(Router);
+  RouteItems = RouteItems;
 
   projectService = inject(ProjectService);
   stateService = inject(StateService);
