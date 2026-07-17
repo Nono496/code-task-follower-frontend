@@ -1,7 +1,8 @@
-import { Injectable, InputSignal } from '@angular/core';
+import { computed, Injectable, InputSignal } from '@angular/core';
 import { Project, projectSchema, State } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 import { httpResource, HttpResourceRef } from '@angular/common/http';
+import { ModelType } from './live-update-service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,11 +10,16 @@ import { httpResource, HttpResourceRef } from '@angular/common/http';
 export class ProjectService extends CrudService<Project> {
   protected override endpoint = '/projects';
   protected override parseSchema = projectSchema;
+  protected override modelType: ModelType = 'ProjectDto';
 
   getAllStates(projectId: InputSignal<number>): HttpResourceRef<State[] | undefined> {
-    return this.useCache("getAllStates",
-      () => httpResource<State[]>(() => this.endpoint + '/' + projectId() + '/states')
+    const name = computed(() => "getAllStatesFor " + projectId());
+    return this.cacheService.useCache(name,
+      () => httpResource<State[]>(() => this.endpoint + '/' + projectId() + '/states'),
+      'StateDto',
+      true
     );
+
   }
 
   addStateToProject(projectId: number, stateId: number) {

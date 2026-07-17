@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Task, taskSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 import { Observable } from 'rxjs';
+import { ModelType } from './live-update-service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,7 @@ import { Observable } from 'rxjs';
 export class TaskService extends CrudService<Task> {
   protected override endpoint = '/tasks';
   protected override parseSchema = taskSchema;
+    protected override modelType: ModelType = 'TaskDto';
 
   addToTask(taskId: number, tagId: number): Observable<void> {
     return this.http.put<void>(this.endpoint + '/' + taskId + '/tag/' + tagId, null);

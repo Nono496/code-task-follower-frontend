@@ -81,3 +81,5 @@ export const userSchema = {
     password: z.string()
 }
 export type User = z.infer<typeof userSchema> & CrudItem;
+
+export type AnyType = Task | Project | Tag | Branch | State | Commit | Code | ChronometerPart | Chronometer | User;
