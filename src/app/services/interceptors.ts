@@ -41,7 +41,7 @@ export function apiInterceptor(
 ): Observable<HttpEvent<unknown>> {
   if (!req.url.startsWith('http://') && !req.url.startsWith('https://')) {
     const apiReq = req.clone({
-      url: `http://${environment.apiUrl}${req.url}`,
+      url: `${environment.apiUrl}${req.url}`,
     });
     return next(apiReq);
   }

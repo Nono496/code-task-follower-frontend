@@ -1,8 +1,6 @@
 import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
-import { computed, inject, signal, Signal } from '@angular/core';
+import { inject, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ResourceCacheService } from './resource-cache-service';
-import { ModelType } from './live-update-service';
 
 export type CrudItem = {
     id?: number;
@@ -12,31 +10,31 @@ export abstract class CrudService<T extends CrudItem> {
   protected http = inject(HttpClient);
   protected abstract endpoint: string;
   protected abstract parseSchema: any;
-  protected cacheService = inject(ResourceCacheService);
-  protected abstract modelType: ModelType;
+
+  private cache: {name: string, resource: HttpResourceRef<any>}[] = [];
+  protected useCache(name: string, valueFunction: () => HttpResourceRef<any>): HttpResourceRef<any> {
+    let resource: HttpResourceRef<any> | undefined = this.cache.filter(c => c.name === name).at(0)?.resource;
+    if (resource && resource.hasValue() && resource.error() === undefined) return resource;
+
+    resource = valueFunction();
+    this.cache.push({name, resource});
+    return resource;
+  }
 
   getAll(): HttpResourceRef<T[] | undefined> {
-    return this.cacheService.useCache(
-      signal("getAll"),
-      () => httpResource<T[]>(() => this.endpoint),
-      this.modelType
-    );
+    return this.useCache("getAll", () => httpResource<T[]>(() => this.endpoint));
   }
 
   get(itemId: Signal<number | null | undefined>, defaultValue: T | undefined = undefined): HttpResourceRef<T | undefined> {
-    return this.cacheService.useCache(computed(() => itemId() === undefined ? undefined : "get " + itemId()),
-      () => httpResource<T>(
-        () => {
-          if (!itemId()) return undefined;
+    return httpResource<T>(
+      () => {
+        if (!itemId()) return undefined;
 
-          return this.endpoint + '/' + itemId()
-        },
-        {
-          defaultValue,
-        }
-      ),
-      this.modelType,
-      true
+        return this.endpoint + '/' + itemId()
+      },
+      {
+        defaultValue,
+      }
     );
   }
   

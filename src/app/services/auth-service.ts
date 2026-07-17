@@ -1,10 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { User, userSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 import { HttpHeaders } from '@angular/common/http';
-import { LiveUpdateService } from './live-update-service';
-import { ModelType } from './live-update-service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,18 +11,13 @@ export class AuthService extends CrudService<User> {
   protected override endpoint = '/users';
   private accessTokenCookieName = 'accessToken=';
   protected override parseSchema = userSchema;
-    protected override modelType: ModelType = 'AuthDto';
 
   private _isAuthenticated: boolean | null = null;
   private _authToken: string | undefined;
 
-  private liveUpdateService = inject(LiveUpdateService);
-
   isAuthenticated(): boolean {
     if (this._isAuthenticated === null) {
       this._isAuthenticated = this.getAuthToken() !== null;
-
-      if (this._isAuthenticated) this.liveUpdateService.init(this.getAuthToken()!);
     }
 
     return this._isAuthenticated;
@@ -67,7 +60,6 @@ export class AuthService extends CrudService<User> {
     '; path=/';
 
     this._isAuthenticated = true;
-    this.liveUpdateService.init(this.getAuthToken()!);
     return true;
   }
 
@@ -79,6 +71,5 @@ export class AuthService extends CrudService<User> {
 
       this._isAuthenticated = false;
       this._authToken = undefined;
-      this.liveUpdateService.close();
   }
 }
