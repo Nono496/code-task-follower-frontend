@@ -72,7 +72,6 @@ export class AuthService extends CrudService<User> {
   }
 
   logOut() {
-    console.log('log out');
     document.cookie =
       this.accessTokenCookieName +
       '; expires=' + new Date(0).toUTCString() +
