@@ -1,10 +1,17 @@
 @if (!fullTask.error()) {
+  @let taskValue = task();
 <p-dialog (onShow)="onVisibleChange(true)" (onHide)="onVisibleChange(false)" [modal]="true" [(visible)]="visible" [style]="{ width: '35rem', height: '35rem' }">
     <ng-template #header>
         <div class="flex flex-col sm:flex-row justify-between w-full mr-4">
             <p-inplace class="flex items-center grow">
                 <ng-template #display>
-                    <h2 style="word-break: break-word;">{{!task().name.length ? 'Unnamed task' : task().name}}</h2>
+                    <h2 style="word-break: break-word;">
+                      @if(taskValue && taskValue.name && taskValue.name.length){
+                        {{taskValue.name}}
+                      }@else{
+                        Unnamed task
+                      }
+                    </h2>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
@@ -17,7 +24,7 @@
                     </span>
                 </ng-template>
             </p-inplace>
-            
+
             @if (states.hasValue()) {
                 @let state = this.lightTask().stateId ? this.states.value().filter(s => s.id === this.lightTask().stateId).at(0)! : { name: 'No state', color: '#555555'};
                 <p-inplace class="flex items-center" [disabled]="states.error() || !task().id">
@@ -45,11 +52,18 @@
             }
         </div>
     </ng-template>
-    
-    @if(task().id) {
+
+    @if(taskValue && taskValue.id) {
         <p-inplace class="flex items-center">
             <ng-template #display>
-                <p style="white-space: preserve wrap">{{fullTask.value()!.description?.length ? fullTask.value()!.description : 'Write your description here'}}</p>
+              <p style="white-space: preserve wrap">
+                @let fullTaskValue = fullTask.value();
+                @if(fullTaskValue && fullTaskValue.description && fullTaskValue.description.length){
+                  {{fullTaskValue.description}}
+                }@else{
+                  Write your description here
+                }
+              </p>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">
@@ -224,7 +238,7 @@
                 </p-inplace>
             </div>
         </div>
-    
+
         <h3 class="mt-4 mb-2">Timer</h3>
 
         @if (fullTask.isLoading()) {
