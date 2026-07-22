@@ -5,23 +5,26 @@ import { Signin } from './routes/auth/signin/signin-component';
 import { Dashboard } from './routes/dashboard/dashboard-component';
 import { ProjectComponent } from './routes/project/project-component';
 import { AuthService } from './services/auth-service';
+import { AccountSettings } from './routes/auth/account-settings/account-settings';
+import { accountSettingsRoutes } from './routes/auth/account-settings/account-settings.routes';
 
 export enum RouteItems {
     LogIn = 'log-in',
     SignIn = 'sign-in',
     Dashboard = 'dashboard',
-    Project = 'project'
+    Project = 'project',
+    AccountSettings = 'account-settings',
 }
 
 const authRequiredGuard: CanActivateFn = (_r: ActivatedRouteSnapshot, _s: RouterStateSnapshot) => {
-    if (inject(AuthService).isAuthenticated()) {
+    if (inject(AuthService).isAuthenticated) {
         return true;
     } else {
         return new RedirectCommand(inject(Router).parseUrl('/' + RouteItems.LogIn))
     }
 }
 const authForbiddenGuard: CanActivateFn = (_r: ActivatedRouteSnapshot, _s: RouterStateSnapshot) => {
-    if (inject(AuthService).isAuthenticated()) {
+    if (inject(AuthService).isAuthenticated) {
         return new RedirectCommand(inject(Router).parseUrl('/' + RouteItems.Dashboard))
     } else {
         return true;
@@ -60,6 +63,12 @@ export const routes: Routes = [
                 return param ? +param : undefined;
             },
         }
+    },
+    {
+        path: RouteItems.AccountSettings,
+        component: AccountSettings,
+        //canActivate: [authRequiredGuard],
+        children: accountSettingsRoutes
     },
     {
         path: RouteItems.LogIn,

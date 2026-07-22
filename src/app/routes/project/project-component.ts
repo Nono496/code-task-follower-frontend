@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { JsonPipe, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
@@ -15,14 +15,14 @@ import { CardModule } from "primeng/card";
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { Skeleton } from 'primeng/skeleton';
+import { RouteItems } from '../../app.routes';
 import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
 import { StateService } from '../../services/state-service';
+import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
-import { RouteItems } from '../../app.routes';
-import { TagService } from '../../services/tag-service';
 
 @Component({
   selector: 'app-project',

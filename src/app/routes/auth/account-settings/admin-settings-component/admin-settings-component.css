@@ -1,0 +1,5 @@
+@import '../../../../../styles.css';
+
+:host {
+    @apply w-full sm:w-2/3 md:w-1/2 block;
+}

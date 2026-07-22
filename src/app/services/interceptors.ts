@@ -12,7 +12,7 @@ export function authInterceptor(
 ): Observable<HttpEvent<unknown>> {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const authToken = authService.getAuthToken();
+  const authToken = authService.authToken;
   
   if (authToken) {
     return next(

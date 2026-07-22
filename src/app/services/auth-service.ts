@@ -3,6 +3,7 @@ import { map, Observable } from 'rxjs';
 import { User, userSchema } from '../dtos/zod-schemas';
 import { CrudService } from './crud-service';
 import { HttpHeaders } from '@angular/common/http';
+import { jwtDecode } from "jwt-decode";
 
 @Injectable({
   providedIn: 'root',
@@ -12,28 +13,38 @@ export class AuthService extends CrudService<User> {
   private accessTokenCookieName = 'accessToken=';
   protected override parseSchema = userSchema;
 
-  private _isAuthenticated: boolean | null = null;
-  private _authToken: string | undefined;
+  private _authToken: string | null | undefined = undefined;
+  private _authTokenData: AuthTokenData | null | undefined = undefined;
 
-  isAuthenticated(): boolean {
-    if (this._isAuthenticated === null) {
-      this._isAuthenticated = this.getAuthToken() !== null;
-    }
-
-    return this._isAuthenticated;
+  get isAdmin(): boolean {
+    return this.isAuthenticated && this._authTokenData!.admin;
   }
 
-  getAuthToken(): string | null {
-    if (this._authToken) return this._authToken;
+  get isAuthenticated(): boolean {
+    return this.authToken !== null;
+  }
+
+  get authToken(): string | null {
+    if (this._authToken !== undefined) return this._authToken;
 
     const cookies = document.cookie;
-    if (!cookies.includes(this.accessTokenCookieName)) return null;
+    if (!cookies.includes(this.accessTokenCookieName)) return this.authToken = null;
 
     const startIndex = cookies.indexOf(this.accessTokenCookieName) + this.accessTokenCookieName.length;
     let endIndex = cookies.indexOf(';', startIndex);
     endIndex = endIndex === -1 ? cookies.length : endIndex;
 
-    return this._authToken = cookies.substring(startIndex, endIndex);
+    return this.authToken = cookies.substring(startIndex, endIndex);
+  }
+
+  private set authToken(token: string | null) {
+    this._authToken = token;
+
+    if (token === null) {
+      this._authTokenData = null;
+    } else {
+      this._authTokenData = jwtDecode<AuthTokenData>(token);
+    }
   }
 
   logIn(user: User): Observable<boolean> {
@@ -41,9 +52,22 @@ export class AuthService extends CrudService<User> {
       .pipe(map(response => this.saveTokenFromHeader(response.headers)));
   }
 
-  signIn(user: User): Observable<boolean> {
+  signIn(user: User, saveToken = true): Observable<boolean> {
     return this.http.post(this.endpoint + '/register', user, { observe: 'response' })
-      .pipe(map(response => this.saveTokenFromHeader(response.headers)));
+      .pipe(map(response => {
+        if (saveToken) {
+          return this.saveTokenFromHeader(response.headers);
+        } else {
+          return true;
+        }
+      }));
+  }
+
+  changePassword(passwordUpdate: {
+    oldPassword: string,
+    newPassword: string
+  }) {
+    return this.http.patch(this.endpoint + '/changepw', passwordUpdate);
   }
 
   saveTokenFromHeader(headers: HttpHeaders): boolean {
@@ -59,7 +83,7 @@ export class AuthService extends CrudService<User> {
     '; expires=' + expirationDate.toUTCString() +
     '; path=/';
 
-    this._isAuthenticated = true;
+    this.authToken = token;
     return true;
   }
 
@@ -69,7 +93,12 @@ export class AuthService extends CrudService<User> {
       '; expires=' + new Date(0).toUTCString() +
       '; path=/';
 
-      this._isAuthenticated = false;
-      this._authToken = undefined;
+      this.authToken = null;
   }
 }
+
+type AuthTokenData = {
+  id: number;
+  name: string;
+  admin: boolean;
+};

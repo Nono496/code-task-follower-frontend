@@ -1,0 +1,25 @@
+<p-dialog header="Sign in a new user" [modal]="true" [(visible)]="signInFormVisible">
+    <app-sign-in-form-component (onSignIn)="onSignIn()" [saveTokenOnSignIn]="false"/>
+</p-dialog>
+
+<div class="flex justify-between items-center w-full">
+    <h2>Users</h2>
+    <p-button (onClick)="signInFormVisible.set(true)" label="New User" icon="pi pi-user-plus"/>
+</div>
+
+<p-dataview #dv [loading]="players.isLoading()" [value]="players.value()">
+    <ng-template #list let-players>
+        <ul class="m-4">
+            @for (player of players; track player.username) {
+                <li class="flex justify-between first:pt-4 last:pb-4">
+                    <span>{{player.username}}</span>
+                    <p-checkbox [(ngModel)]="player.isAdmin" [binary]="true" (onChange)="onChangeIsAdmin(player)"></p-checkbox>
+                </li>
+
+                @if (!$last) {
+                    <p-divider/>
+                }
+            }
+        </ul>
+    </ng-template>
+</p-dataview>

@@ -1,0 +1,17 @@
+<aside class="flex flex-col gap-2">
+    <div class="flex gap-2">
+        @if (!menuItemsVisible()) {
+            <p-button class="sm:hidden" (click)="menuItemsVisible.set(true)" icon="pi pi-bars" />
+        }
+        <p-button severity="secondary" icon="pi pi-home" [routerLink]="['/', AppRouteItems.Dashboard]"></p-button>
+    </div>
+
+    <p-drawer class="sm:hidden" [(visible)]="menuItemsVisible" header="Settings">
+        <p-panelmenu [model]="menuItems" class="w-full md:w-80" />
+    </p-drawer>
+    <p-panelmenu [model]="menuItems" class="hidden! sm:flex! w-full md:w-80" />
+</aside>
+
+<main class="m-8 w-full">
+    <router-outlet></router-outlet>
+</main>

@@ -1,0 +1,5 @@
+@import '../../../../styles.css';
+
+:host {
+    @apply flex flex-col sm:flex-row gap-2 m-2;
+}

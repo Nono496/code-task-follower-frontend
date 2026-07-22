@@ -1,5 +1,5 @@
-import { JsonPipe, NgStyle } from '@angular/common';
-import { Component, computed, effect, inject, input, linkedSignal, model, signal, untracked } from '@angular/core';
+import { NgStyle } from '@angular/common';
+import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Button, ButtonDirective } from "primeng/button";
@@ -12,7 +12,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from "primeng/select";
 import { TextareaModule } from 'primeng/textarea';
 import z from 'zod';
-import { ChronometerPart, State, Tag, tagSchema, Task, taskSchema } from '../../dtos/zod-schemas';
+import { ChronometerPart, Tag, tagSchema, Task, taskSchema } from '../../dtos/zod-schemas';
 import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
 import { TagService } from '../../services/tag-service';

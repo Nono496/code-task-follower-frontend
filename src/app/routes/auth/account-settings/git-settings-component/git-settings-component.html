@@ -1,0 +1,50 @@
+<h1>Version control</h1>
+
+<h2>Link to personal space</h2>
+
+<!--<div class="flex flex-col w-full">
+    @for (state of project().states; track state.id) {
+        <p-inplace class="flex items-center">
+            <ng-template #display>
+                <p-chip class="!py-0 !pl-0 !pr-4">
+                    <span [ngStyle]="{'background-color': state.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
+                    <span class="ml-2">{{state.name}}</span>
+                </p-chip>
+            </ng-template>
+            <ng-template #content let-closeCallback="closeCallback">
+                <span class="inline-flex items-center gap-2">
+                    <form #form="ngForm" (ngSubmit)="onSubmit('state', state, () => closeCallback($event))" class="flex flex-col gap-4">
+                        <div class="flex items-center gap-2">
+                            <p-chip [removable]="true" (onRemove)="onSubmit('stateToRemove', state, () => closeCallback($event))">
+                                <p-colorpicker name="color" [(ngModel)]="state.color" #model="ngModel" />
+                                <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="state.name" [pAutoFocus]="true" />
+                            </p-chip>
+
+                            <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                        </div>
+                    </form>
+                </span>
+            </ng-template>
+        </p-inplace>
+    }
+
+    <p-inplace class="flex items-center">
+        <ng-template #display>
+            <p-button icon="pi pi-plus" size="small" />
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('state', stateToCreate(), () => closeCallback($event))" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <p-chip [removable]="true" (onRemove)="closeCallback($event)">
+                            <p-colorpicker name="stateToCreateColor" [(ngModel)]="stateToCreate().color" #model="ngModel" />
+                            <input class="ml-2" name="stateToCreateName" pInputText type="text" [(ngModel)]="stateToCreate().name" [pAutoFocus]="true" />
+                        </p-chip>
+
+                        <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                    </div>
+                </form>
+            </span>
+        </ng-template>
+    </p-inplace>
+</div>-->

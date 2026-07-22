@@ -1,12 +1,15 @@
 <main class="flex flex-col items-center self-center m-8 gap-4">
-    <h1>Dashboard</h1>
+    <div class="flex justify-evenly items-center w-full sm:w-2/3 md:w-1/2">
+        <h1>Dashboard</h1>
+        <a class="p-button" [routerLink]="['/', RouteItems.AccountSettings]"><i class="pi pi-cog"></i></a>
+    </div>
 
     @if(projects.error()) {
         <p>Can't find projects</p>
     } @else if (projects.isLoading()) {
         <p>Loading projects...</p>
     } @else if (projects.hasValue()) {
-        <div class="flex justify-evenly items-center w-full sm:w-2/3 md:w-1/2"><h2>Projects</h2><a class="p-button" routerLink="/project"><i class="pi pi-plus"></i></a></div>
+        <div class="flex justify-evenly items-center w-full sm:w-2/3 md:w-1/2"><h2>Projects</h2><a class="p-button" [routerLink]="['/', RouteItems.Project]"><i class="pi pi-plus"></i></a></div>
 
         <div class="w-full sm:w-2/3 md:w-1/2 max-h-48 overflow-y-auto">
             <p-dataview [value]="projects.value()">

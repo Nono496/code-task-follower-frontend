@@ -1,0 +1,5 @@
+@import '../../../../styles.css';
+
+:host {
+    @apply flex flex-col items-center justify-center gap-4 w-full h-96;
+}
