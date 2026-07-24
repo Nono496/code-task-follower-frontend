@@ -6,7 +6,7 @@ export const taskSchema = z.object({
     name: z.string().min(1, {error: 'Too short'}),
     description: z.string().optional(),
     stateId: z.number(),
-    get chronometer() { return chronometerSchema.optional() },
+    //get chronometer() { return chronometerSchema.optional() },
     tags: z.number().array().optional(),
     get dependencies() { return z.array(taskSchema).optional() },
     get projects() { return z.array(projectSchema).optional() },
@@ -64,14 +64,14 @@ export type Code = z.infer<typeof codeSchema> & CrudItem;
 export const chronometerPartSchema = z.object({
     id: z.number().optional(),
     seconds: z.number(),
-    description: z.string()
+    description: z.string().optional()
 });
 export type ChronometerPart = z.infer<typeof chronometerPartSchema> & CrudItem;
 
 export const chronometerSchema = z.object({
     id: z.number().optional(),
     seconds: z.number(),
-    parts: z.array(chronometerPartSchema)
+    parts: z.array(chronometerPartSchema).optional()
 });
 export type Chronometer = z.infer<typeof chronometerSchema> & CrudItem;
 

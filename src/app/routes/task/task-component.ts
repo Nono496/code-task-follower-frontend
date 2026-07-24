@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, linkedSignal, model, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Button, ButtonDirective } from "primeng/button";
@@ -17,6 +17,14 @@ import { FormService } from '../../services/form-service';
 import { ProjectService } from '../../services/project-service';
 import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
+import { Divider } from "primeng/divider";
+import { ChronometerService } from '../../services/chronometer-service';
+import { interval, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DurationPipe } from '../../services/duration-pipe';
+import { Router, RouterModule } from '@angular/router';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-task-component',
@@ -33,15 +41,22 @@ import { TaskService } from '../../services/task-service';
     NgStyle,
     Button,
     ColorPicker,
-    ButtonDirective
-  ],
+    ButtonDirective,
+    Divider,
+    DurationPipe,
+    RouterModule,
+    InputNumberModule,
+    FloatLabelModule
+],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
+  router = inject(Router);
   formService = inject(FormService);
 
   taskService = inject(TaskService);
+  chronometerService = inject(ChronometerService);
   projectService = inject(ProjectService);
   tagService = inject(TagService);
 
@@ -68,11 +83,74 @@ export class TaskComponent {
   initialTagToCreate = {color: '#ecff1a', name: ''};
   tagToCreate = signal<Tag>({...this.initialTagToCreate});
 
-  currentChronometerPart = signal<ChronometerPart>({
-    seconds: 60 * 5,
-    description: '',
+  pip = viewChild<ElementRef<HTMLDivElement>>('pip');
+  chronometer = this.chronometerService.get(this.taskId);
+  currentChronometerPart = linkedSignal<ChronometerPart>(() => this.chronometer.value()?.parts?.at(0) ?? { description: 'blu'} as ChronometerPart);
+  changeCurrentChronometerPart(newPart: ChronometerPart) {
+    this.playCurrentChronometerPart(false, () => {
+      this.currentChronometerPart.set(newPart);
+      this.pip()?.nativeElement.scrollIntoView({behavior: 'smooth'});
+    });
+  }
+
+  playCurrentChronometerPart(playing: boolean, optionalNext?: () => void) {
+    if (playing) {
+      this.currentChronometerPartPlayingTime.set(Date.now() / 1000);
+    } else {
+      const next = () => {
+        this.currentChronometerPart.update(ccp => {
+          ccp.seconds += this.currentChronometerPartTimeRecorded();
+          return ccp;
+        });
+        this.chronometer.update(c => {
+          c!.seconds += this.currentChronometerPartTimeRecorded();
+          return c;
+        });
+        this.currentChronometerPartPlayingTime.set(undefined);
+        if (optionalNext) optionalNext();
+      }
+
+      if (this.chronometer.value()!.parts?.map(p => p.id).includes(this.currentChronometerPart().id)) {
+        this.formService.asyncOperation(this.chronometerService.editPart(this.taskId()!, {
+          ...this.currentChronometerPart(),
+          seconds: this.currentChronometerPart().seconds + this.currentChronometerPartTimeRecorded()
+        }), next);
+      } else {
+        next();
+      }
+    }
+  }
+  currentChronometerPartPlayingTime = signal<number | undefined>(undefined);
+  dateNowInSeconds = toSignal(
+    interval(1000).pipe(map(() => Date.now() / 1000)), 
+    { initialValue: Date.now() / 1000 }
+  );
+  currentChronometerPartTimeRecorded = computed(() => {
+    if (this.currentChronometerPartPlayingTime() === undefined) return 0;
+    
+    const timeRecorded = this.dateNowInSeconds() - this.currentChronometerPartPlayingTime()!;
+    return timeRecorded > 0 ? timeRecorded : 0;
   });
-  currentChronometerPartPlaying = signal<boolean>(false);
+
+  addChronometer() {
+    this.chronometer.set(undefined);
+    this.formService.asyncOperation(this.chronometerService.addToTask(this.taskId()!), () => this.chronometer.reload());
+  }
+  addChronometerPart() {
+    this.formService.asyncOperation(this.chronometerService.createPart(this.taskId()!), partId => {
+      const newPart = {
+        id: partId,
+        seconds: 0,
+        description: ''
+      };
+      this.chronometer.update(c => {
+        c!.parts = c!.parts === undefined ? [] : c!.parts;
+        c!.parts.push(newPart);
+        return c;
+      })
+      this.currentChronometerPart.set(newPart);
+    });
+  }
 
   onVisibleChange(visible: boolean) {
     if (visible) {
@@ -103,6 +181,29 @@ export class TaskComponent {
             },
   
             error: () => this.formService.saveErrorMessage('Task could not be deleted.')
+          });
+        });
+        break;
+
+      case 'chronometer_part':
+        this.formService.confirmDelete(event, () => {
+          this.formService.startSaveMessage('Chronometer part is being deleted...');
+          
+          this.chronometerService.deletePart(this.taskId()!, value.id).subscribe({
+            next: () => {
+              this.formService.endSaveMessage('Chronometer part has been deleted');
+
+              this.chronometer.update(c => {
+                c!.seconds -= value.seconds - this.currentChronometerPartTimeRecorded();
+                c!.parts = c!.parts?.filter(p => p.id !== value.id);
+                return c;
+              });
+              if (this.currentChronometerPart().id === value.id) {
+                this.changeCurrentChronometerPart(this.chronometer.value()!.parts!.at(0)!);
+              }
+            },
+  
+            error: () => this.formService.saveErrorMessage('Chronometer part could not be deleted.')
           });
         });
         break;
@@ -208,6 +309,19 @@ export class TaskComponent {
             this.lightTask.update(lt => {
               lt.stateId = value;
               return lt;
+            });
+            closeCallback!();
+          }
+        );
+        break;
+      
+        case 'chronometerPart':
+        this.formService.asyncOperation(
+          this.chronometerService.editPart(this.task().id!, value),
+          () => {
+            this.chronometer.update(c => {
+              c!.seconds = c!.parts!.reduce((prev, curr) => prev + curr.seconds, 0);
+              return c;
             });
             closeCallback!();
           }

@@ -224,36 +224,70 @@
                 </p-inplace>
             </div>
         </div>
-    
-        <h3 class="mt-4 mb-2">Timer</h3>
+    -->
+        <div class="flex justify-between items-center">
+            <h3 class="mt-4 mb-2">Timer</h3>
 
-        @if (fullTask.isLoading()) {
+            <div class="flex gap-2 items-center">
+                @if (states.hasValue() && chronometer.hasValue()) {
+                    @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
+                    @let seconds = chronometer.value().seconds + currentChronometerPartTimeRecorded();
+                    <span [ngStyle]="{'background-color': state.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{ seconds | duration }}</span>
+                }
+                <p-button label="New" icon="pi pi-clock" (onClick)="chronometer.error() === undefined && chronometer.hasValue() ? addChronometerPart() : addChronometer()" />
+            </div>
+        </div>
+        
+        @if (fullTask.isLoading() || states.isLoading() || chronometer.isLoading()) {
             <p>Loading...</p>
-        } @else if (fullTask.hasValue()) {
+        } @else if (chronometer.error() !== undefined) {
+            <p>No timer used for this task yet.</p>
+        } @else if (fullTask.hasValue() && states.hasValue() && chronometer.hasValue()) {
+            @let playing = currentChronometerPartPlayingTime() !== undefined;
+            @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
             <div #pip class="flex flex-wrap justify-evenly gap-6 rounded p-4 shadow-md dark:shadow-sm dark:shadow-gray-500 shrink-0 relative">
-                <p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>
-
-                <button (click)="currentChronometerPartPlaying.update(prev => !prev)" [ngStyle]="{'background-color': task().state?.color + '88', 'border-width': currentChronometerPartPlaying() ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
+                <!--<p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>-->
+                
+                <button (click)="playCurrentChronometerPart(!playing)" [ngStyle]="{'background-color': state.color + '88', 'border-width': playing ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
                     <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
-
-                    @if (currentChronometerPartPlaying()) {
+                    
+                    @if (playing) {
                         <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
                     }
                 </button>
-
+                
                 <div class="grow">
-                    <span [ngStyle]="{'background-color': task().state?.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{(currentChronometerPart().seconds - currentChronometerPart().seconds % 60) / 60}}m {{currentChronometerPart().seconds % 60}}s</span>
-
-                    <p-inplace class="flex items-center">
+                    @let seconds = currentChronometerPart().seconds + currentChronometerPartTimeRecorded();
+                    
+                    <p-inplace class="mb-4" [disabled]="playing">
                         <ng-template #display>
-                            <p class="wrap-anywhere">{{!currentChronometerPart().description.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
+                            <span [ngStyle]="{'border-color': state.color + '88'}" class="p-1 rounded whitespace-nowrap border-b-4">{{seconds | duration}}</span>
                         </ng-template>
                         <ng-template #content let-closeCallback="closeCallback">
                             <span class="inline-flex items-center gap-2">
-                                <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPartDescription', currentChronometerPart().description)" class="flex flex-col gap-4">
+                                <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPart', currentChronometerPart(), () => closeCallback($event))" class="flex flex-col gap-4">
+                                    <div class="flex items-center gap-2">
+                                        <p-float-label>
+                                            <p-input-number name="chronometerPartSeconds" suffix=" seconds" [(ngModel)]="currentChronometerPart().seconds" mode="decimal" [min]="0" />
+                                            <label>{{(seconds | duration)}}</label>
+                                        </p-float-label>
+                                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                                    </div>
+                                </form>
+                            </span>
+                        </ng-template>
+                    </p-inplace>
+
+                    <p-inplace class="flex items-center">
+                        <ng-template #display>
+                            <p style="white-space: preserve wrap">{{!currentChronometerPart().description?.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
+                        </ng-template>
+                        <ng-template #content let-closeCallback="closeCallback">
+                            <span class="inline-flex items-center gap-2">
+                                <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPart', currentChronometerPart(), () => closeCallback($event))" class="flex flex-col gap-4">
                                     <div class="flex items-center gap-2">
                                         <textarea name="chronometerPartDescription" rows="5" cols="20" [(ngModel)]="currentChronometerPart().description" pTextarea required [autoResize]="true" [pAutoFocus]="true"></textarea>
-                                        <p-button severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                                     </div>
                                 </form>
                             </span>
@@ -262,20 +296,33 @@
                 </div>
             </div>
 
-            <ul class="my-6">
-                @for (chronometerPart of fullTask.value().chronometer?.parts ?? []; track chronometerPart.id) {
-                    <li class="flex gap-4 items-baseline">
-                        <span [ngStyle]="{'border-color': task().state?.color + '88'}" class="p-2 rounded border whitespace-nowrap">{{(chronometerPart.seconds - chronometerPart.seconds % 60) / 60}}m {{chronometerPart.seconds % 60}}s</span>
-                        <p>{{chronometerPart.description}}</p>
-                    </li>
+            @if ((chronometer.value().parts?.length ?? 0) > 1) {
+                <ul class="my-6">
+                    @for (chronometerPart of chronometer.value().parts; track chronometerPart.id) {
+                        <li class="flex flex-col gap-4 items-baseline">
+                            <div class="flex justify-between w-full">
+                                @let isCurrentChronometerPart = currentChronometerPart().id === chronometerPart.id;
+                                @let seconds = chronometerPart.seconds + (isCurrentChronometerPart ? currentChronometerPartTimeRecorded() : 0);
+                                <span [ngStyle]="{'border-color': state.color + '88', 'border-width': isCurrentChronometerPart ? '4px' : '1px'}" class="p-2 rounded border whitespace-nowrap">{{seconds | duration}}</span>
+                                
+                                <div class="flex gap-1">
+                                    <p-button icon="pi pi-trash" severity="secondary" (onClick)="onDelete('chronometer_part', chronometerPart, $event)" />
+                                    
+                                    <p-button [disabled]="isCurrentChronometerPart" icon="pi pi-pen-to-square" severity="primary" (onClick)="changeCurrentChronometerPart(chronometerPart)" />
+                                </div>
+                            </div>
+                            
+                            <p style="white-space: preserve wrap">{{chronometerPart.description}}</p>
+                        </li>
 
-                    @if (!$last) {
-                        <p-divider />
+                        @if (!$last) {
+                            <p-divider />
+                        }
                     }
-                }
-            </ul>
+                </ul>
+            }
         }
-        -->
+        
         @if (task().id) {
             <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
                 <i class="pi pi-trash"></i>
