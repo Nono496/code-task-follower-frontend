@@ -23,12 +23,11 @@ import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
-import { AdminSettingsComponent } from "../users-permission-component.ts/users-permission-component";
 import { ItemType } from '../../services/player-service';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, RouterLink, AdminSettingsComponent],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, RouterLink],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })

@@ -15,7 +15,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
   templateUrl: './users-permission-component.html',
   styleUrl: './users-permission-component.css',
 })
-export class AdminSettingsComponent {
+export class UsersPermissionComponent {
   playerService = inject(PlayerService);
   formService = inject(FormService);
 
