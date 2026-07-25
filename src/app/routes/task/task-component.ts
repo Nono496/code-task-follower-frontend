@@ -25,6 +25,7 @@ import { DurationPipe } from '../../services/duration-pipe';
 import { Router, RouterModule } from '@angular/router';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { MeterGroupModule } from 'primeng/metergroup';
 
 @Component({
   selector: 'app-task-component',
@@ -46,7 +47,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     DurationPipe,
     RouterModule,
     InputNumberModule,
-    FloatLabelModule
+    FloatLabelModule,
+    MeterGroupModule
 ],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',

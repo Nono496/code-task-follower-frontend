@@ -225,8 +225,52 @@
             </div>
         </div>
     -->
+
+        <h3>Time management</h3>
+
+        @if (chronometer.hasValue()) {
+            <h4 class="whitespace-nowrap">Total estimate</h4>
+            <p-inplace class="mb-4 w-full block" [disabled]="!fullTask.hasValue()">
+                <ng-template #display>
+                    @if ((task().estimateSeconds ?? 0) > 0) {
+                        @let state = this.states.value()!.filter(s => s.id === this.task().stateId).at(0)!;
+                        @let currentTimeTaken = chronometer.value().seconds + currentChronometerPartTimeRecorded();
+                        <p-metergroup [value]="[
+                            {
+                                label: 'Estimate : ' + ((task().estimateSeconds ?? 0) | duration),
+                                value: task().estimateSeconds! > currentTimeTaken ? 0 : task().estimateSeconds!,
+                                color: 'rgb(from var(--p-text-color) r g b / 0.8)'
+                            },
+                            {
+                                label: 'Timer : ' + (currentTimeTaken | duration),
+                                value: task().estimateSeconds! > currentTimeTaken ? currentTimeTaken : currentTimeTaken - task().estimateSeconds!,
+                                color: state.color + '88'
+                            }
+                        ]"
+                        [max]="task().estimateSeconds! > currentTimeTaken ? task().estimateSeconds! : currentTimeTaken">
+                    </p-metergroup>
+                    } @else {
+                        <span>No defined time estimate</span>
+                    }
+                </ng-template>
+                <ng-template #content let-closeCallback="closeCallback">
+                    <span class="inline-flex items-center gap-2">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('estimateSeconds', task().estimateSeconds, () => closeCallback($event))" class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2 mt-4">
+                                <p-float-label>
+                                    <p-input-number name="estimateSeconds" suffix=" seconds" [(ngModel)]="task().estimateSeconds" mode="decimal" [min]="0" />
+                                    <label>{{((task().estimateSeconds ?? 0) | duration)}}</label>
+                                </p-float-label>
+                                <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                            </div>
+                        </form>
+                    </span>
+                </ng-template>
+            </p-inplace>
+        }
+
         <div class="flex justify-between items-center">
-            <h3 class="mt-4 mb-2">Timer</h3>
+            <h4 class="mt-4 mb-2">Timer</h4>
 
             <div class="flex gap-2 items-center">
                 @if (states.hasValue() && chronometer.hasValue()) {
@@ -324,6 +368,8 @@
         }
         
         @if (task().id) {
+            <h3>Danger zone</h3>
+
             <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
                 <i class="pi pi-trash"></i>
                 <span>Delete task</span>

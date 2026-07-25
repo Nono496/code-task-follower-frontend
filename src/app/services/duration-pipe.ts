@@ -10,6 +10,13 @@ export class DurationPipe implements PipeTransform {
         const s = seconds % 60;
         const m = ((seconds - s) / 60) % 60;
         const h = (seconds - s - m * 60) / 3600;
-        return (h > 0 ? h + 'h ' : '') + `${m}m ${s}s`;
+        let result = s+'s';
+        if(seconds >= 60){
+            result=m+'m '+result;
+            if(seconds >= 3600){
+                result=h+'h '+result;
+            }
+        }
+        return result;
     }
 }

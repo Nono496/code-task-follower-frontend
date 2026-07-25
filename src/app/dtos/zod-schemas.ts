@@ -5,6 +5,7 @@ export const taskSchema = z.object({
     id: z.number().optional(),
     name: z.string().min(1, {error: 'Too short'}),
     description: z.string().optional(),
+    estimateSeconds: z.number().optional(),
     stateId: z.number(),
     //get chronometer() { return chronometerSchema.optional() },
     tags: z.number().array().optional(),

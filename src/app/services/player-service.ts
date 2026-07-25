@@ -11,7 +11,7 @@ export class PlayerService {
 
   getPlayers(nameQuery: Signal<string>) {
     return httpResource<Player[]>(() => {
-      const query = nameQuery().length ? '?name=' + nameQuery() : '';
+      const query = nameQuery().length ? '/search?name=' + nameQuery() : '';
       return this.endpoint + query
     });
   }
