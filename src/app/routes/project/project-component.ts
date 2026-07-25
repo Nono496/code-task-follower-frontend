@@ -28,7 +28,7 @@ import { ItemType } from '../../services/player-service';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, RouterLink, AdminSettingsComponent, CdkDragPlaceholder],
+  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, RouterLink, AdminSettingsComponent],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
