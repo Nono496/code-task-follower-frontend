@@ -67,7 +67,7 @@ export const routes: Routes = [
     {
         path: RouteItems.AccountSettings,
         component: AccountSettings,
-        //canActivate: [authRequiredGuard],
+        canActivate: [authRequiredGuard],
         children: accountSettingsRoutes
     },
     {

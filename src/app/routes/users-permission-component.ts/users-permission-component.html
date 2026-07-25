@@ -1,0 +1,47 @@
+<div class="flex justify-between items-center gap-8">
+    <p-floatlabel [class]="mode() === 'add' ? 'grow' : 'opacity-0 pointer-events-none'">
+        <input pInputText id="search" class="w-full" [(ngModel)]="nameQuery" autocomplete="off" />
+        <label for="search">Search</label>
+    </p-floatlabel>
+
+    <p-selectbutton [options]="changeModes" [(ngModel)]="mode" optionLabel="label" optionValue="value" />
+</div>
+
+<p-dataview #dv [loading]="mode() === 'add' ? allPlayers.isLoading() || itemPlayers.isLoading() : itemPlayers.isLoading()" [value]="mode() === 'add' ? allPlayers.value() : itemPlayers.value()">
+    <ng-template #list let-players>
+        <p-accordion class="m-4">
+            @for (player of players; track player.id) {
+                @if (mode() === 'update' || !itemPlayers.value()!.map(ip => ip.id).includes(player.id)) {
+                    <p-accordion-panel [value]="player.id">
+                        <p-accordion-header>{{player.username}}</p-accordion-header>
+
+                        <p-accordion-content>
+                            <ul>
+                                <li class="flex justify-between m-1 p-3 rounded hover:bg-gray-950/30">
+                                    <label for="Readonly">Readonly</label>
+                                    <p-toggleswitch inputId="Readonly" [(ngModel)]="player.read" (onChange)="onChangePermission(player)" />
+                                </li>
+                                <li class="flex justify-between m-1 p-3 rounded hover:bg-gray-950/30">
+                                    <label for="Update">Update</label>
+                                    <p-toggleswitch inputId="Update" [(ngModel)]="player.update" (onChange)="onChangePermission(player)" />
+                                </li>
+                                <li class="flex justify-between m-1 p-3 rounded hover:bg-gray-950/30">
+                                    <label for="Create">Create</label>
+                                    <p-toggleswitch inputId="Create" [(ngModel)]="player.add" (onChange)="onChangePermission(player)" />
+                                </li>
+                                <li class="flex justify-between m-1 p-3 rounded hover:bg-gray-950/30">
+                                    <label for="Delete">Delete</label>
+                                    <p-toggleswitch inputId="Delete" [(ngModel)]="player.delete" (onChange)="onChangePermission(player)" />
+                                </li>
+                                <li class="flex justify-between m-1 p-3 rounded hover:bg-gray-950/30">
+                                    <label for="Admin">Admin</label>
+                                    <p-toggleswitch inputId="Admin" [(ngModel)]="player.admin" (onChange)="onChangePermission(player)" />
+                                </li>
+                            </ul>
+                        </p-accordion-content>
+                    </p-accordion-panel>
+                }
+            }
+        </p-accordion>
+    </ng-template>
+</p-dataview>
