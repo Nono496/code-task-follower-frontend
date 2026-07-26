@@ -363,11 +363,11 @@ export class TaskComponent {
               this.lightTask.update((t) => {
                 return {...this.fullTask.value()!, id: taskId};
               });
+              if (this.createCallback()) this.createCallback()!(this.lightTask());
+              if (closeCallback) closeCallback();
               
               this.projectService.addTaskToProject(this.mainProjectId(), taskId).subscribe({
                 next: () => {
-                  if (this.createCallback()) this.createCallback()!(this.lightTask());
-                  if (closeCallback) closeCallback();
                   this.formService.endSaveMessage();
                 },
                 error: () => this.formService.saveErrorMessage()

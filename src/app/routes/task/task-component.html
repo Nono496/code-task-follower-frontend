@@ -10,7 +10,7 @@
                     <span class="inline-flex items-center gap-2">
                         <form #form="ngForm" (ngSubmit)="onSubmit('name', fullTask.value()!.name, () => closeCallback($event))" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
-                                <input class="w-full" name="name" pInputText type="text" [(ngModel)]="fullTask.value()!.name" [pAutoFocus]="true" />
+                                <input class="w-full" name="name" pInputText type="text" [(ngModel)]="task().name" [pAutoFocus]="true" />
                                 <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
                             </div>
                         </form>
