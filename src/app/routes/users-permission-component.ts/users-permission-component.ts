@@ -40,8 +40,10 @@ export class UsersPermissionComponent {
   ] as {label: string, value: 'add' | 'update'}[];
 
   onChangePermission(playerPermissions: PlayerPermission) {
+    const mode = this.mode();
+
     this.formService.asyncOperation(
-      this.playerService.updatePlayerPermissionsForItem(playerPermissions, this.itemId(), this.itemType(), this.mode()),
+      this.playerService.updatePlayerPermissionsForItem(playerPermissions, this.itemId(), this.itemType(), mode),
       () => {
         if (playerPermissions.read) {
           playerPermissions.add =
@@ -58,6 +60,24 @@ export class UsersPermissionComponent {
         }
 
         this.itemPlayers.set(this.itemPlayers.value());
+
+        if (mode === 'add') {
+          this.itemPlayers.update(p => {
+            p!.push(playerPermissions);
+            return p;
+          });
+        } else if (
+          playerPermissions.read ===
+          playerPermissions.add ===
+          playerPermissions.update ===
+          playerPermissions.delete ===
+          playerPermissions.admin === false
+        ) {
+          this.itemPlayers.update(p => {
+            p = p!.filter(i => i.id !== playerPermissions.id);
+            return p;
+          });
+        }
       }
     );
   }

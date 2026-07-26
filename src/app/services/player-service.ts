@@ -20,14 +20,18 @@ export class PlayerService {
     return httpResource<PlayerPermission[]>(() => itemType() + itemId() + this.endpoint);
   }
 
+  getItemPlayer(itemId: Signal<number | null | undefined>, itemType: ItemType) {
+    return httpResource<PlayerPermission>(() => itemType + itemId() + this.endpoint.replace('s', ''));
+  }
+
   updatePlayer(player: Partial<Player>): Observable<void> {
     return this.http.patch<void>(this.endpoint + '/' + player.id, player);
   }
 
   updatePlayerPermissionsForItem(playerPermissions: PlayerPermission, itemId: number, itemType: ItemType, mode: 'add' | 'update'): Observable<void> {
-    if(mode === 'add'){
+    if(mode === 'add') {
       return this.http.post<void>(itemType + itemId + this.endpoint, playerPermissions);
-    }else{
+    } else {
       return this.http.put<void>(itemType + itemId + this.endpoint, playerPermissions);
     }
   }

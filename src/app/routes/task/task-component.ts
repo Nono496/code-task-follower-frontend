@@ -1,4 +1,4 @@
-import { NgStyle } from '@angular/common';
+import { NgStyle, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, input, linkedSignal, model, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
@@ -26,6 +26,10 @@ import { Router, RouterModule } from '@angular/router';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { MeterGroupModule } from 'primeng/metergroup';
+import { TabsModule } from 'primeng/tabs';
+import { UsersPermissionComponent } from '../users-permission-component.ts/users-permission-component';
+import { ItemType, PlayerService } from '../../services/player-service';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-task-component',
@@ -48,7 +52,10 @@ import { MeterGroupModule } from 'primeng/metergroup';
     RouterModule,
     InputNumberModule,
     FloatLabelModule,
-    MeterGroupModule
+    MeterGroupModule,
+    TabsModule,
+    UsersPermissionComponent,
+    NgTemplateOutlet
 ],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
@@ -56,10 +63,13 @@ import { MeterGroupModule } from 'primeng/metergroup';
 export class TaskComponent {
   router = inject(Router);
   formService = inject(FormService);
+  ItemType = ItemType;
 
   taskService = inject(TaskService);
+  authService = inject(AuthService);
   chronometerService = inject(ChronometerService);
   projectService = inject(ProjectService);
+  playerService = inject(PlayerService);
   tagService = inject(TagService);
 
   lightTask = model.required<Task>();
@@ -71,6 +81,9 @@ export class TaskComponent {
     }
     return this.lightTask();
   });
+
+  player = this.playerService.getItemPlayer(this.taskId, ItemType.Task);
+  isAdmin = computed(() => this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
 
   visible = model.required<boolean>();
   mainProjectId = input.required<number>();

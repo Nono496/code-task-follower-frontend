@@ -4,7 +4,7 @@
         <div class="flex flex-col sm:flex-row justify-between w-full mr-4">
             <p-inplace class="flex items-center grow">
                 <ng-template #display>
-                    <h2 style="word-break: break-word;">{{!task().name?.length ? 'Unnamed task' : task().name}}</h2>
+                    <h2 style="word-break: break-word; margin: 0">{{!task().name?.length ? 'Unnamed task' : task().name}}</h2>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
@@ -45,176 +45,162 @@
             }
         </div>
     </ng-template>
-    
+
     @if(task().id) {
-        <p-inplace class="flex items-center">
-            <ng-template #display>
-                <p style="white-space: preserve wrap">{{fullTask.value()!.description?.length ? fullTask.value()!.description : 'Write your description here'}}</p>
-            </ng-template>
-            <ng-template #content let-closeCallback="closeCallback">
-                <span class="inline-flex items-center gap-2">
-                    <form #form="ngForm" (ngSubmit)="onSubmit('description', fullTask.value()!.description)" class="flex flex-col gap-4">
-                        <div class="flex items-center gap-2">
-                            <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="fullTask.value()!.description" [pAutoFocus]="true"></textarea>
-                            <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
-                        </div>
-                    </form>
-                </span>
-            </ng-template>
-        </p-inplace>
+        @if (isAdmin()) {
+            <p-tabs value="0">
+                <p-tablist>
+                    <p-tab value="0"><i class="pi pi-pen-to-square"></i></p-tab>
+                    <p-tab value="1"><i class="pi pi-users"></i></p-tab>
+                </p-tablist>
 
-        <p-fieldset legend="Tags">
-            <h4 class="ml-2 text-base my-2">Selected tags</h4>
-            <div class="flex flex-wrap w-full">
-                @if (tags.isLoading()) {
-                    <span>Loading...</span>
-                } @else if (tags.hasValue()) {
-                    @for (tagId of task().tags; track tagId) {
-                        @let tag = tags.value().filter(t => t.id === tagId).at(0)!;
-                        <p-inplace class="flex items-center">
-                            <ng-template #display>
-                                <p-chip class="!py-0 !pl-0 !pr-4">
-                                    <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
-                                    <span class="ml-2">{{tag.name}}</span>
-                                </p-chip>
-                            </ng-template>
-                            <ng-template #content let-closeCallback="closeCallback">
-                                <span class="inline-flex items-center gap-2">
-                                    <form #form="ngForm" (ngSubmit)="onSubmit('tag', tag, () => closeCallback($event))" class="flex flex-col gap-4">
-                                        <div class="flex items-center gap-2">
-                                            <p-chip [removable]="true" (onRemove)="onSubmit('tagToRemove', tag, () => closeCallback($event))">
-                                                <p-colorpicker name="color" [(ngModel)]="tag.color" #model="ngModel" />
-                                                <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="tag.name" [pAutoFocus]="true" />
-                                            </p-chip>
+                <p-tabpanels>
+                    <p-tabpanel value="0">
+                        <ng-container *ngTemplateOutlet="taskFormFragment"></ng-container>
+                    </p-tabpanel>
+                    
+                    <p-tabpanel value="1">
+                        <h3>User permissions</h3>
+                        <app-users-permission-component [itemId]="taskId()!" [itemType]="ItemType.Task" />
+                    </p-tabpanel>
+                </p-tabpanels>
+            </p-tabs>
+        } @else {
+            <ng-container *ngTemplateOutlet="taskFormFragment"></ng-container>
+        }
+    } @else {
+        <p class="p-4">Please name the task before continuing.</p>
+    }
+</p-dialog>
 
-                                            <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
-                                        </div>
-                                    </form>
-                                </span>
-                            </ng-template>
-                        </p-inplace>
-                    }
-                }
+<ng-template #taskFormFragment>
+    <p-inplace class="flex items-center">
+        <ng-template #display>
+            <p style="white-space: preserve wrap">{{fullTask.value()!.description?.length ? fullTask.value()!.description : 'Write your description here'}}</p>
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('description', fullTask.value()!.description)" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="fullTask.value()!.description" [pAutoFocus]="true"></textarea>
+                        <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                    </div>
+                </form>
+            </span>
+        </ng-template>
+    </p-inplace>
 
-                <p-inplace class="flex items-center">
-                    <ng-template #display>
-                        <p-button icon="pi pi-plus" size="small" />
-                    </ng-template>
-                    <ng-template #content let-closeCallback="closeCallback">
-                        <span class="inline-flex items-center gap-2">
-                            <form #form="ngForm" (ngSubmit)="onSubmit('tagToCreate', tagToCreate(), () => closeCallback($event))" class="flex flex-col gap-4">
-                                <div class="flex items-center gap-2">
-                                    <p-chip [removable]="true" (onRemove)="closeCallback($event)">
-                                        <p-colorpicker name="tagToCreateColor" [(ngModel)]="tagToCreate().color" #model="ngModel" />
-                                        <input class="ml-2" name="tagToCreateName" pInputText type="text" [(ngModel)]="tagToCreate().name" [pAutoFocus]="true" />
-                                    </p-chip>
-
-                                    <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
-                                </div>
-                            </form>
-                        </span>
-                    </ng-template>
-                </p-inplace>
-            </div>
-
-
+    <p-fieldset legend="Tags">
+        <h4 class="ml-2 text-base my-2">Selected tags</h4>
+        <div class="flex flex-wrap w-full">
             @if (tags.isLoading()) {
-                <p>Loading suggestions...</p>
+                <span>Loading...</span>
             } @else if (tags.hasValue()) {
-                @let suggestions = tags.value().filter(t => !(task().tags ?? []).includes(t.id!));
-
-                @if (suggestions.length) {
-                    <h4 class="ml-2 text-base my-2">Tag suggestions</h4>
-                    <div class="flex flex-wrap w-full m-4 gap-1">
-                        @for (tag of suggestions; track tag.id) {
-                            <p-chip [removable]="true" (onRemove)="onSubmit('tagToAdd', tag)" removeIcon="pi pi-plus" class="!py-0 !pl-0 !pr-4">
+                @for (tagId of task().tags; track tagId) {
+                    @let tag = tags.value().filter(t => t.id === tagId).at(0)!;
+                    <p-inplace class="flex items-center">
+                        <ng-template #display>
+                            <p-chip class="!py-0 !pl-0 !pr-4">
                                 <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
                                 <span class="ml-2">{{tag.name}}</span>
                             </p-chip>
-                        }
-                    </div>
-                }
-            }
-        </p-fieldset>
-
-<!--        <h3 class="my-4 mb-2">Related</h3>
-
-        <div class="flex flex-wrap justify-baseline gap-4">
-            <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
-                <h4>Projects</h4>
-
-                @if (fullTask.isLoading()) {
-                    Loading...
-                } @else if (fullTask.hasValue()) {
-                    <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
-                        <ng-template #display>
-                            <ul>
-                                @for (project of fullTask.value().projects; track project) {
-                                    <li class="flex gap-2 items-center m-1">
-                                        <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                        <span>{{project.name}}</span>
-                                    </li>
-                                } @empty {
-                                    <li>No related projects</li>
-                                }
-                            </ul>
                         </ng-template>
                         <ng-template #content let-closeCallback="closeCallback">
-                            <form #form="ngForm" (ngSubmit)="onSubmit('projects', fullTask.value().projects)" class="flex gap-4 w-full">
-                                <p-multiselect name="projects" class="w-56" size="small" [options]="projects.value()?.filter(p => p.id !== mainProjectId())" [loading]="projects.isLoading()" [(ngModel)]="fullTask.value().projects" placeholder="Projects">
-                                    <ng-template #selecteditems let-selectedProjects>
-                                        @for (selectedProject of selectedProjects; track selectedProject.id) {
-                                            <div class="flex gap-2 items-center m-1">
-                                                <span [ngStyle]="{'background-color': selectedProject.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                                <span>{{selectedProject.name}}</span>
-                                            </div>
-                                        }
-                                    </ng-template>
-                                    <ng-template let-project #item>
-                                        <div class="flex gap-2 items-center">
-                                            <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
-                                            <span>{{project.name}}</span>
-                                        </div>
-                                    </ng-template>
-                                </p-multiselect>
-                                <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
-                            </form>
+                            <span class="inline-flex items-center gap-2">
+                                <form #form="ngForm" (ngSubmit)="onSubmit('tag', tag, () => closeCallback($event))" class="flex flex-col gap-4">
+                                    <div class="flex items-center gap-2">
+                                        <p-chip [removable]="true" (onRemove)="onSubmit('tagToRemove', tag, () => closeCallback($event))">
+                                            <p-colorpicker name="color" [(ngModel)]="tag.color" #model="ngModel" />
+                                            <input class="ml-2" name="name" pInputText type="text" [(ngModel)]="tag.name" [pAutoFocus]="true" />
+                                        </p-chip>
+
+                                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                                    </div>
+                                </form>
+                            </span>
                         </ng-template>
                     </p-inplace>
                 }
-            </div>
+            }
 
-            <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
-                <h4>Tasks</h4>
+            <p-inplace class="flex items-center">
+                <ng-template #display>
+                    <p-button icon="pi pi-plus" size="small" />
+                </ng-template>
+                <ng-template #content let-closeCallback="closeCallback">
+                    <span class="inline-flex items-center gap-2">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('tagToCreate', tagToCreate(), () => closeCallback($event))" class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2">
+                                <p-chip [removable]="true" (onRemove)="closeCallback($event)">
+                                    <p-colorpicker name="tagToCreateColor" [(ngModel)]="tagToCreate().color" #model="ngModel" />
+                                    <input class="ml-2" name="tagToCreateName" pInputText type="text" [(ngModel)]="tagToCreate().name" [pAutoFocus]="true" />
+                                </p-chip>
 
-                <p-inplace class="flex items-center" [disabled]="otherTasks.error() ? true : false">
+                                <p-button type="submit" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                            </div>
+                        </form>
+                    </span>
+                </ng-template>
+            </p-inplace>
+        </div>
+
+
+        @if (tags.isLoading()) {
+            <p>Loading suggestions...</p>
+        } @else if (tags.hasValue()) {
+            @let suggestions = tags.value().filter(t => !(task().tags ?? []).includes(t.id!));
+
+            @if (suggestions.length) {
+                <h4 class="ml-2 text-base my-2">Tag suggestions</h4>
+                <div class="flex flex-wrap w-full m-4 gap-1">
+                    @for (tag of suggestions; track tag.id) {
+                        <p-chip [removable]="true" (onRemove)="onSubmit('tagToAdd', tag)" removeIcon="pi pi-plus" class="!py-0 !pl-0 !pr-4">
+                            <span [ngStyle]="{'background-color': tag.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
+                            <span class="ml-2">{{tag.name}}</span>
+                        </p-chip>
+                    }
+                </div>
+            }
+        }
+    </p-fieldset>
+
+<!--        <h3 class="my-4 mb-2">Related</h3>
+
+    <div class="flex flex-wrap justify-baseline gap-4">
+        <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
+            <h4>Projects</h4>
+
+            @if (fullTask.isLoading()) {
+                Loading...
+            } @else if (fullTask.hasValue()) {
+                <p-inplace class="flex items-center" [disabled]="projects.error() ? true : false">
                     <ng-template #display>
                         <ul>
-                            @for (rTask of task().dependencies; track rTask.id) {
+                            @for (project of fullTask.value().projects; track project) {
                                 <li class="flex gap-2 items-center m-1">
-                                    <span>{{rTask.name}}</span>
-                                    <span [ngStyle]="{'border-color': rTask.state?.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{rTask.state?.name}}</span>
+                                    <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                    <span>{{project.name}}</span>
                                 </li>
                             } @empty {
-                                <li>No related tasks</li>
+                                <li>No related projects</li>
                             }
                         </ul>
                     </ng-template>
                     <ng-template #content let-closeCallback="closeCallback">
-                        <form #form="ngForm" (ngSubmit)="onSubmit('dependencies', task().dependencies)" class="flex items-center gap-4 w-full">
-                            <p-multiselect name="dependencies" class="w-56" size="small" [options]="otherTasks.value()" [loading]="otherTasks.isLoading()" [(ngModel)]="task().dependencies" placeholder="Dependencies">
-                                <ng-template #selecteditems let-selectedDependencies>
-                                    @for (selectedDependency of selectedDependencies; track selectedDependency.id) {
+                        <form #form="ngForm" (ngSubmit)="onSubmit('projects', fullTask.value().projects)" class="flex gap-4 w-full">
+                            <p-multiselect name="projects" class="w-56" size="small" [options]="projects.value()?.filter(p => p.id !== mainProjectId())" [loading]="projects.isLoading()" [(ngModel)]="fullTask.value().projects" placeholder="Projects">
+                                <ng-template #selecteditems let-selectedProjects>
+                                    @for (selectedProject of selectedProjects; track selectedProject.id) {
                                         <div class="flex gap-2 items-center m-1">
-                                            <span>{{selectedDependency.name}}</span>
-                                            <span [ngStyle]="{'border-color': selectedDependency.state.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{selectedDependency.state.name}}</span>
+                                            <span [ngStyle]="{'background-color': selectedProject.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                            <span>{{selectedProject.name}}</span>
                                         </div>
                                     }
                                 </ng-template>
-                                <ng-template let-dependency #item>
+                                <ng-template let-project #item>
                                     <div class="flex gap-2 items-center">
-                                        <span>{{dependency.name}}</span>
-                                            <span [ngStyle]="{'border-color': dependency.state.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{dependency.state.name}}</span>
+                                        <span [ngStyle]="{'background-color': project.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                                        <span>{{project.name}}</span>
                                     </div>
                                 </ng-template>
                             </p-multiselect>
@@ -222,163 +208,201 @@
                         </form>
                     </ng-template>
                 </p-inplace>
-            </div>
-        </div>
-    -->
-
-        <h3>Time management</h3>
-
-        <h4 class="whitespace-nowrap">Total estimate</h4>
-        <p-inplace class="mb-4 w-full block" [disabled]="!fullTask.hasValue()">
-            <ng-template #display>
-                @if ((task().estimateSeconds ?? 0) > 0) {
-                    @if (chronometer.hasValue() && chronometer.value().seconds + currentChronometerPartTimeRecorded() > 0) {
-                        @let state = this.states.value()!.filter(s => s.id === this.task().stateId).at(0)!;
-                        @let currentTimeTaken = chronometer.value().seconds + currentChronometerPartTimeRecorded();
-                        <p-metergroup [value]="[
-                                {
-                                    label: 'Estimate : ' + ((task().estimateSeconds ?? 0) | duration),
-                                    value: task().estimateSeconds! > currentTimeTaken ? 0 : task().estimateSeconds!,
-                                    color: 'rgb(from var(--p-text-color) r g b / 0.8)'
-                                },
-                                {
-                                    label: 'Timer : ' + (currentTimeTaken | duration),
-                                    value: task().estimateSeconds! > currentTimeTaken ? currentTimeTaken : currentTimeTaken - task().estimateSeconds!,
-                                    color: state.color + '88'
-                                }
-                            ]"
-                            [max]="task().estimateSeconds! > currentTimeTaken ? task().estimateSeconds! : currentTimeTaken">
-                        </p-metergroup>
-                    } @else {
-                        <p>{{'Estimate : ' + ((task().estimateSeconds ?? 0) | duration)}}</p>
-                    }
-                } @else {
-                    <span>No defined time estimate</span>
-                }
-            </ng-template>
-            <ng-template #content let-closeCallback="closeCallback">
-                <span class="inline-flex items-center gap-2">
-                    <form #form="ngForm" (ngSubmit)="onSubmit('estimateSeconds', task().estimateSeconds, () => closeCallback($event))" class="flex flex-col gap-4">
-                        <div class="flex items-center gap-2 mt-4">
-                            <p-float-label>
-                                <p-input-number name="estimateSeconds" suffix=" seconds" [(ngModel)]="task().estimateSeconds" mode="decimal" [min]="0" />
-                                <label>{{((task().estimateSeconds ?? 0) | duration)}}</label>
-                            </p-float-label>
-                            <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
-                        </div>
-                    </form>
-                </span>
-            </ng-template>
-        </p-inplace>
-
-        <div class="flex justify-between items-center">
-            <h4 class="mt-4 mb-2">Timer</h4>
-
-            <div class="flex gap-2 items-center">
-                @if (states.hasValue() && chronometer.hasValue()) {
-                    @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
-                    @let seconds = chronometer.value().seconds + currentChronometerPartTimeRecorded();
-                    <span [ngStyle]="{'background-color': state.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{ seconds | duration }}</span>
-                }
-                <p-button label="New" icon="pi pi-clock" (onClick)="chronometer.error() === undefined && chronometer.hasValue() ? addChronometerPart() : addChronometer()" />
-            </div>
-        </div>
-        
-        @if (fullTask.isLoading() || states.isLoading() || chronometer.isLoading()) {
-            <p>Loading...</p>
-        } @else if (chronometer.error() !== undefined) {
-            <p>No timer used for this task yet.</p>
-        } @else if (fullTask.hasValue() && states.hasValue() && chronometer.hasValue()) {
-            @let playing = currentChronometerPartPlayingTime() !== undefined;
-            @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
-            <div #pip class="flex flex-wrap justify-evenly gap-6 rounded p-4 shadow-md dark:shadow-sm dark:shadow-gray-500 shrink-0 relative">
-                <!--<p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>-->
-                
-                <button (click)="playCurrentChronometerPart(!playing)" [ngStyle]="{'background-color': state.color + '88', 'border-width': playing ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
-                    <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
-                    
-                    @if (playing) {
-                        <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
-                    }
-                </button>
-                
-                <div class="grow">
-                    @let seconds = currentChronometerPart().seconds + currentChronometerPartTimeRecorded();
-                    
-                    <p-inplace class="mb-4" [disabled]="playing">
-                        <ng-template #display>
-                            <span [ngStyle]="{'border-color': state.color + '88'}" class="p-1 rounded whitespace-nowrap border-b-4">{{seconds | duration}}</span>
-                        </ng-template>
-                        <ng-template #content let-closeCallback="closeCallback">
-                            <span class="inline-flex items-center gap-2">
-                                <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPart', currentChronometerPart(), () => closeCallback($event))" class="flex flex-col gap-4">
-                                    <div class="flex items-center gap-2">
-                                        <p-float-label>
-                                            <p-input-number name="chronometerPartSeconds" suffix=" seconds" [(ngModel)]="currentChronometerPart().seconds" mode="decimal" [min]="0" />
-                                            <label>{{(seconds | duration)}}</label>
-                                        </p-float-label>
-                                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
-                                    </div>
-                                </form>
-                            </span>
-                        </ng-template>
-                    </p-inplace>
-
-                    <p-inplace class="flex items-center">
-                        <ng-template #display>
-                            <p style="white-space: preserve wrap">{{!currentChronometerPart().description?.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
-                        </ng-template>
-                        <ng-template #content let-closeCallback="closeCallback">
-                            <span class="inline-flex items-center gap-2">
-                                <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPart', currentChronometerPart(), () => closeCallback($event))" class="flex flex-col gap-4">
-                                    <div class="flex items-center gap-2">
-                                        <textarea name="chronometerPartDescription" rows="5" cols="20" [(ngModel)]="currentChronometerPart().description" pTextarea required [autoResize]="true" [pAutoFocus]="true"></textarea>
-                                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
-                                    </div>
-                                </form>
-                            </span>
-                        </ng-template>
-                    </p-inplace>
-                </div>
-            </div>
-
-            @if ((chronometer.value().parts?.length ?? 0) > 1) {
-                <ul class="my-6">
-                    @for (chronometerPart of chronometer.value().parts; track chronometerPart.id) {
-                        <li class="flex flex-col gap-4 items-baseline">
-                            <div class="flex justify-between w-full">
-                                @let isCurrentChronometerPart = currentChronometerPart().id === chronometerPart.id;
-                                @let seconds = chronometerPart.seconds + (isCurrentChronometerPart ? currentChronometerPartTimeRecorded() : 0);
-                                <span [ngStyle]="{'border-color': state.color + '88', 'border-width': isCurrentChronometerPart ? '4px' : '1px'}" class="p-2 rounded border whitespace-nowrap">{{seconds | duration}}</span>
-                                
-                                <div class="flex gap-1">
-                                    <p-button icon="pi pi-trash" severity="secondary" (onClick)="onDelete('chronometer_part', chronometerPart, $event)" />
-                                    
-                                    <p-button [disabled]="isCurrentChronometerPart" icon="pi pi-pen-to-square" severity="primary" (onClick)="changeCurrentChronometerPart(chronometerPart)" />
-                                </div>
-                            </div>
-                            
-                            <p style="white-space: preserve wrap">{{chronometerPart.description}}</p>
-                        </li>
-
-                        @if (!$last) {
-                            <p-divider />
-                        }
-                    }
-                </ul>
             }
-        }
-        
-        @if (task().id) {
-            <h3>Danger zone</h3>
+        </div>
 
-            <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
-                <i class="pi pi-trash"></i>
-                <span>Delete task</span>
+        <div class="rounded p-3 shadow-md dark:shadow-sm dark:shadow-gray-500">
+            <h4>Tasks</h4>
+
+            <p-inplace class="flex items-center" [disabled]="otherTasks.error() ? true : false">
+                <ng-template #display>
+                    <ul>
+                        @for (rTask of task().dependencies; track rTask.id) {
+                            <li class="flex gap-2 items-center m-1">
+                                <span>{{rTask.name}}</span>
+                                <span [ngStyle]="{'border-color': rTask.state?.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{rTask.state?.name}}</span>
+                            </li>
+                        } @empty {
+                            <li>No related tasks</li>
+                        }
+                    </ul>
+                </ng-template>
+                <ng-template #content let-closeCallback="closeCallback">
+                    <form #form="ngForm" (ngSubmit)="onSubmit('dependencies', task().dependencies)" class="flex items-center gap-4 w-full">
+                        <p-multiselect name="dependencies" class="w-56" size="small" [options]="otherTasks.value()" [loading]="otherTasks.isLoading()" [(ngModel)]="task().dependencies" placeholder="Dependencies">
+                            <ng-template #selecteditems let-selectedDependencies>
+                                @for (selectedDependency of selectedDependencies; track selectedDependency.id) {
+                                    <div class="flex gap-2 items-center m-1">
+                                        <span>{{selectedDependency.name}}</span>
+                                        <span [ngStyle]="{'border-color': selectedDependency.state.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{selectedDependency.state.name}}</span>
+                                    </div>
+                                }
+                            </ng-template>
+                            <ng-template let-dependency #item>
+                                <div class="flex gap-2 items-center">
+                                    <span>{{dependency.name}}</span>
+                                        <span [ngStyle]="{'border-color': dependency.state.color + '88'}" class="p-1 rounded text-xs uppercase border-2">{{dependency.state.name}}</span>
+                                </div>
+                            </ng-template>
+                        </p-multiselect>
+                        <p-button type="submit" size="small" severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></p-button>
+                    </form>
+                </ng-template>
+            </p-inplace>
+        </div>
+    </div>
+-->
+
+    <h3>Time management</h3>
+
+    <h4 class="whitespace-nowrap">Total estimate</h4>
+    <p-inplace class="mb-4 w-full block" [disabled]="!fullTask.hasValue()">
+        <ng-template #display>
+            @if ((task().estimateSeconds ?? 0) > 0) {
+                @if (chronometer.hasValue() && chronometer.value().seconds + currentChronometerPartTimeRecorded() > 0) {
+                    @let state = this.states.value()!.filter(s => s.id === this.task().stateId).at(0)!;
+                    @let currentTimeTaken = chronometer.value().seconds + currentChronometerPartTimeRecorded();
+                    <p-metergroup [value]="[
+                            {
+                                label: 'Estimate : ' + ((task().estimateSeconds ?? 0) | duration),
+                                value: task().estimateSeconds! > currentTimeTaken ? 0 : task().estimateSeconds!,
+                                color: 'rgb(from var(--p-text-color) r g b / 0.8)'
+                            },
+                            {
+                                label: 'Timer : ' + (currentTimeTaken | duration),
+                                value: task().estimateSeconds! > currentTimeTaken ? currentTimeTaken : currentTimeTaken - task().estimateSeconds!,
+                                color: state.color + '88'
+                            }
+                        ]"
+                        [max]="task().estimateSeconds! > currentTimeTaken ? task().estimateSeconds! : currentTimeTaken">
+                    </p-metergroup>
+                } @else {
+                    <p>{{'Estimate : ' + ((task().estimateSeconds ?? 0) | duration)}}</p>
+                }
+            } @else {
+                <span>No defined time estimate</span>
+            }
+        </ng-template>
+        <ng-template #content let-closeCallback="closeCallback">
+            <span class="inline-flex items-center gap-2">
+                <form #form="ngForm" (ngSubmit)="onSubmit('estimateSeconds', task().estimateSeconds, () => closeCallback($event))" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2 mt-4">
+                        <p-float-label>
+                            <p-input-number name="estimateSeconds" suffix=" seconds" [(ngModel)]="task().estimateSeconds" mode="decimal" [min]="0" />
+                            <label>{{((task().estimateSeconds ?? 0) | duration)}}</label>
+                        </p-float-label>
+                        <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                    </div>
+                </form>
+            </span>
+        </ng-template>
+    </p-inplace>
+
+    <div class="flex justify-between items-center">
+        <h4 class="mt-4 mb-2">Timer</h4>
+
+        <div class="flex gap-2 items-center">
+            @if (states.hasValue() && chronometer.hasValue()) {
+                @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
+                @let seconds = chronometer.value().seconds + currentChronometerPartTimeRecorded();
+                <span [ngStyle]="{'background-color': state.color + '88'}" class="m-2 p-2 rounded whitespace-nowrap">{{ seconds | duration }}</span>
+            }
+            <p-button label="New" icon="pi pi-clock" (onClick)="chronometer.error() === undefined && chronometer.hasValue() ? addChronometerPart() : addChronometer()" />
+        </div>
+    </div>
+    
+    @if (fullTask.isLoading() || states.isLoading() || chronometer.isLoading()) {
+        <p>Loading...</p>
+    } @else if (chronometer.error() !== undefined) {
+        <p>No timer used for this task yet.</p>
+    } @else if (fullTask.hasValue() && states.hasValue() && chronometer.hasValue()) {
+        @let playing = currentChronometerPartPlayingTime() !== undefined;
+        @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
+        <div #pip class="flex flex-wrap justify-evenly gap-6 rounded p-4 shadow-md dark:shadow-sm dark:shadow-gray-500 shrink-0 relative">
+            <!--<p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>-->
+            
+            <button (click)="playCurrentChronometerPart(!playing)" [ngStyle]="{'background-color': state.color + '88', 'border-width': playing ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
+                <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
+                
+                @if (playing) {
+                    <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
+                }
             </button>
+            
+            <div class="grow">
+                @let seconds = currentChronometerPart().seconds + currentChronometerPartTimeRecorded();
+                
+                <p-inplace class="mb-4" [disabled]="playing">
+                    <ng-template #display>
+                        <span [ngStyle]="{'border-color': state.color + '88'}" class="p-1 rounded whitespace-nowrap border-b-4">{{seconds | duration}}</span>
+                    </ng-template>
+                    <ng-template #content let-closeCallback="closeCallback">
+                        <span class="inline-flex items-center gap-2">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPart', currentChronometerPart(), () => closeCallback($event))" class="flex flex-col gap-4">
+                                <div class="flex items-center gap-2">
+                                    <p-float-label>
+                                        <p-input-number name="chronometerPartSeconds" suffix=" seconds" [(ngModel)]="currentChronometerPart().seconds" mode="decimal" [min]="0" />
+                                        <label>{{(seconds | duration)}}</label>
+                                    </p-float-label>
+                                    <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                                </div>
+                            </form>
+                        </span>
+                    </ng-template>
+                </p-inplace>
+
+                <p-inplace class="flex items-center">
+                    <ng-template #display>
+                        <p style="white-space: preserve wrap">{{!currentChronometerPart().description?.length ? 'What is being done ?' : currentChronometerPart().description}}</p>
+                    </ng-template>
+                    <ng-template #content let-closeCallback="closeCallback">
+                        <span class="inline-flex items-center gap-2">
+                            <form #form="ngForm" (ngSubmit)="onSubmit('chronometerPart', currentChronometerPart(), () => closeCallback($event))" class="flex flex-col gap-4">
+                                <div class="flex items-center gap-2">
+                                    <textarea name="chronometerPartDescription" rows="5" cols="20" [(ngModel)]="currentChronometerPart().description" pTextarea required [autoResize]="true" [pAutoFocus]="true"></textarea>
+                                    <p-button type="submit" severity="contrast" icon="pi pi-check"></p-button>
+                                </div>
+                            </form>
+                        </span>
+                    </ng-template>
+                </p-inplace>
+            </div>
+        </div>
+
+        @if ((chronometer.value().parts?.length ?? 0) > 1) {
+            <ul class="my-6">
+                @for (chronometerPart of chronometer.value().parts; track chronometerPart.id) {
+                    <li class="flex flex-col gap-4 items-baseline">
+                        <div class="flex justify-between w-full">
+                            @let isCurrentChronometerPart = currentChronometerPart().id === chronometerPart.id;
+                            @let seconds = chronometerPart.seconds + (isCurrentChronometerPart ? currentChronometerPartTimeRecorded() : 0);
+                            <span [ngStyle]="{'border-color': state.color + '88', 'border-width': isCurrentChronometerPart ? '4px' : '1px'}" class="p-2 rounded border whitespace-nowrap">{{seconds | duration}}</span>
+                            
+                            <div class="flex gap-1">
+                                <p-button icon="pi pi-trash" severity="secondary" (onClick)="onDelete('chronometer_part', chronometerPart, $event)" />
+                                
+                                <p-button [disabled]="isCurrentChronometerPart" icon="pi pi-pen-to-square" severity="primary" (onClick)="changeCurrentChronometerPart(chronometerPart)" />
+                            </div>
+                        </div>
+                        
+                        <p style="white-space: preserve wrap">{{chronometerPart.description}}</p>
+                    </li>
+
+                    @if (!$last) {
+                        <p-divider />
+                    }
+                }
+            </ul>
         }
-    } @else {
-        <p class="p-4">Please name the task before continuing.</p>
     }
-</p-dialog>
+    
+    @if (task().id) {
+        <h3>Danger zone</h3>
+
+        <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
+            <i class="pi pi-trash"></i>
+            <span>Delete task</span>
+        </button>
+    }
+</ng-template>
 }

@@ -1,4 +1,4 @@
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { NgStyle } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { AutoFocusModule } from 'primeng/autofocus';
@@ -23,8 +23,9 @@ import { TagService } from '../../services/tag-service';
 import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
-import { ItemType } from '../../services/player-service';
+import { ItemType, PlayerService } from '../../services/player-service';
 import { UsersPermissionComponent } from '../users-permission-component.ts/users-permission-component';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-project',
@@ -60,11 +61,17 @@ export class ProjectComponent {
   projectService = inject(ProjectService);
   stateService = inject(StateService);
   taskService = inject(TaskService);
+  authService = inject(AuthService);
+  playerService = inject(PlayerService);
 
   projectId = input<number | null | undefined>();
   project = this.projectService.get(this.projectId, {
     color: '#00FF00',
   } as Project);
+
+  userPermissionComponentVisible = signal(false);
+  player = this.playerService.getItemPlayer(this.projectId, ItemType.Project);
+  isAdmin = computed(() => this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
 
   tags = inject(TagService).getAll();
   isEditingTask = signal<boolean>(false);
