@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { Component, inject, input, model, signal } from '@angular/core';
+import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoFocus } from "primeng/autofocus";
 import { Button } from "primeng/button";
@@ -34,6 +34,22 @@ export class KanbanSettingsComponent {
 
   stateToCreate = signal<State>({...this.initialStateToCreate});
   otherStates = this.stateService.getAll();
+  stateSuggestions = computed(() => {
+    if (!this.otherStates.hasValue()) return [];
+    let suggestions: State[] = [];
+    
+    const projectStateNames = (this.project().states ?? []).map(s => s.name);
+    const allStates = this.otherStates.value();
+
+    for (let index = 0; index < allStates.length; index++) {
+      const state = allStates[index];
+      if (!projectStateNames.includes(state.name) && !suggestions.map(s => s.name).includes(state.name)) {
+        suggestions.push(state);
+      }
+    }
+
+    return suggestions;
+  });
 
   onChangeSettings = input<() => void>();
 

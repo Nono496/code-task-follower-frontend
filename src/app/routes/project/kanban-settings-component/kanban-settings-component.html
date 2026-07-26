@@ -55,18 +55,18 @@
         @if (otherStates.isLoading()) {
             <p>Loading suggestions...</p>
         } @else if (otherStates.hasValue()) {
-            @let suggestions = otherStates.value().filter(o => !(project().states?.map(s => s.id) ?? []).includes(o.id));
-
-            @if (suggestions.length) {
+            @if (stateSuggestions().length) {
                 <h4 class="ml-2 text-base my-2">State suggestions</h4>
                 <div class="flex flex-wrap w-full gap-1">
-                    @for (state of suggestions; track state.id) {
+                    @for (state of stateSuggestions(); track state.id) {
                         <p-chip [removable]="true" (onRemove)="onSubmit('stateToAdd', state)" removeIcon="pi pi-plus" class="!py-0 !pl-0 !pr-4">
                             <span [ngStyle]="{'background-color': state.color}" class="bg-primary text-primary-contrast rounded-full w-8 h-8 flex items-center justify-center"></span>
                             <span class="ml-2">{{state.name}}</span>
                         </p-chip>
                     }
                 </div>
+            } @else {
+                <p>No available suggestions</p>
             }
         }
     </p-fieldset>
