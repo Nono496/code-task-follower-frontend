@@ -83,7 +83,8 @@ export class TaskComponent {
   });
 
   player = this.playerService.getItemPlayerResource(this.taskId, ItemType.Task);
-  isAdmin = computed(() => this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
+  isAdmin = computed(() => this.taskId() === null || this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
+  noUpdateAllowed = computed(() => !this.isAdmin() && (!this.player.hasValue() || (this.player.value().read || !this.player.value().update)))
 
   visible = model.required<boolean>();
   mainProjectId = input.required<number>();

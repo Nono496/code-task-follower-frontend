@@ -71,7 +71,9 @@ export class ProjectComponent {
 
   userPermissionComponentVisible = signal(false);
   player = this.playerService.getItemPlayerResource(this.projectId, ItemType.Project);
-  isAdmin = computed(() => this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
+  isAdmin = computed(() => this.projectId() === null || this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
+  noUpdateAllowed = computed(() => !this.isAdmin() && (!this.player.hasValue() || (this.player.value().read || !this.player.value().update)))
+  noAddAllowed = computed(() => !this.isAdmin() && (!this.player.hasValue() || (this.player.value().read || !this.player.value().add)))
 
   tags = inject(TagService).getAll();
   isEditingTask = signal<boolean>(false);

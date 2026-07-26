@@ -35,8 +35,8 @@
 } @else if (project.hasValue()) {
     @let p = project.value;
 
-    <div class="h-full w-full p-4 flex justify-center items-baseline my-8 mb-1 gap-8">
-        <p-inplace class="flex items-center" >
+    <div class="h-full w-full p-4 flex justify-center items-center my-8 mb-1 gap-8">
+        <p-inplace class="flex items-center" [disabled]="noUpdateAllowed()">
             <ng-template #display>
                 <span [ngStyle]="{'background-color': p().color}" class="w-5 h-5 rounded-full shrink-0 block"></span>
             </ng-template>
@@ -52,9 +52,9 @@
             </ng-template>
         </p-inplace>
 
-        <p-inplace class="flex items-center">
+        <p-inplace class="flex items-center" [disabled]="noUpdateAllowed()">
             <ng-template #display>
-                <h1>{{!p().name?.length ? 'Unnamed project' : p().name}}</h1>
+                <h1 class="m-0">{{!p().name?.length ? 'Unnamed project' : p().name}}</h1>
             </ng-template>
             <ng-template #content let-closeCallback="closeCallback">
                 <span class="inline-flex items-center gap-2">
@@ -70,35 +70,41 @@
     </div>
 
     <main class="w-full p-4 flex flex-col justify-center items-center my-8 mt-1 gap-8">
-        <p-inplace class="flex items-center">
-            <ng-template #display>
-                <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here' : p().description}}</p>
-            </ng-template>
-            <ng-template #content let-closeCallback="closeCallback">
-                <span class="inline-flex items-center gap-2">
-                    <form #form="ngForm" (ngSubmit)="onSubmit('description', p().description)" class="flex flex-col gap-4">
-                        <div class="flex items-center gap-2">
-                            <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="p().description" [pAutoFocus]="true"></textarea>
-                            <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
-                        </div>
-                    </form>
-                </span>
-            </ng-template>
-        </p-inplace>
+        @if (p().description?.length || !noUpdateAllowed()) {
+            <p-inplace class="flex items-center" [disabled]="noUpdateAllowed()">
+                <ng-template #display>
+                    <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here' : p().description}}</p>
+                </ng-template>
+                <ng-template #content let-closeCallback="closeCallback">
+                    <span class="inline-flex items-center gap-2">
+                        <form #form="ngForm" (ngSubmit)="onSubmit('description', p().description)" class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2">
+                                <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="p().description" [pAutoFocus]="true"></textarea>
+                                <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
+                            </div>
+                        </form>
+                    </span>
+                </ng-template>
+            </p-inplace>
+        }
 
         @if (p().id) {
             <div class="flex justify-evenly items-baseline gap-2 w-full sm:w-1/2">
                 <h2>Tasks</h2>
-                <div class="flex gap-2">
-                    @if(p().states?.length) {
-                        <p-button (click)="editTask(null)" icon="pi pi-plus" />
-                    }
-                    <p-button (click)="this.isInKanbanSettings.set(true)" icon="pi pi-cog" />
-                    
-                    @if (isAdmin()) {
-                        <p-button (click)="this.userPermissionComponentVisible.set(true)" icon="pi pi-users" />
-                    }
-                </div>
+                @if ((p().states?.length && !noAddAllowed()) || !noUpdateAllowed() || isAdmin()) {
+                    <div class="flex gap-2">
+                        @if(p().states?.length && !noAddAllowed()) {
+                            <p-button (click)="editTask(null)" icon="pi pi-plus" />
+                        }
+                        @if (!noUpdateAllowed()) {
+                            <p-button (click)="this.isInKanbanSettings.set(true)" icon="pi pi-cog" />
+                        }
+                        
+                        @if (isAdmin()) {
+                            <p-button (click)="this.userPermissionComponentVisible.set(true)" icon="pi pi-users" />
+                        }
+                    </div>
+                }
             </div>
 
             <div class="flex justify-around overflow-auto gap-8 w-[95%] md:w-4/5 min-h-52">
@@ -107,6 +113,7 @@
                         <span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>
                         <p-card [ngStyle]="{'background-color': state.color + '10'}" class="w-full h-full overflow-auto droppable"
                             cdkDropList
+                            [cdkDropListDisabled]="noUpdateAllowed()"
                             [id]="state.id + ' ' + state.name"
                             cdkDropListSortingDisabled
                             [cdkDropListData]="(p().tasks ?? []).filter(t => t.stateId === state.id).map(t => t.id + '')"
