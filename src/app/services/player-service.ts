@@ -24,8 +24,12 @@ export class PlayerService {
     return this.http.patch<void>(this.endpoint + '/' + player.id, player);
   }
 
-  updatePlayerPermissionsForItem(playerPermissions: PlayerPermission, itemId: number, itemType: ItemType): Observable<void> {
-    return this.http.put<void>(itemType + itemId + this.endpoint, playerPermissions);
+  updatePlayerPermissionsForItem(playerPermissions: PlayerPermission, itemId: number, itemType: ItemType, mode: 'add' | 'update'): Observable<void> {
+    if(mode === 'add'){
+      return this.http.post<void>(itemType + itemId + this.endpoint, playerPermissions);
+    }else{
+      return this.http.put<void>(itemType + itemId + this.endpoint, playerPermissions);
+    }
   }
 }
 

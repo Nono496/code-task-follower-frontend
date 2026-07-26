@@ -41,17 +41,17 @@ export class UsersPermissionComponent {
 
   onChangePermission(playerPermissions: PlayerPermission) {
     this.formService.asyncOperation(
-      this.playerService.updatePlayerPermissionsForItem(playerPermissions, this.itemId(), this.itemType()),
+      this.playerService.updatePlayerPermissionsForItem(playerPermissions, this.itemId(), this.itemType(), this.mode()),
       () => {
         if (playerPermissions.read) {
-          playerPermissions.add = 
-          playerPermissions.update = 
-          playerPermissions.delete = 
+          playerPermissions.add =
+          playerPermissions.update =
+          playerPermissions.delete =
           playerPermissions.admin = false;
         } else if (playerPermissions.admin) {
-          playerPermissions.add = 
-          playerPermissions.update = 
-          playerPermissions.delete = 
+          playerPermissions.add =
+          playerPermissions.update =
+          playerPermissions.delete =
           playerPermissions.read = false;
         } else {
           playerPermissions.read = false;
@@ -59,6 +59,6 @@ export class UsersPermissionComponent {
 
         this.itemPlayers.set(this.itemPlayers.value());
       }
-    )
+    );
   }
 }
