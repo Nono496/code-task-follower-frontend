@@ -73,13 +73,13 @@
         @if (p().description?.length || !noUpdateAllowed()) {
             <p-inplace class="flex items-center" [disabled]="noUpdateAllowed()">
                 <ng-template #display>
-                    <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here' : p().description}}</p>
+                    <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here : Why ➔ What ➔ How' : p().description}}</p>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">
                         <form #form="ngForm" (ngSubmit)="onSubmit('description', p().description)" class="flex flex-col gap-4">
                             <div class="flex items-center gap-2">
-                                <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="p().description" [pAutoFocus]="true"></textarea>
+                                <textarea name="description" rows="5" cols="30" pTextarea [(ngModel)]="p().description" [pAutoFocus]="true" placeholder="Why ➔ What ➔ How"></textarea>
                                 <button pButton severity="contrast" icon="pi pi-check" (click)="closeCallback($event)"></button>
                             </div>
                         </form>
