@@ -71,6 +71,8 @@
     } @else {
         <p class="p-4">Please name the task before continuing.</p>
     }
+
+    <p-button (click)="newTask()" class="absolute bottom-2 right-2" size="small" severity="secondary" label="New task" icon="pi pi-plus"/>
 </p-dialog>
 
 <ng-template #taskFormFragment>

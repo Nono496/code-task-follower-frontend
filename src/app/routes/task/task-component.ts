@@ -422,6 +422,10 @@ export class TaskComponent {
       }
     });
   }
+
+  newTask() {
+    this.lightTask.set({} as Task);
+  }
 }
 
 declare global {
