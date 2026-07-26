@@ -24,10 +24,30 @@ import { TaskService } from '../../services/task-service';
 import { TaskComponent } from "../task/task-component";
 import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-settings-component";
 import { ItemType } from '../../services/player-service';
+import { UsersPermissionComponent } from '../users-permission-component.ts/users-permission-component';
 
 @Component({
   selector: 'app-project',
-  imports: [NgStyle, DialogModule, CdkDrag, Skeleton, CdkDropList, InplaceModule, ButtonModule, InputTextModule, ColorPickerModule, FormsModule, AutoFocusModule, ListboxModule, CardModule, DividerModule, TaskComponent, KanbanSettingsComponent, RouterLink],
+  imports: [
+    NgStyle,
+    DialogModule,
+    CdkDrag,
+    Skeleton,
+    CdkDropList,
+    InplaceModule,
+    ButtonModule,
+    InputTextModule,
+    ColorPickerModule,
+    FormsModule,
+    AutoFocusModule,
+    ListboxModule,
+    CardModule,
+    DividerModule,
+    TaskComponent,
+    KanbanSettingsComponent,
+    RouterLink,
+    UsersPermissionComponent,
+  ],
   templateUrl: './project-component.html',
   styleUrl: './project-component.css',
 })
@@ -42,9 +62,8 @@ export class ProjectComponent {
   taskService = inject(TaskService);
 
   projectId = input<number | null | undefined>();
-  project = this.projectService.get(this.projectId,
-  {
-    color: '#00FF00'
+  project = this.projectService.get(this.projectId, {
+    color: '#00FF00',
   } as Project);
 
   tags = inject(TagService).getAll();
@@ -52,29 +71,32 @@ export class ProjectComponent {
   editedTaskId = signal<number | null>(null);
   editedTask = computed<Task>(() => {
     if (this.editedTaskId() === null) return {} as Task;
-    return this.project.value()!.tasks?.filter(t => t.id == this.editedTaskId()).at(0)!;
+    return this.project
+      .value()!
+      .tasks?.filter((t) => t.id == this.editedTaskId())
+      .at(0)!;
   });
   editTask(taskId: number | null) {
     this.editedTaskId.set(taskId);
     this.isEditingTask.set(true);
   }
   onCreateTask(task: Task) {
-    this.project.update(p => {
+    this.project.update((p) => {
       p!.tasks = !p?.tasks ? [] : [...p?.tasks];
       p!.tasks.push(task);
-      return {...p!};
+      return { ...p! };
     });
   }
   onDeleteTask(task: Task) {
-    this.project.update(p => {
-      p!.tasks = [...p!.tasks!.filter(t => t.id !== task.id)];
-      return {...p!};
+    this.project.update((p) => {
+      p!.tasks = [...p!.tasks!.filter((t) => t.id !== task.id)];
+      return { ...p! };
     });
   }
-  
+
   constructor() {
     effect(() => {
-      if(!this.isEditingTask()) {
+      if (!this.isEditingTask()) {
         this.editedTaskId.set(0);
         this.editedTaskId.set(null);
       }
@@ -94,7 +116,7 @@ export class ProjectComponent {
       }
 
       this.formService.asyncOperation(
-        this.projectService.patch(this.project.value()!.id!, this.formService.getPart(name, value))
+        this.projectService.patch(this.project.value()!.id!, this.formService.getPart(name, value)),
       );
     } else {
       // Validation
@@ -104,26 +126,29 @@ export class ProjectComponent {
       }
 
       // Create
-      this.formService.asyncOperation(
-        this.projectService.create(this.project.value()!),
-        id => {
-          this.project.update(p => {
-            p!.id = id;
-            return p;
-          });
-        }
-      );
+      this.formService.asyncOperation(this.projectService.create(this.project.value()!), (id) => {
+        this.project.update((p) => {
+          p!.id = id;
+          return p;
+        });
+      });
     }
   }
 
   onDrop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer !== event.container && this.project.hasValue()) {
-      const movedTask = this.project.value().tasks!.filter(t => t.id == event.item.data).at(0)!;
-      const state = this.project.value().states!.filter(s => s.id + ' ' + s.name === event.container.id).at(0)!;
+      const movedTask = this.project
+        .value()
+        .tasks!.filter((t) => t.id == event.item.data)
+        .at(0)!;
+      const state = this.project
+        .value()
+        .states!.filter((s) => s.id + ' ' + s.name === event.container.id)
+        .at(0)!;
 
       this.formService.startSaveMessage();
-      this.project.update(p => {
-        p!.tasks!.filter(t => t.id == event.item.data).at(0)!.stateId = state.id!;
+      this.project.update((p) => {
+        p!.tasks!.filter((t) => t.id == event.item.data).at(0)!.stateId = state.id!;
         return p;
       });
       this.taskService.updateTaskState(movedTask.id!, state.id!).subscribe({
@@ -133,7 +158,7 @@ export class ProjectComponent {
         error: () => {
           this.formService.saveErrorMessage();
           this.project.reload();
-        }
+        },
       });
     }
   }
@@ -141,15 +166,15 @@ export class ProjectComponent {
   delete(event: Event) {
     this.formService.confirmDelete(event, () => {
       this.formService.startSaveMessage('Project is being deleted...');
-      
+
       this.projectService.delete(this.project.value()?.id!).subscribe({
-      next: () => {
+        next: () => {
           this.formService.endSaveMessage('Project has been deleted');
           this.router.navigate(['/', RouteItems.Dashboard]);
-      },
+        },
 
-      error: () => this.formService.saveErrorMessage('Project could not be deleted.')
+        error: () => this.formService.saveErrorMessage('Project could not be deleted.'),
       });
-  });
+    });
   }
 }
