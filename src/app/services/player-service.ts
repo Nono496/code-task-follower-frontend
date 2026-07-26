@@ -16,12 +16,23 @@ export class PlayerService {
     });
   }
 
-  getItemPlayers(itemId: Signal<number>, itemType: Signal<ItemType>) {
-    return httpResource<PlayerPermission[]>(() => itemType() + itemId() + this.endpoint);
+  getItemPlayers(itemId: Signal<number| null>, itemType: Signal<ItemType>) {
+    return httpResource<PlayerPermission[]>(() => {
+      if (itemId() === null || itemId() === undefined) return undefined;
+    
+      return itemType() + itemId() + this.endpoint;
+    });
   }
 
-  getItemPlayer(itemId: Signal<number | null | undefined>, itemType: ItemType) {
-    return httpResource<PlayerPermission>(() => itemType + itemId() + this.endpoint.replace('s', ''));
+  getItemPlayerResource(itemId: Signal<number | null | undefined>, itemType: ItemType) {
+    return httpResource<PlayerPermission>(() => {
+      if (itemId() === null || itemId() === undefined) return undefined;
+
+      return itemType + itemId() + this.endpoint.replace('s', '');
+    });
+  }
+  getItemPlayer(itemId: number, itemType: ItemType) {
+    return this.http.get<PlayerPermission>(itemType + itemId + this.endpoint.replace('s', ''))
   }
 
   updatePlayer(player: Partial<Player>): Observable<void> {
@@ -31,8 +42,10 @@ export class PlayerService {
   updatePlayerPermissionsForItem(playerPermissions: PlayerPermission, itemId: number, itemType: ItemType, mode: 'add' | 'update'): Observable<void> {
     if(mode === 'add') {
       return this.http.post<void>(itemType + itemId + this.endpoint, playerPermissions);
-    } else {
+    } else if (playerPermissions.read || playerPermissions.add || playerPermissions.update || playerPermissions.delete || playerPermissions.admin) {
       return this.http.put<void>(itemType + itemId + this.endpoint, playerPermissions);
+    } else {
+      return this.http.delete<void>(itemType + itemId + this.endpoint + '/' + playerPermissions.id);
     }
   }
 }

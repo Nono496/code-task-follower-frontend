@@ -70,7 +70,7 @@ export class ProjectComponent {
   } as Project);
 
   userPermissionComponentVisible = signal(false);
-  player = this.playerService.getItemPlayer(this.projectId, ItemType.Project);
+  player = this.playerService.getItemPlayerResource(this.projectId, ItemType.Project);
   isAdmin = computed(() => this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
 
   tags = inject(TagService).getAll();

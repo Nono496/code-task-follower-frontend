@@ -82,7 +82,7 @@ export class TaskComponent {
     return this.lightTask();
   });
 
-  player = this.playerService.getItemPlayer(this.taskId, ItemType.Task);
+  player = this.playerService.getItemPlayerResource(this.taskId, ItemType.Task);
   isAdmin = computed(() => this.authService.isAdmin || (this.player.hasValue() && this.player.value().admin));
 
   visible = model.required<boolean>();

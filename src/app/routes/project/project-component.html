@@ -35,7 +35,7 @@
 } @else if (project.hasValue()) {
     @let p = project.value;
 
-    <div class="h-full w-full p-4 flex justify-center items-center my-8 mb-1 gap-8">
+    <div class="h-full w-full p-4 flex justify-center items-baseline my-8 mb-1 gap-8">
         <p-inplace class="flex items-center" >
             <ng-template #display>
                 <span [ngStyle]="{'background-color': p().color}" class="w-5 h-5 rounded-full shrink-0 block"></span>
@@ -145,10 +145,12 @@
                 }
             </div>
 
-            <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="delete($event)">
-                <i class="pi pi-trash"></i>
-                <span>Delete project</span>
-            </button>
+            @if ((player.hasValue() && player.value().delete) || isAdmin()) {
+                <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="delete($event)">
+                    <i class="pi pi-trash"></i>
+                    <span>Delete project</span>
+                </button>
+            }
         }
     </main>
 
@@ -160,8 +162,10 @@
 
 <p-button severity="secondary" class="absolute -top-4 left-4" icon="pi pi-home" [routerLink]="['/'+RouteItems.Dashboard]"></p-button>
 
-<p-dialog [(visible)]="userPermissionComponentVisible" header="User permissions">
-    <div class="p-4 pt-0 w-64 sm:w-2xl">
-        <app-users-permission-component [itemId]="projectId()!" [itemType]="ItemType.Project" />
-    </div>
-</p-dialog>
+@if (isAdmin()) {
+    <p-dialog [(visible)]="userPermissionComponentVisible" header="User permissions">
+        <div class="p-4 pt-0 w-64 sm:w-2xl">
+            <app-users-permission-component [itemId]="projectId()!" [itemType]="ItemType.Project" />
+        </div>
+    </p-dialog>
+}

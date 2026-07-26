@@ -11,7 +11,7 @@
     } @else if (projects.hasValue()) {
         <div class="flex justify-evenly items-baseline w-full sm:w-2/3 md:w-1/2"><h2>Projects</h2><a class="p-button" [routerLink]="['/', RouteItems.Project]"><i class="pi pi-plus"></i></a></div>
 
-        <div class="w-full sm:w-2/3 md:w-1/2 max-h-48 overflow-y-auto">
+        <div class="w-full sm:w-2/3 md:w-1/2 max-h-56 overflow-y-scroll">
             <p-dataview [value]="projects.value()">
                 <ng-template #list let-items>
                     @for (item of items; track item.id) {
