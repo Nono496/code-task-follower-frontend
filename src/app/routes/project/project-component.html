@@ -73,7 +73,7 @@
         @if (p().description?.length || !noUpdateAllowed()) {
             <p-inplace class="flex items-center" [disabled]="noUpdateAllowed()">
                 <ng-template #display>
-                    <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here : Why ➔ What ➔ How' : p().description}}</p>
+                    <p style="white-space: preserve wrap">{{!p().description?.length ? 'Write your description here' : p().description}}</p>
                 </ng-template>
                 <ng-template #content let-closeCallback="closeCallback">
                     <span class="inline-flex items-center gap-2">

@@ -45,7 +45,7 @@ export class UsersPermissionComponent {
     this.formService.asyncOperation(
       this.playerService.updatePlayerPermissionsForItem(playerPermissions, this.itemId(), this.itemType(), mode),
       () => {
-        if (playerPermissions.read) {
+        /*if (playerPermissions.read) {
           playerPermissions.add =
           playerPermissions.update =
           playerPermissions.delete =
@@ -57,7 +57,7 @@ export class UsersPermissionComponent {
           playerPermissions.read = false;
         } else {
           playerPermissions.read = false;
-        }
+        }*/
 
         this.itemPlayers.set(this.itemPlayers.value());
 
@@ -67,10 +67,10 @@ export class UsersPermissionComponent {
             return p;
           });
         } else if (
-          playerPermissions.read ===
-          playerPermissions.add ===
-          playerPermissions.update ===
-          playerPermissions.delete ===
+          playerPermissions.read === false &&
+          playerPermissions.add === false &&
+          playerPermissions.update === false &&
+          playerPermissions.delete === false &&
           playerPermissions.admin === false
         ) {
           this.itemPlayers.update(p => {
