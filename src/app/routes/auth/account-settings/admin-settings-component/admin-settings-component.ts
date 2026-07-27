@@ -1,5 +1,5 @@
-import { Component, effect, inject, signal } from '@angular/core';
-import { SignInFormComponent } from '../../signin/sign-in-form-component/sign-in-form-component';
+import { Component, inject, signal } from '@angular/core';
+import { RegisterFormComponent } from '../../register/register-form-component/register-form-component';
 import { Dialog } from "primeng/dialog";
 import { Button } from "primeng/button";
 import { DataViewModule } from 'primeng/dataview';
@@ -11,7 +11,7 @@ import { FormService } from '../../../../services/form-service';
 
 @Component({
   selector: 'app-admin-settings-component',
-  imports: [SignInFormComponent, Dialog, Button, DataViewModule, CheckboxModule, Divider, FormsModule],
+  imports: [RegisterFormComponent, Dialog, Button, DataViewModule, CheckboxModule, Divider, FormsModule],
   templateUrl: './admin-settings-component.html',
   styleUrl: './admin-settings-component.css',
 })
@@ -19,14 +19,14 @@ export class AdminSettingsComponent {
   playerService = inject(PlayerService);
   formService = inject(FormService);
 
-  signInFormVisible = signal(false);
+  registerFormVisible = signal(false);
 
   nameQuery = signal('');
   players = this.playerService.getPlayers(this.nameQuery);
 
-  onSignIn() {
+  onRegister() {
     this.players.reload();
-    this.signInFormVisible.set(false);
+    this.registerFormVisible.set(false);
   }
 
   onChangeIsAdmin(player: Player) {

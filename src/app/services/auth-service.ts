@@ -52,7 +52,7 @@ export class AuthService extends CrudService<User> {
       .pipe(map(response => this.saveTokenFromHeader(response.headers)));
   }
 
-  signIn(user: User, saveToken = true): Observable<boolean> {
+  register(user: User, saveToken = true): Observable<boolean> {
     return this.http.post(this.endpoint + '/register', user, { observe: 'response' })
       .pipe(map(response => {
         if (saveToken) {

@@ -12,12 +12,12 @@ import { AuthService } from '../../../../services/auth-service';
 import { FormService } from '../../../../services/form-service';
 
 @Component({
-  selector: 'app-sign-in-form-component',
+  selector: 'app-register-form-component',
   imports: [FloatLabelModule, InputTextModule, FormsModule, MessageModule, ToastModule, ButtonModule, ReactiveFormsModule],
-  templateUrl: './sign-in-form-component.html',
-  styleUrl: './sign-in-form-component.css',
+  templateUrl: './register-form-component.html',
+  styleUrl: './register-form-component.css',
 })
-export class SignInFormComponent {
+export class RegisterFormComponent {
   authService = inject(AuthService);
   formService = inject(FormService);
 
@@ -26,8 +26,8 @@ export class SignInFormComponent {
   form: FormGroup;
   formSubmitted: boolean = false;
 
-  saveTokenOnSignIn = input<boolean>(true);
-  onSignIn = output<void>();
+  saveTokenOnRegister = input<boolean>(true);
+  onRegister = output<void>();
 
   constructor() {
     this.form = this.fb.group({
@@ -39,11 +39,11 @@ export class SignInFormComponent {
   onSubmit() {
       this.formSubmitted = true;
       if (this.form.valid) {
-        this.formService.startSaveMessage('Signing in...');
-        this.authService.signIn(this.form.getRawValue(), this.saveTokenOnSignIn()).subscribe({
+        this.formService.startSaveMessage('Signing up...');
+        this.authService.register(this.form.getRawValue(), this.saveTokenOnRegister()).subscribe({
           next: () => {
-            this.onSignIn.emit();
-            this.formService.endSaveMessage('Signed in');
+            this.onRegister.emit();
+            this.formService.endSaveMessage('Signed up');
           },
           error: () => {
             this.formService.saveErrorMessage();

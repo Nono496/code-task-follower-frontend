@@ -1,10 +1,10 @@
-<p-dialog header="Sign in a new user" [modal]="true" [(visible)]="signInFormVisible">
-    <app-sign-in-form-component (onSignIn)="onSignIn()" [saveTokenOnSignIn]="false"/>
+<p-dialog header="Register a new user" [modal]="true" [(visible)]="registerFormVisible">
+    <app-register-form-component (onRegister)="onRegister()" [saveTokenOnRegister]="false"/>
 </p-dialog>
 
 <div class="flex justify-between items-center w-full">
     <h2>Users</h2>
-    <p-button (onClick)="signInFormVisible.set(true)" label="New User" icon="pi pi-user-plus"/>
+    <p-button (onClick)="registerFormVisible.set(true)" label="New User" icon="pi pi-user-plus"/>
 </div>
 
 <p-dataview #dv [loading]="players.isLoading()" [value]="players.value()">

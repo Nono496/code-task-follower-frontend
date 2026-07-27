@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, RedirectCommand, Router, RouterStateSnapshot, Routes } from '@angular/router';
 import { Login } from './routes/auth/login/login-component';
-import { Signin } from './routes/auth/signin/signin-component';
+import { Register } from './routes/auth/register/register-component';
 import { Dashboard } from './routes/dashboard/dashboard-component';
 import { ProjectComponent } from './routes/project/project-component';
 import { AuthService } from './services/auth-service';
@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 
 export enum RouteItems {
     LogIn = 'log-in',
-    SignIn = 'sign-in',
+    Register = 'register',
     Dashboard = 'dashboard',
     Project = 'project',
     AccountSettings = 'account-settings',
@@ -103,9 +103,9 @@ export const routes: Routes = [
         canActivate: [authForbiddenGuard],
     },
     {
-        path: RouteItems.SignIn,
-        title: 'Sign in',
-        component: Signin,
+        path: RouteItems.Register,
+        title: 'Register',
+        component: Register,
         canActivate: [authForbiddenGuard],
     },
     {
