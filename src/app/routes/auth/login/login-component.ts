@@ -10,10 +10,11 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { AuthService } from '../../../services/auth-service';
 import { FormService } from '../../../services/form-service';
+import { GanttComponent } from '../../project/gantt-component/gantt-component';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ButtonModule, ReactiveFormsModule],
+  imports: [RouterLink, FloatLabelModule, InputTextModule, FormsModule, MessageModule, ButtonModule, ReactiveFormsModule, GanttComponent],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })

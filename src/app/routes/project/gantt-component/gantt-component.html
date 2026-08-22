@@ -1,0 +1,21 @@
+@for(project of dependencyTrees(); track project.data.projectId) {
+    <app-tree-diagram-component [nodes]="project" [direction]="1" [splitDirections]="false">
+        <ng-template #node let-p>
+            <div class="border-2 rounded-md border-blue-500 bg-blue-500/10 text-blue-500 font-semibold" style="width: 400px; height: 200px;">
+                <span class="m-2">Project {{p.projectId}}</span>
+                
+                <app-tree-diagram-component [nodes]="p.nodes" [direction]="1" [splitDirections]="false">
+                    <ng-template #node let-task>
+                        <p-card class="flex justify-between">
+                            <div class="grow flex flex-col gap-1.5">
+                                <p class="text-left" style="word-break: break-word;">{{task.name}}</p>
+
+                                <!--<span [ngStyle]="{'background-color': state.color + '88'}" class="p-1 rounded text-xs uppercase">{{state.name}}</span>-->
+                            </div>
+                        </p-card>
+                    </ng-template>
+                </app-tree-diagram-component>
+            </div>
+        </ng-template>
+    </app-tree-diagram-component>
+}

@@ -9,8 +9,8 @@ export const taskSchema = z.object({
     stateId: z.number(),
     //get chronometer() { return chronometerSchema.optional() },
     tags: z.number().array().optional(),
-    get dependencies() { return z.array(taskSchema).optional() },
-    get projects() { return z.array(projectSchema).optional() },
+    get dependencies() { return z.array(z.number()).optional() },
+    get projectId() { return z.number() },
     get commits() { return z.array(commitSchema).optional() },
     get codes() { return z.array(codeSchema).optional() },
 });

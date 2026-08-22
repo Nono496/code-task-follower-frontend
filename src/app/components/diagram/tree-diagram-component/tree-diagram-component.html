@@ -1,0 +1,57 @@
+@if (renderableNodes().length > 1 || direction() === 1) {
+    @let nodes = renderableNodes().at(0);
+    @let lineTargetPositions = viewChildrenTargetPositions().at(0);
+    
+    <ng-container *ngTemplateOutlet="nodeTreePart; context: { nodeChildren: nodes ?? [], direction: 1 }"></ng-container>
+    <ng-container *ngTemplateOutlet="parentNodeLines; context: { nodeChildren: nodes ?? [], targetPositions: lineTargetPositions, direction: 1 }"></ng-container>
+}
+
+@if (isDiagramRoot() && renderableNodes().length <= 1 && direction() === -1) {
+    <div style="flex-grow: 2;"></div>
+}
+
+<span #parent>
+    <ng-container *ngTemplateOutlet="customNode || defaultNode; context: { $implicit: nodes().data}"></ng-container>
+</span>
+
+@if (isDiagramRoot() && renderableNodes().length <= 1 && direction() === 1) {
+    <div style="flex-grow: 2;"></div>
+}
+
+@if (direction() === -1) {
+    @let children = renderableNodes().at(renderableNodes().length - 1);
+    @let lineTargetPositions = viewChildrenTargetPositions().at(renderableNodes().length - 1);
+
+    <ng-container *ngTemplateOutlet="parentNodeLines; context: { nodeChildren: children ?? [], targetPositions: lineTargetPositions ?? [], direction: -1 }"></ng-container>
+    <ng-container *ngTemplateOutlet="nodeTreePart; context: { nodeChildren: children ?? [], direction: -1 }"></ng-container>
+}
+
+<!-- Templates -->
+<ng-template #parentNodeLines let-nodeChildren="nodeChildren" let-targetPositions="targetPositions" let-direction="direction">
+    <div>
+        @for (node of nodeChildren; track $index) {
+            <div class="line" [ngStyle]="{
+                '--index': $index + 1,
+                '--count': nodeChildren.length,
+                '--direction': direction,
+                '--target-position': targetPositions[$index]
+                }">
+                <ng-container *ngTemplateOutlet="customLine || defaultLine; context: { $implicit: {parent: nodes().data, child: node.data}}"></ng-container>
+            </div>
+        }
+    </div>
+</ng-template>
+
+<ng-template #nodeTreePart let-nodeChildren="nodeChildren" let-direction="direction">
+    <div>
+        @for (node of nodeChildren; track $index) {
+            <app-tree-diagram-component [nodes]="node" [orientation]="orientation()" [direction]="direction" [isDiagramRoot]="false">
+                <ng-template #node let-data><ng-container *ngTemplateOutlet="customNode || defaultNode; context: { $implicit: data}"></ng-container></ng-template>
+                <ng-template #line let-data><ng-container *ngTemplateOutlet="customLine || defaultLine; context: { $implicit: data}"></ng-container></ng-template>
+            </app-tree-diagram-component>
+        }
+    </div>
+</ng-template>
+
+<ng-template #defaultNode let-data><span class="p-2 rounded shadow">{{ data }}</span></ng-template>
+<ng-template #defaultLine><span class="p-[0.03rem] bg-gray-400 absolute top-[-0.03rem]"></span></ng-template>
