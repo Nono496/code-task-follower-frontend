@@ -90,7 +90,10 @@
 
         @if (p().id) {
             <div class="flex justify-evenly items-baseline gap-2 w-full sm:w-1/2">
-                <h2>Tasks</h2>
+                <div>
+                    <h2>Tasks</h2>
+                    <p>Estimated time : {{projectTotalEstimatedTime() | duration}}</p>
+                </div>
                 @if ((p().states?.length && !noAddAllowed()) || !noUpdateAllowed() || isAdmin()) {
                     <div class="flex gap-2">
                         @if(p().states?.length && !noAddAllowed()) {

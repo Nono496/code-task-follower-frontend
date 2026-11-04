@@ -26,6 +26,7 @@ import { KanbanSettingsComponent } from "./kanban-settings-component/kanban-sett
 import { ItemType, PlayerService } from '../../services/player-service';
 import { UsersPermissionComponent } from '../users-permission-component.ts/users-permission-component';
 import { AuthService } from '../../services/auth-service';
+import { DurationPipe } from '../../services/duration-pipe';
 
 @Component({
   selector: 'app-project',
@@ -38,6 +39,7 @@ import { AuthService } from '../../services/auth-service';
     InplaceModule,
     ButtonModule,
     InputTextModule,
+    DurationPipe,
     ColorPickerModule,
     FormsModule,
     AutoFocusModule,
@@ -68,6 +70,16 @@ export class ProjectComponent {
   project = this.projectService.get(this.projectId, {
     color: '#00FF00',
   } as Project);
+  projectTotalEstimatedTime = computed(() => {
+    if (this.project.hasValue() && this.project.value().tasks?.length) {
+      let time = 0;
+      for (let i = 0; i < this.project.value().tasks!.length; i++) {
+        const task = this.project.value().tasks![i];
+        time += task.estimateSeconds ?? 0;
+      }
+    }
+    return 0;
+  });
 
   userPermissionComponentVisible = signal(false);
   player = this.playerService.getItemPlayerResource(this.projectId, ItemType.Project);
