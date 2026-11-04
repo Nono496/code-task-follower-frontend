@@ -71,14 +71,14 @@ export class ProjectComponent {
     color: '#00FF00',
   } as Project);
   projectTotalEstimatedTime = computed(() => {
+    let time = 0;
     if (this.project.hasValue() && this.project.value().tasks?.length) {
-      let time = 0;
       for (let i = 0; i < this.project.value().tasks!.length; i++) {
         const task = this.project.value().tasks![i];
         time += task.estimateSeconds ?? 0;
       }
     }
-    return 0;
+    return time;
   });
 
   userPermissionComponentVisible = signal(false);
