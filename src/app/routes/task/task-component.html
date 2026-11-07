@@ -17,7 +17,7 @@
                     </span>
                 </ng-template>
             </p-inplace>
-            
+
             @if (states.hasValue()) {
                 @let state = this.lightTask().stateId ? this.states.value().filter(s => s.id === this.lightTask().stateId).at(0)! : { name: 'No state', color: '#555555'};
                 <p-inplace class="flex items-center" [disabled]="states.error() || !task().id" [disabled]="noUpdateAllowed()">
@@ -58,7 +58,7 @@
                     <p-tabpanel value="0">
                         <ng-container *ngTemplateOutlet="taskFormFragment"></ng-container>
                     </p-tabpanel>
-                    
+
                     <p-tabpanel value="1">
                         <h3>User permissions</h3>
                         <app-users-permission-component [itemId]="taskId()!" [itemType]="ItemType.Task" />
@@ -312,7 +312,7 @@
             <p-button label="New" icon="pi pi-clock" (onClick)="chronometer.error() === undefined && chronometer.hasValue() ? addChronometerPart() : addChronometer()" />
         </div>
     </div>
-    
+
     @if (fullTask.isLoading() || states.isLoading() || chronometer.isLoading()) {
         <p>Loading...</p>
     } @else if (chronometer.error() !== undefined) {
@@ -322,18 +322,18 @@
         @let state = this.states.value().filter(s => s.id === this.task().stateId).at(0)!;
         <div #pip class="flex flex-wrap justify-evenly gap-6 rounded p-4 shadow-md dark:shadow-sm dark:shadow-gray-500 shrink-0 relative">
             <!--<p-button severity="contrast" [outlined]="true" class="absolute right-0 top-0" icon="pi pi-window-minimize" (onClick)="onPipOpen(pip)"></p-button>-->
-            
+
             <button (click)="playCurrentChronometerPart(!playing)" [ngStyle]="{'background-color': state.color + '88', 'border-width': playing ? 0 : '.85rem', 'color': 'var(--p-text-color)'}" class="rounded-full block w-40 h-40 relative cursor-pointer">
                 <i [class]="'pi pi-play'" style="font-size: 3rem"></i>
-                
+
                 @if (playing) {
                     <i class="pi pi-spinner absolute left-0 top-0" style="font-size: 10rem; animation: fa-spin 60s infinite linear;"></i>
                 }
             </button>
-            
+
             <div class="grow">
                 @let seconds = currentChronometerPart().seconds + currentChronometerPartTimeRecorded();
-                
+
                 <p-inplace class="mb-4" [disabled]="playing" [disabled]="noUpdateAllowed()">
                     <ng-template #display>
                         <span [ngStyle]="{'border-color': state.color + '88'}" class="p-1 rounded whitespace-nowrap border-b-4">{{seconds | duration}}</span>
@@ -379,14 +379,14 @@
                             @let isCurrentChronometerPart = currentChronometerPart().id === chronometerPart.id;
                             @let seconds = chronometerPart.seconds + (isCurrentChronometerPart ? currentChronometerPartTimeRecorded() : 0);
                             <span [ngStyle]="{'border-color': state.color + '88', 'border-width': isCurrentChronometerPart ? '4px' : '1px'}" class="p-2 rounded border whitespace-nowrap">{{seconds | duration}}</span>
-                            
+
                             <div class="flex gap-1">
                                 <p-button icon="pi pi-trash" severity="secondary" (onClick)="onDelete('chronometer_part', chronometerPart, $event)" />
-                                
+
                                 <p-button [disabled]="isCurrentChronometerPart" icon="pi pi-pen-to-square" severity="primary" (onClick)="changeCurrentChronometerPart(chronometerPart)" />
                             </div>
                         </div>
-                        
+
                         <p style="white-space: preserve wrap">{{chronometerPart.description}}</p>
                     </li>
 
@@ -397,11 +397,11 @@
             </ul>
         }
     }
-    
+
     @if (task().id && player.hasValue() && (player.value().delete || player.value().admin)) {
         <h3>Danger zone</h3>
 
-        <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center" (click)="onDelete('task', null, $event)">
+        <button class="m-4 p-2 px-4 rounded bg-red-800 text-white flex gap-4 items-center cursor-pointer" (click)="onDelete('task', null, $event)">
             <i class="pi pi-trash"></i>
             <span>Delete task</span>
         </button>

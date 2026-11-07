@@ -31,6 +31,11 @@ export class AccountSettings {
       routerLink: AccountSettingsRouteItems.Git
     },
     {
+      label: 'Interface',
+      icon: 'pi pi-align-center',
+      routerLink: AccountSettingsRouteItems.InterfacePreference
+    },
+    {
       label: 'Admin',
       icon: 'pi pi-crown',
       routerLink: AccountSettingsRouteItems.Admin,

@@ -1,0 +1,53 @@
+<div>
+    <h2>Interface Preferences</h2>
+
+    <div>
+        <h3>List of projects</h3>
+      <div class="flex justify-center">
+
+        <!-- vertical_list -->
+        <div class="w-full rounded-lg border">
+            <p-radioButton name="vertical_list" value="vertical_list" [(ngModel)]="projectList" id="project_list_vertical_list" />
+            <label for="project_list_vertical_list" class="ml-3">Vertical List</label>
+
+            <div class="w-full sm:w-2/3 md:w-1/2 max-h-100 overflow-y-scroll">
+              <p-dataview [value]="projects_example">
+                <ng-template #list let-items>
+                @for (item of items; track item.id) {
+                  <p-card class="max-w-3xl">
+                    <a class="flex items-center gap-4">
+                      <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                      <span class="shrink-0">{{item.name}}</span>
+                    </a>
+                  </p-card>
+                }
+              </ng-template>
+            </p-dataview>
+          </div>
+        </div>
+
+        <!-- grid_list -->
+        <div class="w-full">
+          <p-radioButton name="grid_list" value="grid_list" [(ngModel)]="projectList" id="project_list_grid_list" />
+          <label for="project_list_grid_list" class="ml-3">Grid List</label>
+
+          <div class="w-full max-h-100 overflow-y-scroll">
+            <p-dataview [value]="projects_example" layout="grid" [rows]="9">
+              <ng-template #grid let-items>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  @for (item of items; track item.id) {
+                    <p-card class="">
+                      <a class="flex items-center gap-4">
+                        <span [ngStyle]="{'background-color': item.color}" class="w-4 h-4 rounded-full shrink-0"></span>
+                        <span class="shrink-0">{{item.name}}</span>
+                      </a>
+                    </p-card>
+                  }
+                </div>
+              </ng-template>
+            </p-dataview>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

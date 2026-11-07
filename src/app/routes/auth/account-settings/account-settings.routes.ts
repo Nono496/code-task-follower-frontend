@@ -4,10 +4,12 @@ import { AuthService } from '../../../services/auth-service';
 import { AccountSettingsComponent } from './account-settings-component/account-settings-component';
 import { AdminSettingsComponent } from './admin-settings-component/admin-settings-component';
 import { GitSettingsComponent } from './git-settings-component/git-settings-component';
+import { InterfacePreferencesSettings } from './interface-preferences-settings/interface-preferences-settings';
 
 export enum AccountSettingsRouteItems {
     Account = 'account',
     Git = 'git',
+    InterfacePreference = 'interface-preference',
     Admin = 'admin'
 }
 
@@ -37,6 +39,11 @@ export const accountSettingsRoutes: Routes = [
         path: AccountSettingsRouteItems.Git,
         title: 'Git',
         component: GitSettingsComponent,
+    },
+    {
+      path: AccountSettingsRouteItems.InterfacePreference,
+      title: 'Préférence',
+      component: InterfacePreferencesSettings,
     },
     {
         path: AccountSettingsRouteItems.Admin,
